@@ -1,0 +1,9 @@
+package com.kangirigungi.jstatemachine.test;
+
+import org.junit.Test;
+
+public class Test1 {
+	@Test
+    public void thisAlwaysPasses() {
+    }
+}
