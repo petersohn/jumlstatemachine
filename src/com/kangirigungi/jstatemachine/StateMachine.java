@@ -33,40 +33,8 @@
 
 package com.kangirigungi.jstatemachine;
 
-public class State<Id, Event> implements IState<Id, Event> {
+public class StateMachine<StateId, Event> {
 
-	private StateMachine<Id, Event> stateMachine;
-	private Id id;
 
-	State(StateMachine<Id, Event> stateMachine, Id id) {
-		this.stateMachine = stateMachine;
-		this.id = id;
-	}
-
-	@Override
-	public void enterState(StateMachineEngine stateMachineEngine, Event event) {
-
-	}
-
-	@Override
-	public void exitState(StateMachineEngine stateMachineEngine, Event event) {
-
-	}
-
-	@Override
-	public void processEvent(StateMachineEngine stateMachineEngine, Event event) {
-
-	}
-
-	@Override
-	public Id getId() {
-		return id;
-	}
-
-	@Override
-	public boolean equals(Object other) {
-		IState<Id, ?> otherState = (IState<Id, ?>)other;
-		return otherState != null && otherState.getId() == getId();
-	}
 
 }
