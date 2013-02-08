@@ -33,8 +33,10 @@
 
 package com.kangirigungi.jstatemachine;
 
+import java.util.Map;
+
 public class StateMachine<StateId, Event> {
 
-
+	private Map<StateId, State<StateId, Event>> states;
 
 }

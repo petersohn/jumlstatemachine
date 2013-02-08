@@ -65,8 +65,16 @@ public class State<Id, Event> implements IState<Id, Event> {
 
 	@Override
 	public boolean equals(Object other) {
-		IState<Id, ?> otherState = (IState<Id, ?>)other;
-		return otherState != null && otherState.getId() == getId();
+		if (!(other instanceof IState)) {
+			return false;
+		}
+		IState<?, ?> otherState = (IState<?, ?>)other;
+		return getId().equals(otherState.getId());
+	}
+	
+	@Override
+	public int hashCode() {
+		return getId().hashCode();
 	}
 
 }
