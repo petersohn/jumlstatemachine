@@ -33,10 +33,61 @@
 
 package com.kangirigungi.jstatemachine;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public class StateMachine<StateId, Event> {
 
-	private Map<StateId, State<StateId, Event>> states;
+	private static class StateDescription<StateId, Event> {
+		public IState<StateId, Event> state;
+		public Map<Event, StateId> transitions;
+
+		public StateDescription(IState<StateId, Event> state) {
+			this.state = state;
+			transitions = new HashMap<Event, StateId>();
+		}
+	}
+
+	private Map<StateId, StateDescription<StateId, Event>> states;
+	private StateId initialState;
+	private StateId currentState;
+
+	public StateMachine() {
+		states = new HashMap<StateId, StateDescription<StateId, Event>>();
+	}
+
+	public IState<StateId, Event> addState(StateId id) {
+		IState<StateId, Event> state = new State<StateId, Event>(this, id);
+		states.put(id, new StateDescription<StateId, Event>(state));
+		return state;
+	}
+
+	public void addTransition(StateId fromState, Event event, StateId toState)
+			throws StateMachineException {
+		StateDescription<StateId, Event> fromDescription = states.get(fromState);
+		if (fromDescription == null) {
+			throwNoStateException(fromState);
+		}
+
+		StateDescription<StateId, Event> toDescription = states.get(toState);
+		if (toDescription == null) {
+			throwNoStateException(toState);
+		}
+
+
+	}
+
+	private void throwNoTransitionException(StateId fromState, Event event,
+			StateId toState) throws NoTransitionException {
+		throw new NoTransitionException("No transition from "+fromState.toString()+
+				" to "+toState.toString()+" with event "+event.toString()+".",
+				this, fromState, toState, event);
+	}
+
+	private void throwNoStateException(StateId state) throws NoStateException {
+		throw new NoStateException("State "+state.toString()+
+				" does not exist.", this, state);
+	}
+
 
 }
