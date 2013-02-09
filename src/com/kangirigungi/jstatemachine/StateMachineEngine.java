@@ -1,5 +1,5 @@
 /*
- * Copyright (c) <year>, <copyright holder>
+ * Copyright (c) 2013, Peter Szabados
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
