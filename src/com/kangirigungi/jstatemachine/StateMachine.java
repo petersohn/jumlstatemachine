@@ -62,6 +62,15 @@ public class StateMachine<StateId, Event> {
 		return initialState.state;
 	}
 
+	public IState<StateId, Event> getcurrentState() {
+		checkRunning("getcurrentState");
+		return currentState.state;
+	}
+
+	public IState<StateId, Event> getState(StateId id) {
+		return getStateDescription(id).state;
+	}
+
 	public void setInitialState(StateId initialState) {
 		checkNotRunning("setInitialState");
 		this.initialState = getStateDescription(initialState);
@@ -113,9 +122,13 @@ public class StateMachine<StateId, Event> {
 		StateDescription<StateId, Event> targetState =
 				currentState.transitions.get(event);
 		if (targetState != null) {
+			// change the state
 			currentState.state.exitState(event);
-			currentState.state.enterState(event);
+			targetState.state.enterState(event);
 			currentState = targetState;
+		} else {
+			// delegate the event
+			currentState.state.processEvent(event);
 		}
 	}
 
