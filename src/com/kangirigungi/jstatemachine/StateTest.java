@@ -41,12 +41,36 @@ import org.junit.Test;
 public class StateTest {
 
 	@Test
-	public void createStateWithId() {
+	public void stateIdEquals() {
 		State<Integer, Integer> state =
 				new State<Integer, Integer>(null, 1);
 		Assert.assertEquals(new Integer(1), state.getId());
+		Assert.assertFalse(state.getId().equals(new Integer(2)));
+
 		state = new State<Integer, Integer>(null, 42);
 		Assert.assertEquals(new Integer(42), state.getId());
+		Assert.assertFalse(state.getId().equals(new Integer(1)));
+	}
+
+	@Test
+	public void stateEquals() {
+		State<Integer, Integer> state1 =
+				new State<Integer, Integer>(null, 1);
+		State<Integer, Integer> state2 =
+				new State<Integer, Integer>(null, 1);
+		State<Integer, Integer> state3 =
+				new State<Integer, Integer>(null, 2);
+		Assert.assertEquals(state1, state2);
+		Assert.assertEquals(state1.hashCode(), state2.hashCode());
+		Assert.assertFalse(state1.equals(state3));
+		Assert.assertFalse(state2.equals(state3));
+
+		state1 = new State<Integer, Integer>(null, 42);
+		state2 = new State<Integer, Integer>(null, 42);
+		Assert.assertEquals(state1, state2);
+		Assert.assertEquals(state1.hashCode(), state2.hashCode());
+		Assert.assertFalse(state1.equals(state3));
+		Assert.assertFalse(state2.equals(state3));
 	}
 
 }
