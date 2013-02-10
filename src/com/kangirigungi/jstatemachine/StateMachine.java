@@ -40,37 +40,59 @@ public class StateMachine<StateId, Event> {
 
 	private static class StateDescription<StateId, Event> {
 		public IState<StateId, Event> state;
-		public Map<Event, IState<StateId, Event>> transitions;
+		public Map<Event, StateDescription<StateId, Event>> transitions;
 
 		public StateDescription(IState<StateId, Event> state) {
 			this.state = state;
-			transitions = new HashMap<Event, IState<StateId, Event>>();
+			transitions = new HashMap<Event, StateDescription<StateId, Event>>();
 		}
 	}
 
+	private IStateFactory<StateId, Event> stateFactory;
 	private Map<StateId, StateDescription<StateId, Event>> states;
-	private StateId initialState;
-	private StateId currentState;
+	private StateDescription<StateId, Event> initialState;
+	private StateDescription<StateId, Event> currentState;
 
 	public StateMachine() {
+		stateFactory = new StateFactory<StateId, Event>();
 		states = new HashMap<StateId, StateDescription<StateId, Event>>();
 	}
 
-	public IState<StateId, Event> addState(StateId id)
-			throws DuplicateStateException {
+	public IState<StateId, Event> getInitialState() {
+		return initialState.state;
+	}
+
+	public void setInitialState(StateId initialState) {
+		checkNotRunning("setInitialState");
+		this.initialState = getStateDescription(initialState);
+	}
+
+	public void start() {
+		checkNotRunning("start");
+		initialState.state.enterState(null);
+		currentState = initialState;
+	}
+
+	public void stop() {
+		currentState = null;
+	}
+
+	public IState<StateId, Event> addState(StateId id) {
 		if (states.get(id) != null) {
 			throw new DuplicateStateException(
 					"Duplicate state: "+id.toString()+".",
 					this, id);
 		}
 
-		IState<StateId, Event> state = new State<StateId, Event>(this, id);
+		IState<StateId, Event> state =
+				stateFactory.createStete(this, id);
 		states.put(id, new StateDescription<StateId, Event>(state));
 		return state;
 	}
 
-	public void addTransition(StateId fromState, Event event, StateId toState)
-			throws NoStateException, DuplicateTransitionException {
+	public void addTransition(StateId fromState, Event event, StateId toState) {
+		checkNotRunning("addTransition");
+
 		StateDescription<StateId, Event> fromDescription =
 				getStateDescription(fromState);
 		StateDescription<StateId, Event> toDescription =
@@ -83,7 +105,34 @@ public class StateMachine<StateId, Event> {
 					this, fromState, event);
 		}
 
-		fromDescription.transitions.put(event, toDescription.state);
+		fromDescription.transitions.put(event, toDescription);
+	}
+
+	public void processEvent(Event event) {
+		checkRunning("processEvent");
+		StateDescription<StateId, Event> targetState =
+				currentState.transitions.get(event);
+		if (targetState != null) {
+			currentState.state.exitState(event);
+			currentState.state.enterState(event);
+			currentState = targetState;
+		}
+	}
+
+	private void checkRunning(String action) {
+		if (currentState == null) {
+			throw new NotRunningException(
+					"Cannot execute \""+action+
+					"\" while the state machine is not running.");
+		}
+	}
+
+	private void checkNotRunning(String action) {
+		if (currentState != null) {
+			throw new AlreadyRunningException(
+					"Cannot execute \""+action+
+					"\" while the state machine is running.");
+		}
 	}
 
 	private StateDescription<StateId, Event> getStateDescription(StateId id)
@@ -95,17 +144,13 @@ public class StateMachine<StateId, Event> {
 		return result;
 	}
 
-	private void throwNoTransitionException(StateId fromState, Event event,
-			StateId toState) throws NoTransitionException {
-		throw new NoTransitionException("No transition from "+fromState.toString()+
-				" to "+toState.toString()+" with event "+event.toString()+".",
-				this, fromState, toState, event);
-	}
-
-	private void throwNoStateException(StateId state) throws NoStateException {
+	private void throwNoStateException(StateId state) {
 		throw new NoStateException("State "+state.toString()+
 				" does not exist.", this, state);
 	}
 
+	void setStateFactory(IStateFactory<StateId, Event> stateFactory) {
+		this.stateFactory = stateFactory;
+	}
 
 }

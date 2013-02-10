@@ -33,7 +33,7 @@
 
 package com.kangirigungi.jstatemachine;
 
-public class StateMachineException extends Exception {
+public class StateMachineException extends RuntimeException {
 
 	private static final long serialVersionUID = 1L;
 

@@ -44,17 +44,17 @@ public class State<Id, Event> implements IState<Id, Event> {
 	}
 
 	@Override
-	public void enterState(StateMachineEngine stateMachineEngine, Event event) {
+	public void enterState(Event event) {
 
 	}
 
 	@Override
-	public void exitState(StateMachineEngine stateMachineEngine, Event event) {
+	public void exitState(Event event) {
 
 	}
 
 	@Override
-	public void processEvent(StateMachineEngine stateMachineEngine, Event event) {
+	public void processEvent(Event event) {
 
 	}
 
@@ -71,7 +71,7 @@ public class State<Id, Event> implements IState<Id, Event> {
 		IState<?, ?> otherState = (IState<?, ?>)other;
 		return getId().equals(otherState.getId());
 	}
-	
+
 	@Override
 	public int hashCode() {
 		return getId().hashCode();

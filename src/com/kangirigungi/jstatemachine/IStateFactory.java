@@ -33,11 +33,7 @@
 
 package com.kangirigungi.jstatemachine;
 
-public interface IState<Id, Event> {
-	public void enterState(Event event);
-	public void exitState(Event event);
-	public void processEvent(Event event);
-	public Id getId();
+interface IStateFactory<StateId, Event> {
+	IState<StateId, Event> createStete(
+			StateMachine<StateId, Event> stateMachine, StateId id);
 }
-
-

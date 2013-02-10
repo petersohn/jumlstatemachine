@@ -33,11 +33,20 @@
 
 package com.kangirigungi.jstatemachine;
 
-public interface IState<Id, Event> {
-	public void enterState(Event event);
-	public void exitState(Event event);
-	public void processEvent(Event event);
-	public Id getId();
+import junit.framework.Assert;
+
+import org.junit.Test;
+
+
+public class StateTest {
+
+	@Test
+	public void createStateWithId() {
+		State<Integer, Integer> state =
+				new State<Integer, Integer>(null, 1);
+		Assert.assertEquals(new Integer(1), state.getId());
+		state = new State<Integer, Integer>(null, 42);
+		Assert.assertEquals(new Integer(42), state.getId());
+	}
+
 }
-
-

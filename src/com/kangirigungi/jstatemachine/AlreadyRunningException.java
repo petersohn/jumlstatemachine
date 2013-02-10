@@ -33,11 +33,24 @@
 
 package com.kangirigungi.jstatemachine;
 
-public interface IState<Id, Event> {
-	public void enterState(Event event);
-	public void exitState(Event event);
-	public void processEvent(Event event);
-	public Id getId();
+public class AlreadyRunningException extends StateMachineException {
+
+	private static final long serialVersionUID = 1L;
+
+	public AlreadyRunningException() {
+		super();
+	}
+
+	public AlreadyRunningException(String message, Throwable cause) {
+		super(message, cause);
+	}
+
+	public AlreadyRunningException(String message) {
+		super(message);
+	}
+
+	public AlreadyRunningException(Throwable cause) {
+		super(cause);
+	}
+
 }
-
-
