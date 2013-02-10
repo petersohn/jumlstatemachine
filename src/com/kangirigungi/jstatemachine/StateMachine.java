@@ -40,11 +40,11 @@ public class StateMachine<StateId, Event> {
 
 	private static class StateDescription<StateId, Event> {
 		public IState<StateId, Event> state;
-		public Map<Event, StateId> transitions;
+		public Map<Event, IState<StateId, Event>> transitions;
 
 		public StateDescription(IState<StateId, Event> state) {
 			this.state = state;
-			transitions = new HashMap<Event, StateId>();
+			transitions = new HashMap<Event, IState<StateId, Event>>();
 		}
 	}
 
@@ -56,25 +56,43 @@ public class StateMachine<StateId, Event> {
 		states = new HashMap<StateId, StateDescription<StateId, Event>>();
 	}
 
-	public IState<StateId, Event> addState(StateId id) {
+	public IState<StateId, Event> addState(StateId id)
+			throws DuplicateStateException {
+		if (states.get(id) != null) {
+			throw new DuplicateStateException(
+					"Duplicate state: "+id.toString()+".",
+					this, id);
+		}
+
 		IState<StateId, Event> state = new State<StateId, Event>(this, id);
 		states.put(id, new StateDescription<StateId, Event>(state));
 		return state;
 	}
 
 	public void addTransition(StateId fromState, Event event, StateId toState)
-			throws StateMachineException {
-		StateDescription<StateId, Event> fromDescription = states.get(fromState);
-		if (fromDescription == null) {
-			throwNoStateException(fromState);
+			throws NoStateException, DuplicateTransitionException {
+		StateDescription<StateId, Event> fromDescription =
+				getStateDescription(fromState);
+		StateDescription<StateId, Event> toDescription =
+				getStateDescription(toState);
+
+		if (fromDescription.transitions.get(event) != null) {
+			throw new DuplicateTransitionException(
+					"Duplicate transition from state "+fromState.toString()+
+					" by event "+event.toString()+".",
+					this, fromState, event);
 		}
 
-		StateDescription<StateId, Event> toDescription = states.get(toState);
-		if (toDescription == null) {
-			throwNoStateException(toState);
+		fromDescription.transitions.put(event, toDescription.state);
+	}
+
+	private StateDescription<StateId, Event> getStateDescription(StateId id)
+			throws NoStateException {
+		StateDescription<StateId, Event> result = states.get(id);
+		if (result == null) {
+			throwNoStateException(id);
 		}
-
-
+		return result;
 	}
 
 	private void throwNoTransitionException(StateId fromState, Event event,
