@@ -111,4 +111,28 @@ public class StateMachineTest {
 		Assert.assertEquals(false, ((MockState)stateMachine.getState(2)).processEventCalled);
 	}
 
+	@Test
+	public void noTransition() {
+		System.out.println("transition");
+		stateMachine.addState(1);
+		stateMachine.addState(2);
+		stateMachine.addTransition(1, 10, 2);
+		stateMachine.setInitialState(1);
+		stateMachine.start();
+		stateMachine.processEvent(20);
+
+		Assert.assertSame(stateMachine.getState(1), stateMachine.getcurrentState());
+
+		Assert.assertEquals(true, ((MockState)stateMachine.getState(1)).enterStateCalled);
+		Assert.assertSame(null, ((MockState)stateMachine.getState(1)).enterStateEvent);
+		Assert.assertEquals(false, ((MockState)stateMachine.getState(1)).exitStateCalled);
+		Assert.assertEquals(true, ((MockState)stateMachine.getState(1)).processEventCalled);
+		Assert.assertEquals(new Integer(20), ((MockState)stateMachine.getState(1)).processEventEvent);
+
+		Assert.assertEquals(false, ((MockState)stateMachine.getState(2)).enterStateCalled);
+		Assert.assertEquals(false, ((MockState)stateMachine.getState(2)).exitStateCalled);
+		Assert.assertEquals(false, ((MockState)stateMachine.getState(2)).processEventCalled);
+	}
+
+
 }
