@@ -113,7 +113,7 @@ public class StateMachineTest {
 
 	@Test
 	public void noTransition() {
-		System.out.println("transition");
+		System.out.println("noTransition");
 		stateMachine.addState(1);
 		stateMachine.addState(2);
 		stateMachine.addTransition(1, 10, 2);
