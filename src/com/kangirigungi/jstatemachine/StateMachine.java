@@ -38,13 +38,24 @@ import java.util.Map;
 
 public class StateMachine<StateId, Event> {
 
+	private static class TransitionTarget<StateId, Event> {
+		public StateDescription<StateId, Event> targetState;
+		public ITransitionAction<StateId, Event> action;
+		
+		public TransitionTarget(StateDescription<StateId, Event> targetState,
+				ITransitionAction<StateId, Event> action) {
+			this.targetState = targetState;
+			this.action = action;
+		}
+	}
+	
 	private static class StateDescription<StateId, Event> {
 		public IState<StateId, Event> state;
-		public Map<Event, StateDescription<StateId, Event>> transitions;
+		public Map<Event, TransitionTarget<StateId, Event>> transitions;
 
 		public StateDescription(IState<StateId, Event> state) {
 			this.state = state;
-			transitions = new HashMap<Event, StateDescription<StateId, Event>>();
+			transitions = new HashMap<Event, TransitionTarget<StateId, Event>>();
 		}
 	}
 
@@ -103,7 +114,9 @@ public class StateMachine<StateId, Event> {
 		return state;
 	}
 
-	public void addTransition(StateId fromState, Event event, StateId toState) {
+	public void addTransition(StateId fromState, Event event, 
+			ITransitionAction<StateId, Event> action,
+			StateId toState) {
 		checkNotRunning("addTransition");
 
 		StateDescription<StateId, Event> fromDescription =
@@ -118,18 +131,23 @@ public class StateMachine<StateId, Event> {
 					this, fromState, event);
 		}
 
-		fromDescription.transitions.put(event, toDescription);
+		fromDescription.transitions.put(event, 
+				new TransitionTarget<StateId, Event>(toDescription, action));
 	}
 
 	public void processEvent(Event event) {
 		checkRunning("processEvent");
-		StateDescription<StateId, Event> targetState =
+		TransitionTarget<StateId, Event> target =
 				currentState.transitions.get(event);
-		if (targetState != null) {
+		if (target != null) {
 			// change the state
 			currentState.state.exitState(event);
-			targetState.state.enterState(event);
-			currentState = targetState;
+			if (target.action != null) {
+				target.action.onTransition(currentState.state, 
+						target.targetState.state, event);
+			}
+			target.targetState.state.enterState(event);
+			currentState = target.targetState;
 		} else {
 			// delegate the event
 			currentState.state.processEvent(event);
