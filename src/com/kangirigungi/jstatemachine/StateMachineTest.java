@@ -74,6 +74,8 @@ public class StateMachineTest {
 		stateMachine.addState(1);
 		stateMachine.addState(2);
 		stateMachine.setInitialState(1);
+		Assert.assertSame(stateMachine.getState(1), stateMachine.getInitialState());
+		
 		stateMachine.start();
 		Assert.assertSame(stateMachine.getState(1), stateMachine.getcurrentState());
 
@@ -132,6 +134,20 @@ public class StateMachineTest {
 		Assert.assertEquals(false, ((MockState)stateMachine.getState(2)).enterStateCalled);
 		Assert.assertEquals(false, ((MockState)stateMachine.getState(2)).exitStateCalled);
 		Assert.assertEquals(false, ((MockState)stateMachine.getState(2)).processEventCalled);
+	}
+	
+	@Test
+	public void stop() {
+		System.out.println("stop");
+		stateMachine.addState(1);
+		stateMachine.setInitialState(1);
+		Assert.assertEquals(false, stateMachine.isRunning());
+		
+		stateMachine.start();
+		Assert.assertEquals(true, stateMachine.isRunning());
+
+		stateMachine.stop();
+		Assert.assertEquals(false, stateMachine.isRunning());
 	}
 
 

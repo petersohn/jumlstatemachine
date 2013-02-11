@@ -85,6 +85,10 @@ public class StateMachine<StateId, Event> {
 	public void stop() {
 		currentState = null;
 	}
+	
+	public boolean isRunning() {
+		return currentState != null;
+	}
 
 	public IState<StateId, Event> addState(StateId id) {
 		if (states.get(id) != null) {
@@ -133,7 +137,7 @@ public class StateMachine<StateId, Event> {
 	}
 
 	private void checkRunning(String action) {
-		if (currentState == null) {
+		if (!isRunning()) {
 			throw new NotRunningException(
 					"Cannot execute \""+action+
 					"\" while the state machine is not running.");
@@ -141,7 +145,7 @@ public class StateMachine<StateId, Event> {
 	}
 
 	private void checkNotRunning(String action) {
-		if (currentState != null) {
+		if (isRunning()) {
 			throw new AlreadyRunningException(
 					"Cannot execute \""+action+
 					"\" while the state machine is running.");
