@@ -2,6 +2,7 @@ package com.kangirigungi.jstatemachine.componenttest;
 
 import junit.framework.Assert;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -84,8 +85,14 @@ public class CdPlayer {
 		stateMachine.start();
 	}
 	
+	@After
+	public void finalize() {
+		System.out.println("");
+	}
+	
 	@Test
 	public void playStopOpenClose() {
+		System.out.println("playStopOpenClose");
 		Assert.assertEquals(States.Empty, stateMachine.getcurrentState().getId());
 		
 		stateMachine.processEvent(Events.CdDetected);
@@ -107,5 +114,52 @@ public class CdPlayer {
 		stateMachine.processEvent(Events.OpenClose);
 		Assert.assertEquals(States.Empty, stateMachine.getcurrentState().getId());
 		Assert.assertEquals(Actions.CloseDrawer, lastAction);
+	}
+	
+	@Test 
+	public void openClosePlayPause3StopPlayOpen() {
+		System.out.println("openClosePlayPause3StopPlayOpen");
+		Assert.assertEquals(States.Empty, stateMachine.getcurrentState().getId());
+		
+		stateMachine.processEvent(Events.OpenClose);
+		Assert.assertEquals(States.Open, stateMachine.getcurrentState().getId());
+		Assert.assertEquals(Actions.OpenDrawer, lastAction);
+		
+		stateMachine.processEvent(Events.OpenClose);
+		Assert.assertEquals(States.Empty, stateMachine.getcurrentState().getId());
+		Assert.assertEquals(Actions.CloseDrawer, lastAction);
+		
+		stateMachine.processEvent(Events.CdDetected);
+		Assert.assertEquals(States.Stopped, stateMachine.getcurrentState().getId());
+		Assert.assertEquals(Actions.StoreCdInfo, lastAction);
+		
+		stateMachine.processEvent(Events.Play);
+		Assert.assertEquals(States.Playing, stateMachine.getcurrentState().getId());
+		Assert.assertEquals(Actions.StartPlayback, lastAction);
+		
+		stateMachine.processEvent(Events.Pause);
+		Assert.assertEquals(States.Paused, stateMachine.getcurrentState().getId());
+		Assert.assertEquals(Actions.PausePlayback, lastAction);
+		
+		stateMachine.processEvent(Events.Pause);
+		Assert.assertEquals(States.Playing, stateMachine.getcurrentState().getId());
+		Assert.assertEquals(Actions.ResumePlayback, lastAction);
+		
+		stateMachine.processEvent(Events.Pause);
+		Assert.assertEquals(States.Paused, stateMachine.getcurrentState().getId());
+		Assert.assertEquals(Actions.PausePlayback, lastAction);
+		
+		stateMachine.processEvent(Events.Stop);
+		Assert.assertEquals(States.Stopped, stateMachine.getcurrentState().getId());
+		Assert.assertEquals(Actions.StopPlayback, lastAction);
+		
+		stateMachine.processEvent(Events.Play);
+		Assert.assertEquals(States.Playing, stateMachine.getcurrentState().getId());
+		Assert.assertEquals(Actions.StartPlayback, lastAction);
+		
+		stateMachine.processEvent(Events.OpenClose);
+		Assert.assertEquals(States.Open, stateMachine.getcurrentState().getId());
+		Assert.assertEquals(Actions.StopAndOpen, lastAction);
+		
 	}
 }
