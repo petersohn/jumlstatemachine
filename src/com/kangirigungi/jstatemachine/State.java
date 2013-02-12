@@ -37,6 +37,7 @@ public class State<Id, Event> implements IState<Id, Event> {
 
 	private StateMachine<Id, Event> stateMachine;
 	private Id id;
+	private IEntryExitAction<Id, Event> entryExitAction;
 
 	State(StateMachine<Id, Event> stateMachine, Id id) {
 		this.stateMachine = stateMachine;
@@ -45,12 +46,16 @@ public class State<Id, Event> implements IState<Id, Event> {
 
 	@Override
 	public void enterState(Event event) {
-
+		if (entryExitAction != null) {
+			entryExitAction.onEnter(this, event);
+		}
 	}
 
 	@Override
 	public void exitState(Event event) {
-
+		if (entryExitAction != null) {
+			entryExitAction.onExit(this, event);
+		}
 	}
 
 	@Override
@@ -75,6 +80,16 @@ public class State<Id, Event> implements IState<Id, Event> {
 	@Override
 	public int hashCode() {
 		return getId().hashCode();
+	}
+
+	@Override
+	public IEntryExitAction<Id, Event> getEntryExitAction() {
+		return entryExitAction;
+	}
+
+	@Override
+	public void setEntryExitAction(IEntryExitAction<Id, Event> action) {
+		entryExitAction = action;		
 	}
 
 }

@@ -47,6 +47,15 @@ public class StateMachineTest {
 			return id;
 		}
 
+		@Override
+		public IEntryExitAction<Integer, Integer> getEntryExitAction() {
+			return null;
+		}
+
+		@Override
+		public void setEntryExitAction(IEntryExitAction<Integer, Integer> action) {
+		}
+
 	}
 
 	private static class MockStateFactory

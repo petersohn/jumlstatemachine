@@ -38,6 +38,8 @@ public interface IState<Id, Event> {
 	public void exitState(Event event);
 	public void processEvent(Event event);
 	public Id getId();
+	public IEntryExitAction<Id, Event> getEntryExitAction();
+	public void setEntryExitAction(IEntryExitAction<Id, Event> action);
 }
 
 
