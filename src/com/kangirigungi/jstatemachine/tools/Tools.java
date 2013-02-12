@@ -33,6 +33,7 @@
 
 package com.kangirigungi.jstatemachine.tools;
 
+
 public class Tools {
 	public static int hashCombine(int seed, Object o)
 	{
