@@ -82,10 +82,12 @@ public class StateMachine<StateId, Event> {
 	private static class StateDescription<StateId, Event> {
 		public IState<StateId, Event> state;
 		public Map<Event, TransitionTarget<StateId, Event>> transitions;
+		public Map<Event, IInternalTransition<StateId, Event>> internalTransitions;
 
 		public StateDescription(IState<StateId, Event> state) {
 			this.state = state;
 			transitions = new HashMap<Event, TransitionTarget<StateId, Event>>();
+			internalTransitions = new HashMap<Event, IInternalTransition<StateId,Event>>();
 		}
 	}
 
@@ -188,7 +190,8 @@ public class StateMachine<StateId, Event> {
 	}
 
 	/**
-	 * Add a new transition.
+	 * Add a new transition. The action parameter is optional, all other
+	 * parameters are mandatory.
 	 *
 	 * @param fromState The initial state of the transition.
 	 * @param event The event that triggers the transition.
@@ -209,16 +212,37 @@ public class StateMachine<StateId, Event> {
 		StateDescription<StateId, Event> toDescription =
 				getStateDescription(toState);
 
-		if (fromDescription.transitions.get(event) != null) {
-			throw new DuplicateTransitionException(
-					"Duplicate transition from state "+fromState.toString()+
-					" by event "+event.toString()+".",
-					this, fromState, event);
-		}
+		checkTransition(fromDescription, event);
 
 		fromDescription.transitions.put(event,
 				new TransitionTarget<StateId, Event>(toDescription, action));
 	}
+
+	/**
+	 * Add a new internal transition. Internal transitions do not
+	 * leave the state when performing an action. The {@link action} parameter
+	 * is optional (though it would not make sense omitting it),
+	 * all other parameters are mandatory.
+	 *
+	 * @param state The initial state of the transition.
+	 * @param event The event that triggers the transition.
+	 * @param action The action to be executed.
+	 * @throw DuplicateTransitionException If there is already a transition
+	 * from the same state with the same event.
+	 * @throws {@link NoStateException} If either {@link fromState} of
+	 * {@link toState} does not exist.
+	 */
+	public void addInternalTransition(StateId state, Event event,
+			IInternalTransition<StateId, Event> action) {
+		checkNotRunning("addInternalTransition");
+
+		StateDescription<StateId, Event> description =
+				getStateDescription(state);
+
+		checkTransition(description, event);
+		description.internalTransitions.put(event, action);
+	}
+
 
 	/**
 	 * Process an event and trigger any transitions needed to be done
@@ -250,11 +274,28 @@ public class StateMachine<StateId, Event> {
 				target.targetState.state.enterState(event);
 				currentState = target.targetState;
 			} else {
+				IInternalTransition<StateId, Event> internalTransition =
+						currentState.internalTransitions.get(event);
+				if (internalTransition != null) {
+					internalTransition.onTransition(currentState.state, event);
+				}
+
 				// delegate the event
 				currentState.state.processEvent(event);
 			}
 		} finally {
 			inTransition = false;
+		}
+	}
+
+	private void checkTransition(StateDescription<StateId, Event> state,
+			Event event) {
+		if (state.transitions.containsKey(event) ||
+				state.internalTransitions.containsKey(event)) {
+			throw new DuplicateTransitionException(
+					"Duplicate transition from state "+state.state.toString()+
+					" by event "+event.toString()+".",
+					this, state.state, event);
 		}
 	}
 

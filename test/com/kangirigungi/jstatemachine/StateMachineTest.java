@@ -120,6 +120,23 @@ public class StateMachineTest {
 		}
 	}
 
+	private static class MockInternalTransition implements
+	IInternalTransition<Integer, Integer> {
+
+		public boolean called = false;
+		public IState<Integer, Integer> state;
+		public Integer event;
+
+		@Override
+		public void onTransition(IState<Integer, Integer> state,
+				Integer event) {
+			called = true;
+			this.state = state;
+			this.event = event;
+		}
+	}
+
+
 	private StateMachine<Integer, Integer> stateMachine;
 
 	@Before
@@ -207,6 +224,35 @@ public class StateMachineTest {
 		Assert.assertFalse(((MockState)stateMachine.getState(2)).processEventCalled);
 
 		Assert.assertFalse(action.called);
+	}
+
+	@Test
+	public void internalTransition() {
+		MockInternalTransition action = new MockInternalTransition();
+
+		System.out.println("transition");
+		stateMachine.addState(1);
+		stateMachine.addState(2);
+		stateMachine.addTransition(1, 10, null, 2);
+		stateMachine.addInternalTransition(1, 20, action);
+		stateMachine.setInitialState(1);
+		stateMachine.start();
+		stateMachine.processEvent(20);
+
+		Assert.assertSame(stateMachine.getState(1), stateMachine.getcurrentState());
+
+		Assert.assertTrue(((MockState)stateMachine.getState(1)).enterStateCalled);
+		Assert.assertSame(null, ((MockState)stateMachine.getState(1)).enterStateEvent);
+		Assert.assertFalse(((MockState)stateMachine.getState(1)).exitStateCalled);
+		Assert.assertTrue(((MockState)stateMachine.getState(1)).processEventCalled);
+
+		Assert.assertFalse(((MockState)stateMachine.getState(2)).enterStateCalled);
+		Assert.assertFalse(((MockState)stateMachine.getState(2)).exitStateCalled);
+		Assert.assertFalse(((MockState)stateMachine.getState(2)).processEventCalled);
+
+		Assert.assertTrue(action.called);
+		Assert.assertSame(stateMachine.getState(1), action.state);
+		Assert.assertEquals(new Integer(20), action.event);
 	}
 
 	@Test

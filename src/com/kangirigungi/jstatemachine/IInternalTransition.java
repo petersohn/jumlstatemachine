@@ -34,77 +34,19 @@
 package com.kangirigungi.jstatemachine;
 
 /**
- * Represents a state of the state machine. This is the basic
- * implementation of {@link IState}. Instantiation is done
- * by {@link StateMachine}.
+ * Callback interface for internal transition actions.
  *
  * @author Peter Szabados
  *
  * @param <Id> The type used for referencing states.
  * @param <Event> The type used for referencing events.
  */
-public class State<Id, Event> implements IState<Id, Event> {
-
-	private StateMachine<Id, Event> stateMachine;
-	private Id id;
-	private IEntryExitAction<Id, Event> entryExitAction;
-
-	State(StateMachine<Id, Event> stateMachine, Id id) {
-		this.stateMachine = stateMachine;
-		this.id = id;
-	}
-
-	@Override
-	public void enterState(Event event) {
-		if (entryExitAction != null) {
-			entryExitAction.onEnter(this, event);
-		}
-	}
-
-	@Override
-	public void exitState(Event event) {
-		if (entryExitAction != null) {
-			entryExitAction.onExit(this, event);
-		}
-	}
-
-	@Override
-	public void processEvent(Event event) {
-
-	}
-
-	@Override
-	public Id getId() {
-		return id;
-	}
-
-	@Override
-	public boolean equals(Object other) {
-		if (!(other instanceof IState)) {
-			return false;
-		}
-		IState<?, ?> otherState = (IState<?, ?>)other;
-		return getId().equals(otherState.getId());
-	}
-
-	@Override
-	public int hashCode() {
-		return getId().hashCode();
-	}
-
-	@Override
-	public String toString() {
-		return getId().toString();
-	}
-
-	@Override
-	public IEntryExitAction<Id, Event> getEntryExitAction() {
-		return entryExitAction;
-	}
-
-	@Override
-	public void setEntryExitAction(IEntryExitAction<Id, Event> action) {
-		entryExitAction = action;
-	}
-
+public interface IInternalTransition<StateId, Event> {
+	/**
+	 * Called when an internal transition happens.
+	 *
+	 * @param state The state where the transition happens.
+	 * @param event The event triggering the transition.
+	 */
+	public void onTransition(IState<StateId, Event> state, Event event);
 }
