@@ -53,10 +53,14 @@ import java.util.Map;
  * phase can be entered by the {@link start()} method.
  * </il>
  * <p>
- * Exceptions thown by this class are unchecked because the only way
+ * This class (and the entire library) is not thread-safe. This means
+ * that in order to use it from within multiple threads, calls to any
+ * methods (typically {@link processEvent(Event)}) must be synchronized.
+ * <p>
+ * Exceptions thrown by this class are unchecked because the only way
  * they are thrown is because bad usage of the class and should never
  * happen in a well-written code.
- * 
+ *
  * @author Peter Szabados
  *
  * @param <Id> The type used for referencing states.
@@ -67,14 +71,14 @@ public class StateMachine<StateId, Event> {
 	private static class TransitionTarget<StateId, Event> {
 		public StateDescription<StateId, Event> targetState;
 		public ITransitionAction<StateId, Event> action;
-		
+
 		public TransitionTarget(StateDescription<StateId, Event> targetState,
 				ITransitionAction<StateId, Event> action) {
 			this.targetState = targetState;
 			this.action = action;
 		}
 	}
-	
+
 	private static class StateDescription<StateId, Event> {
 		public IState<StateId, Event> state;
 		public Map<Event, TransitionTarget<StateId, Event>> transitions;
@@ -89,6 +93,7 @@ public class StateMachine<StateId, Event> {
 	private Map<StateId, StateDescription<StateId, Event>> states;
 	private StateDescription<StateId, Event> initialState;
 	private StateDescription<StateId, Event> currentState;
+	private boolean inTransition = false;
 
 	public StateMachine() {
 		stateFactory = new StateFactory<StateId, Event>();
@@ -103,7 +108,7 @@ public class StateMachine<StateId, Event> {
 	}
 
 	/**
-	 * 
+	 *
 	 * @return The current state of the state machine.
 	 * @throws NotRunningException When the state machine is not running.
 	 */
@@ -137,7 +142,7 @@ public class StateMachine<StateId, Event> {
 	/**
 	 * Start the state machine. When the state machine is started, no more
 	 * states or transitions can be added.
-	 * 
+	 *
 	 * @throws AlreadyRunningException When the state machine is running.
 	 */
 	public void start() {
@@ -153,7 +158,7 @@ public class StateMachine<StateId, Event> {
 	public void stop() {
 		currentState = null;
 	}
-	
+
 	/**
 	 * @return True if the state machine is running.
 	 */
@@ -162,12 +167,12 @@ public class StateMachine<StateId, Event> {
 	}
 
 	/**
-	 * Add a new state. Only one state with one id is allowed. If another 
+	 * Add a new state. Only one state with one id is allowed. If another
 	 * one with the same idis attempted to be added, an exception is thrown.
-	 * 
+	 *
 	 * @param id The identifier of the new state.
 	 * @return The instance of the new state.
-	 * @throw DuplicateStateException If the state id already exists.
+	 * @throws DuplicateStateException If the state id already exists.
 	 */
 	public IState<StateId, Event> addState(StateId id) {
 		if (states.get(id) != null) {
@@ -184,17 +189,17 @@ public class StateMachine<StateId, Event> {
 
 	/**
 	 * Add a new transition.
-	 * 
+	 *
 	 * @param fromState The initial state of the transition.
 	 * @param event The event that triggers the transition.
 	 * @param action The action to be executed.
 	 * @param toState The final state of the transition.
 	 * @throw DuplicateTransitionException If there is already a transition
 	 * from the same state with the same event.
-	 * @throw {@link NoStateException} If either {@link fromState} of
+	 * @throws {@link NoStateException} If either {@link fromState} of
 	 * {@link toState} does not exist.
 	 */
-	public void addTransition(StateId fromState, Event event, 
+	public void addTransition(StateId fromState, Event event,
 			ITransitionAction<StateId, Event> action,
 			StateId toState) {
 		checkNotRunning("addTransition");
@@ -211,31 +216,45 @@ public class StateMachine<StateId, Event> {
 					this, fromState, event);
 		}
 
-		fromDescription.transitions.put(event, 
+		fromDescription.transitions.put(event,
 				new TransitionTarget<StateId, Event>(toDescription, action));
 	}
 
 	/**
 	 * Process an event and trigger any transitions needed to be done
-	 * by the event.
+	 * by the event. It must not be called from within callbacks. If
+	 * called while it is already running, an exception is thrown.
+	 *
 	 * @param event The event to be processed.
+	 * @throws StateMachineException for various cases of improper usage.
 	 */
 	public void processEvent(Event event) {
 		checkRunning("processEvent");
-		TransitionTarget<StateId, Event> target =
-				currentState.transitions.get(event);
-		if (target != null) {
-			// change the state
-			currentState.state.exitState(event);
-			if (target.action != null) {
-				target.action.onTransition(currentState.state, 
-						target.targetState.state, event);
+
+		if (inTransition) {
+			throw new InTransitionException("Cannot initiate transition " +
+					"while another transition is running.");
+		}
+
+		inTransition = true;
+		try {
+			TransitionTarget<StateId, Event> target =
+					currentState.transitions.get(event);
+			if (target != null) {
+				// change the state
+				currentState.state.exitState(event);
+				if (target.action != null) {
+					target.action.onTransition(currentState.state,
+							target.targetState.state, event);
+				}
+				target.targetState.state.enterState(event);
+				currentState = target.targetState;
+			} else {
+				// delegate the event
+				currentState.state.processEvent(event);
 			}
-			target.targetState.state.enterState(event);
-			currentState = target.targetState;
-		} else {
-			// delegate the event
-			currentState.state.processEvent(event);
+		} finally {
+			inTransition = false;
 		}
 	}
 
