@@ -33,6 +33,15 @@
 
 package com.kangirigungi.jstatemachine;
 
+/**
+ * Generic exception type for all errors releated to state machine
+ * operation. These exceptions are unchecked because the only way
+ * they are thrown is because bad usage of the class and should never
+ * happen in a well-written code.
+ * 
+ * @author Peter Szabados
+ *
+ */
 public class StateMachineException extends RuntimeException {
 
 	private static final long serialVersionUID = 1L;

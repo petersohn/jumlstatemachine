@@ -36,6 +36,32 @@ package com.kangirigungi.jstatemachine;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Representation of a state machine.
+ * <p>
+ * A state machine has two working phases. In each phase, different
+ * methods can be called. If a method is called in the wrong state,
+ * an exception is thrown.
+ * <il>
+ * <li><b>Not running:</b> The state machine starts in this phase.
+ * The states and transitions of the state machine are defined here,
+ * but the state machine has no current phase. When running, this
+ * phase can be entered by the {@link stop()} method.
+ * <li><b>Running:</b> The state machine has an actual state and
+ * can process events. No states or transitions can be added while
+ * the state machine is running. When not running, this
+ * phase can be entered by the {@link start()} method.
+ * </il>
+ * <p>
+ * Exceptions thown by this class are unchecked because the only way
+ * they are thrown is because bad usage of the class and should never
+ * happen in a well-written code.
+ * 
+ * @author Peter Szabados
+ *
+ * @param <Id> The type used for referencing states.
+ * @param <Event> The type used for referencing events.
+ */
 public class StateMachine<StateId, Event> {
 
 	private static class TransitionTarget<StateId, Event> {
@@ -69,38 +95,80 @@ public class StateMachine<StateId, Event> {
 		states = new HashMap<StateId, StateDescription<StateId, Event>>();
 	}
 
+	/**
+	 * @return The initial state of the state machine.
+	 */
 	public IState<StateId, Event> getInitialState() {
 		return initialState.state;
 	}
 
+	/**
+	 * 
+	 * @return The current state of the state machine.
+	 * @throws NotRunningException When the state machine is not running.
+	 */
 	public IState<StateId, Event> getcurrentState() {
 		checkRunning("getcurrentState");
 		return currentState.state;
 	}
 
+	/**
+	 * Get the state associated with the given id. If the state does not
+	 * exist, an exception is thrown. States are added by the
+	 * {@link addState(StateId) addState} method.
+	 * @param id The identifier of the state.
+	 * @return The state.
+	 */
 	public IState<StateId, Event> getState(StateId id) {
 		return getStateDescription(id).state;
 	}
 
+	/**
+	 * Set the initial state for the state machine. This must always
+	 * be called before starting the state machine.
+	 * @param initialState The new initial state.
+	 * @throws AlreadyRunningException When the state machine is running.
+	 */
 	public void setInitialState(StateId initialState) {
 		checkNotRunning("setInitialState");
 		this.initialState = getStateDescription(initialState);
 	}
 
+	/**
+	 * Start the state machine. When the state machine is started, no more
+	 * states or transitions can be added.
+	 * 
+	 * @throws AlreadyRunningException When the state machine is running.
+	 */
 	public void start() {
 		checkNotRunning("start");
 		initialState.state.enterState(null);
 		currentState = initialState;
 	}
 
+	/**
+	 * Stop the state machine. States and transitions can only be added
+	 * when the state machine is stopped.
+	 */
 	public void stop() {
 		currentState = null;
 	}
 	
+	/**
+	 * @return True if the state machine is running.
+	 */
 	public boolean isRunning() {
 		return currentState != null;
 	}
 
+	/**
+	 * Add a new state. Only one state with one id is allowed. If another 
+	 * one with the same idis attempted to be added, an exception is thrown.
+	 * 
+	 * @param id The identifier of the new state.
+	 * @return The instance of the new state.
+	 * @throw DuplicateStateException If the state id already exists.
+	 */
 	public IState<StateId, Event> addState(StateId id) {
 		if (states.get(id) != null) {
 			throw new DuplicateStateException(
@@ -114,6 +182,18 @@ public class StateMachine<StateId, Event> {
 		return state;
 	}
 
+	/**
+	 * Add a new transition.
+	 * 
+	 * @param fromState The initial state of the transition.
+	 * @param event The event that triggers the transition.
+	 * @param action The action to be executed.
+	 * @param toState The final state of the transition.
+	 * @throw DuplicateTransitionException If there is already a transition
+	 * from the same state with the same event.
+	 * @throw {@link NoStateException} If either {@link fromState} of
+	 * {@link toState} does not exist.
+	 */
 	public void addTransition(StateId fromState, Event event, 
 			ITransitionAction<StateId, Event> action,
 			StateId toState) {
@@ -135,6 +215,11 @@ public class StateMachine<StateId, Event> {
 				new TransitionTarget<StateId, Event>(toDescription, action));
 	}
 
+	/**
+	 * Process an event and trigger any transitions needed to be done
+	 * by the event.
+	 * @param event The event to be processed.
+	 */
 	public void processEvent(Event event) {
 		checkRunning("processEvent");
 		TransitionTarget<StateId, Event> target =

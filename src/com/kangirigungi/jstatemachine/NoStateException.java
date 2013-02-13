@@ -33,6 +33,12 @@
 
 package com.kangirigungi.jstatemachine;
 
+/**
+ * Exception thrown when a non-existing state id is queried.
+ *  
+ * @author Peter Szabados
+ * 
+ */
 public class NoStateException extends StateMachineException {
 	private static final long serialVersionUID = 1L;
 

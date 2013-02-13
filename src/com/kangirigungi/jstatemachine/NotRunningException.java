@@ -33,6 +33,14 @@
 
 package com.kangirigungi.jstatemachine;
 
+/**
+ * Exception thrown when something is attempted that should only be done
+ * when the state machine is running while it is not running,
+ *  
+ * @author Peter Szabados
+ * 
+ */
+
 public class NotRunningException extends StateMachineException {
 	private static final long serialVersionUID = 1L;
 

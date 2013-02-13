@@ -33,6 +33,13 @@
 
 package com.kangirigungi.jstatemachine;
 
+/**
+ * Exception thrown when a state with an already existing id is attempted
+ * to be added.
+ *  
+ * @author Peter Szabados
+ * 
+ */
 public class DuplicateStateException extends StateMachineException {
 	private static final long serialVersionUID = 1L;
 

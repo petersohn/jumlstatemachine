@@ -33,6 +33,16 @@
 
 package com.kangirigungi.jstatemachine;
 
+/**
+ * Represents a state of the state machine. This is the basic
+ * implementation of {@link IState}. Instantiation is done
+ * by {@link StateMachine}.
+ * 
+ * @author Peter Szabados
+ *
+ * @param <Id> The type used for referencing states.
+ * @param <Event> The type used for referencing events.
+ */
 public class State<Id, Event> implements IState<Id, Event> {
 
 	private StateMachine<Id, Event> stateMachine;

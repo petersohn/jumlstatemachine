@@ -33,6 +33,13 @@
 
 package com.kangirigungi.jstatemachine;
 
+/**
+ * Exception thrown when something is attempted that should only be done
+ * when the state machine is not running while it is running,
+ *  
+ * @author Peter Szabados
+ * 
+ */
 public class AlreadyRunningException extends StateMachineException {
 
 	private static final long serialVersionUID = 1L;

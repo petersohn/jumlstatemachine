@@ -33,6 +33,13 @@
 
 package com.kangirigungi.jstatemachine;
 
+/**
+ * Exception thrown when a transaction with an already existing from
+ * state and event to be added.
+ *  
+ * @author Peter Szabados
+ * 
+ */
 public class DuplicateTransitionException extends StateMachineException {
 	private static final long serialVersionUID = 1L;
 

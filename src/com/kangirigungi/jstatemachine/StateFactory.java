@@ -33,7 +33,7 @@
 
 package com.kangirigungi.jstatemachine;
 
-public class StateFactory<StateId, Event> implements IStateFactory<StateId, Event> {
+class StateFactory<StateId, Event> implements IStateFactory<StateId, Event> {
 
 	@Override
 	public IState<StateId, Event> createStete(
