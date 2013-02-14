@@ -120,23 +120,6 @@ public class StateMachineTest {
 		}
 	}
 
-	private static class MockInternalTransition implements
-	IInternalTransition<Integer, Integer> {
-
-		public boolean called = false;
-		public IState<Integer, Integer> state;
-		public Integer event;
-
-		@Override
-		public void onTransition(IState<Integer, Integer> state,
-				Integer event) {
-			called = true;
-			this.state = state;
-			this.event = event;
-		}
-	}
-
-
 	private StateMachine<Integer, Integer> stateMachine;
 
 	@Before
@@ -228,7 +211,7 @@ public class StateMachineTest {
 
 	@Test
 	public void internalTransition() {
-		MockInternalTransition action = new MockInternalTransition();
+		MockTransitionAction action = new MockTransitionAction();
 
 		System.out.println("transition");
 		stateMachine.addState(1);
@@ -251,7 +234,8 @@ public class StateMachineTest {
 		Assert.assertFalse(((MockState)stateMachine.getState(2)).processEventCalled);
 
 		Assert.assertTrue(action.called);
-		Assert.assertSame(stateMachine.getState(1), action.state);
+		Assert.assertSame(stateMachine.getState(1), action.fromState);
+		Assert.assertSame(null, action.toState);
 		Assert.assertEquals(new Integer(20), action.event);
 	}
 
