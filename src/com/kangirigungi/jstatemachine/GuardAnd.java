@@ -33,18 +33,22 @@
 
 package com.kangirigungi.jstatemachine;
 
-public class GuardNot<StateId, Event> implements IGuard<StateId, Event> {
+public class GuardAnd<StateId, Event> implements IGuard<StateId, Event> {
 
-	private IGuard<StateId, Event> other;
+	private IGuard<StateId, Event> left;
+	private IGuard<StateId, Event> right;
 	
-	public GuardNot(IGuard<StateId, Event> other) {
-		this.other = other;
+	public GuardAnd(IGuard<StateId, Event> left,
+			IGuard<StateId, Event> right) {
+		this.left = left;
+		this.right = right;
 	}
 
 	@Override
 	public boolean checkTransition(IState<StateId, Event> fromState,
 			IState<StateId, Event> toState, Event event) {
-		return !other.checkTransition(fromState, toState, event);
+		return left.checkTransition(fromState, toState, event) &&
+				right.checkTransition(fromState, toState, event);
 	}
 	
 	
