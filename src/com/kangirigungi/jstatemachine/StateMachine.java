@@ -90,7 +90,7 @@ public class StateMachine<StateId, Event> {
 
 		public StateDescription(IState<StateId, Event> state) {
 			this.state = state;
-			transitions = new HashMap<Event, 
+			transitions = new HashMap<Event,
 					Collection<TransitionTarget<StateId, Event>>>();
 		}
 	}
@@ -215,11 +215,11 @@ public class StateMachine<StateId, Event> {
 				getStateDescription(fromState);
 		StateDescription<StateId, Event> toDescription =
 				getStateDescription(toState);
-		
-		doAddTransition(fromDescription, event, action, 
+
+		doAddTransition(fromDescription, event, action,
 				toDescription, guard);
 	}
-	
+
 	/**
 	 * Same as addTransition(fromState, event, action, toState, null).
 	 */
@@ -250,10 +250,10 @@ public class StateMachine<StateId, Event> {
 		StateDescription<StateId, Event> description =
 				getStateDescription(state);
 
-		doAddTransition(description, event, action, 
+		doAddTransition(description, event, action,
 				null, guard);
 	}
-	
+
 	/**
 	 * Same as addInternalTransition(state, event, action, null).
 	 */
@@ -278,7 +278,7 @@ public class StateMachine<StateId, Event> {
 				throwDuplicateTransitionException(
 						fromDescription.state, event);
 			} else {
-				for (TransitionTarget<StateId, Event> transition: 
+				for (TransitionTarget<StateId, Event> transition:
 					transitions) {
 					if (transition.guard == null) {
 						throwDuplicateTransitionException(
@@ -289,9 +289,9 @@ public class StateMachine<StateId, Event> {
 		}
 		transitions.add(new TransitionTarget<StateId, Event>(
 				guard, toDescription, action));
-		
+
 	}
-	
+
 	/**
 	 * Process an event and trigger any transitions needed to be done
 	 * by the event. It must not be called from within callbacks. If
@@ -326,16 +326,18 @@ public class StateMachine<StateId, Event> {
 			inTransition = false;
 		}
 	}
-	
-	private boolean executeTransition(Event event, 
+
+	private boolean executeTransition(Event event,
 			TransitionTarget<StateId, Event> target) {
+		IState<StateId, Event> targetState = target.targetState == null ?
+				null : target.targetState.state;
 		// check guard condition
-		if (target.guard != null && 
+		if (target.guard != null &&
 				!target.guard.checkTransition(currentState.state,
-						target.targetState.state, event)) {
+						targetState, event)) {
 			return false;
 		}
-		
+
 		// execute transition
 		if (target.targetState == null) {
 			// internal transition
@@ -349,7 +351,7 @@ public class StateMachine<StateId, Event> {
 			currentState.state.exitState(event);
 			if (target.action != null) {
 				target.action.onTransition(currentState.state,
-						target.targetState.state, event);
+						targetState, event);
 			}
 			target.targetState.state.enterState(event);
 			currentState = target.targetState;

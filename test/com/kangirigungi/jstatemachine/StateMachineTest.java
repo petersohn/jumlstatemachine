@@ -213,7 +213,7 @@ public class StateMachineTest {
 	public void internalTransition() {
 		MockTransitionAction action = new MockTransitionAction();
 
-		System.out.println("transition");
+		System.out.println("internalTransition");
 		stateMachine.addState(1);
 		stateMachine.addState(2);
 		stateMachine.addTransition(1, 10, null, 2);
@@ -238,6 +238,74 @@ public class StateMachineTest {
 		Assert.assertSame(null, action.toState);
 		Assert.assertEquals(new Integer(20), action.event);
 	}
+
+	@Test
+	public void guardTransition() {
+		MockGuard<Integer, Integer> guard = new MockGuard<Integer, Integer>(false);
+		MockTransitionAction action = new MockTransitionAction();
+
+		System.out.println("guardInternalTransition");
+		stateMachine.addState(1);
+		stateMachine.addState(2);
+		stateMachine.addTransition(1, 10, action, 2, guard);
+		stateMachine.setInitialState(1);
+		stateMachine.start();
+		stateMachine.processEvent(10);
+
+		Assert.assertSame(stateMachine.getState(1), stateMachine.getcurrentState());
+
+		Assert.assertTrue(((MockState)stateMachine.getState(1)).enterStateCalled);
+		Assert.assertSame(null, ((MockState)stateMachine.getState(1)).enterStateEvent);
+		Assert.assertFalse(((MockState)stateMachine.getState(1)).processEventCalled);
+		Assert.assertFalse(((MockState)stateMachine.getState(2)).enterStateCalled);
+		Assert.assertFalse(((MockState)stateMachine.getState(2)).exitStateCalled);
+		Assert.assertFalse(((MockState)stateMachine.getState(2)).processEventCalled);
+		Assert.assertFalse(action.called);
+
+		guard.setValue(true);
+		stateMachine.processEvent(10);
+
+		Assert.assertTrue(((MockState)stateMachine.getState(1)).exitStateCalled);
+		Assert.assertFalse(((MockState)stateMachine.getState(1)).processEventCalled);
+		Assert.assertTrue(((MockState)stateMachine.getState(2)).enterStateCalled);
+		Assert.assertEquals(new Integer(10), ((MockState)stateMachine.getState(2)).enterStateEvent);
+		Assert.assertFalse(((MockState)stateMachine.getState(2)).exitStateCalled);
+		Assert.assertFalse(((MockState)stateMachine.getState(2)).processEventCalled);
+		Assert.assertTrue(action.called);
+		Assert.assertSame(stateMachine.getState(1), action.fromState);
+		Assert.assertSame(stateMachine.getState(2), action.toState);
+		Assert.assertEquals(new Integer(10), action.event);
+	}
+
+	@Test
+	public void guardInternalTransition() {
+		MockGuard<Integer, Integer> guard = new MockGuard<Integer, Integer>(false);
+		MockTransitionAction action = new MockTransitionAction();
+
+		System.out.println("guardInternalTransition");
+		stateMachine.addState(1);
+		stateMachine.addInternalTransition(1, 10, action, guard);
+		stateMachine.setInitialState(1);
+		stateMachine.start();
+		stateMachine.processEvent(10);
+
+		Assert.assertSame(stateMachine.getState(1), stateMachine.getcurrentState());
+
+		Assert.assertTrue(((MockState)stateMachine.getState(1)).enterStateCalled);
+		Assert.assertSame(null, ((MockState)stateMachine.getState(1)).enterStateEvent);
+		Assert.assertFalse(((MockState)stateMachine.getState(1)).processEventCalled);
+		Assert.assertFalse(action.called);
+
+		guard.setValue(true);
+		stateMachine.processEvent(10);
+
+		Assert.assertFalse(((MockState)stateMachine.getState(1)).exitStateCalled);
+		Assert.assertTrue(((MockState)stateMachine.getState(1)).processEventCalled);
+		Assert.assertSame(stateMachine.getState(1), action.fromState);
+		Assert.assertSame(null, action.toState);
+		Assert.assertEquals(new Integer(10), action.event);
+	}
+
 
 	@Test
 	public void stop() {
