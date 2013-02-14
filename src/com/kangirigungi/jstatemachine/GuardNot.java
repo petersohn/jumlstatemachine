@@ -33,10 +33,19 @@
 
 package com.kangirigungi.jstatemachine;
 
+/**
+ * Logical <i>not</i> wrapper of a guard.
+ *
+ * @author Peter Szabados
+ *
+ */
 public class GuardNot<StateId, Event> implements IGuard<StateId, Event> {
 
 	private IGuard<StateId, Event> other;
-	
+
+	/**
+	 * Initialize the guard. The check returns ! other.
+	 */
 	public GuardNot(IGuard<StateId, Event> other) {
 		this.other = other;
 	}
@@ -46,7 +55,7 @@ public class GuardNot<StateId, Event> implements IGuard<StateId, Event> {
 			IState<StateId, Event> toState, Event event) {
 		return !other.checkTransition(fromState, toState, event);
 	}
-	
-	
-	
+
+
+
 }

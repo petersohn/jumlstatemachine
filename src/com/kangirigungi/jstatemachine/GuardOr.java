@@ -33,11 +33,20 @@
 
 package com.kangirigungi.jstatemachine;
 
+/**
+ * Logical <i>or</i> wrapper of two guards.
+ *
+ * @author Peter Szabados
+ *
+ */
 public class GuardOr<StateId, Event> implements IGuard<StateId, Event> {
 
 	private IGuard<StateId, Event> left;
 	private IGuard<StateId, Event> right;
-	
+
+	/**
+	 * Initialize the guard. The check returns left || right.
+	 */
 	public GuardOr(IGuard<StateId, Event> left,
 			IGuard<StateId, Event> right) {
 		this.left = left;
@@ -50,7 +59,7 @@ public class GuardOr<StateId, Event> implements IGuard<StateId, Event> {
 		return left.checkTransition(fromState, toState, event) ||
 				right.checkTransition(fromState, toState, event);
 	}
-	
-	
-	
+
+
+
 }

@@ -55,6 +55,27 @@ import java.util.Map;
  * phase can be entered by the {@link start()} method.
  * </il>
  * <p>
+ * The following kind of transitions are supported:
+ * <ul>
+ * <li><b>Normal transition:</b> Added with
+ * {@link addTransition(StateId, Event, ITransitionAction<StateId, Event>, StateId, IGuard<StateId, Event>) addTransition}
+ * with the event parameter not {@value null}. These transitions are explicitly
+ * triggered with {@link processEvent(Event) processEvent} and change the
+ * state (or exit then enter the same state if the source and target state
+ * are the same).
+ * <li><b>Internal transition:</b> Added with
+ * {@link addInternalTransition(StateId, Event, ITransitionAction<StateId, Event>, IGuard<StateId, Event>) addInternalTransition}.
+ * The event parameter cannot be {@value null}. These transitions trigger an action
+ * without exiting the current state.
+ * <li><b>Completion transition:</b> Added with
+ * {@link addTransition(StateId, Event, ITransitionAction<StateId, Event>, StateId, IGuard<StateId, Event>) addTransition}
+ * with the event parameter {@value null}. These transitions are automatically
+ * triggered after each successful transition. If guarded and the guard value
+ * changes to true, it is cannot be checked automatically, only when the next
+ * (internal or external) transition happens. It can also be triggered
+ * explicitly with {@link processEvent(Event) processEvent(null)}.
+ * </ul>
+ * <p>
  * This class (and the entire library) is not thread-safe. This means
  * that in order to use it from within multiple threads, calls to any
  * methods (typically {@link processEvent(Event)}) must be synchronized.
@@ -201,15 +222,26 @@ public class StateMachine<StateId, Event> {
 	}
 
 	/**
-	 * Add a new transition. The action parameter is optional, all other
-	 * parameters are mandatory.
+	 * Add a new transition. The action and guard parameters are optional.
+	 * The fromState parameter is mandatory and cannot be null. If event is
+	 * null, that means it is a completion transition. Otherwise, it is a
+	 * normal transition.
+	 * <p>
+	 * For each state and event, only one transition is allowed, except if
+	 * all transitions for that state and event are guarded.
+	 * <b>Warning:</b> There is no guarantee that all guard checks are
+	 * executed. The first transition where the guard returns true is
+	 * executed.
+	 * <p>
+	 * <b>Warning:</b> There is no check that completion transitions won't
+	 * cause an infinite loop.
 	 *
 	 * @param fromState The initial state of the transition.
-	 * @param event The event that triggers the transition.
+	 * @param event The event that triggers the transition. If null, it is a
+	 * completion transition.
 	 * @param action The action to be executed.
 	 * @param toState The final state of the transition.
-	 * @throw DuplicateTransitionException If there is already a transition
-	 * from the same state with the same event.
+	 * @throw DuplicateTransitionException If there is an ambiguous transition.
 	 * @throws {@link NoStateException} If either {@link fromState} of
 	 * {@link toState} does not exist.
 	 */
@@ -237,9 +269,10 @@ public class StateMachine<StateId, Event> {
 
 	/**
 	 * Add a new internal transition. Internal transitions do not
-	 * leave the state when performing an action. The {@link action} parameter
-	 * is optional (though it would not make sense omitting it),
-	 * all other parameters are mandatory.
+	 * leave the state when performing an action. The action and
+	 * guard parameters are optional (though it would not make sense
+	 * omitting it). The state and event parameters is mandatory and
+	 * cannot be null.
 	 *
 	 * @param state The initial state of the transition.
 	 * @param event The event that triggers the transition.
@@ -309,6 +342,11 @@ public class StateMachine<StateId, Event> {
 	 * by the event. It must not be called from within callbacks. If
 	 * called while it is already running, an exception is thrown.
 	 *
+	 * The null value of event is special: it represents completion
+	 * transitions. It is automatically processed after each transition.
+	 * It can also be explicitly triggered (for example if there is a
+	 * guarded completion transition and the guard value may have changed).
+	 *
 	 * @param event The event to be processed.
 	 * @throws StateMachineException for various cases of improper usage.
 	 */
@@ -318,11 +356,6 @@ public class StateMachine<StateId, Event> {
 		if (inTransition) {
 			throw new InTransitionException("Cannot initiate transition " +
 					"while another transition is running.");
-		}
-
-		if (event == null) {
-			throw new IllegalEventException("Cannot explicitly trigger a " +
-					"null event.");
 		}
 
 		inTransition = true;

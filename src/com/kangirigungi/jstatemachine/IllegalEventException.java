@@ -33,6 +33,12 @@
 
 package com.kangirigungi.jstatemachine;
 
+/**
+ * Thrown when an event is {@value null} where it is not allowed.
+ *
+ * @author Peter Szabados
+ *
+ */
 public class IllegalEventException extends StateMachineException {
 
 	private static final long serialVersionUID = 1L;
