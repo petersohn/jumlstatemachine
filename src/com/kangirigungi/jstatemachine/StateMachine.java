@@ -155,6 +155,13 @@ public class StateMachine<StateId, Event> {
 		checkNotRunning("start");
 		initialState.state.enterState(null);
 		currentState = initialState;
+
+		inTransition = true;
+		try {
+			doProcessEvent(null);
+		} finally {
+			inTransition = false;
+		}
 	}
 
 	/**
@@ -247,6 +254,11 @@ public class StateMachine<StateId, Event> {
 			IGuard<StateId, Event> guard) {
 		checkNotRunning("addInternalTransition");
 
+		if (event == null) {
+			throw new IllegalEventException("No internal completion " +
+					"transitions are allowed.");
+		}
+
 		StateDescription<StateId, Event> description =
 				getStateDescription(state);
 
@@ -308,22 +320,35 @@ public class StateMachine<StateId, Event> {
 					"while another transition is running.");
 		}
 
+		if (event == null) {
+			throw new IllegalEventException("Cannot explicitly trigger a " +
+					"null event.");
+		}
+
 		inTransition = true;
 		try {
-			Collection<TransitionTarget<StateId, Event>> targets =
-					currentState.transitions.get(event);
-			if (targets != null) {
-				for (TransitionTarget<StateId, Event> target: targets) {
-					if (executeTransition(event, target)) {
-						break;
-					}
+			doProcessEvent(event);
+		} finally {
+			inTransition = false;
+		}
+	}
+
+	private void doProcessEvent(Event event) {
+		Collection<TransitionTarget<StateId, Event>> targets =
+				currentState.transitions.get(event);
+		if (targets != null) {
+			for (TransitionTarget<StateId, Event> target: targets) {
+				if (executeTransition(event, target)) {
+					// process completion transitions
+					doProcessEvent(null);
+					break;
 				}
-			} else {
+			}
+		} else {
+			if (event != null) {
 				// delegate the event
 				currentState.state.processEvent(event);
 			}
-		} finally {
-			inTransition = false;
 		}
 	}
 

@@ -306,6 +306,36 @@ public class StateMachineTest {
 		Assert.assertEquals(new Integer(10), action.event);
 	}
 
+	@Test
+	public void completionTransition() {
+		MockTransitionAction action = new MockTransitionAction();
+
+		System.out.println("completionTransition");
+		stateMachine.addState(1);
+		stateMachine.addState(2);
+		stateMachine.addTransition(1, null, action, 2);
+		stateMachine.setInitialState(1);
+		stateMachine.start();
+
+		Assert.assertSame(stateMachine.getState(2), stateMachine.getcurrentState());
+
+		Assert.assertTrue(((MockState)stateMachine.getState(1)).enterStateCalled);
+		Assert.assertSame(null, ((MockState)stateMachine.getState(1)).enterStateEvent);
+		Assert.assertTrue(((MockState)stateMachine.getState(1)).exitStateCalled);
+		Assert.assertSame(null, ((MockState)stateMachine.getState(1)).exitStateEvent);
+		Assert.assertFalse(((MockState)stateMachine.getState(1)).processEventCalled);
+
+		Assert.assertTrue(((MockState)stateMachine.getState(2)).enterStateCalled);
+		Assert.assertSame(null, ((MockState)stateMachine.getState(2)).enterStateEvent);
+		Assert.assertFalse(((MockState)stateMachine.getState(2)).exitStateCalled);
+		Assert.assertFalse(((MockState)stateMachine.getState(2)).processEventCalled);
+
+		Assert.assertTrue(action.called);
+		Assert.assertSame(stateMachine.getState(1), action.fromState);
+		Assert.assertSame(stateMachine.getState(2), action.toState);
+		Assert.assertSame(null, action.event);
+	}
+
 
 	@Test
 	public void stop() {
