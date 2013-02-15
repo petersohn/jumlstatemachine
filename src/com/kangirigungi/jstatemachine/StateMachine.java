@@ -44,7 +44,7 @@ import java.util.Map;
  * A state machine has two working phases. In each phase, different
  * methods can be called. If a method is called in the wrong state,
  * an exception is thrown.
- * <il>
+ * <ul>
  * <li><b>Not running:</b> The state machine starts in this phase.
  * The states and transitions of the state machine are defined here,
  * but the state machine has no current phase. When running, this
@@ -53,23 +53,23 @@ import java.util.Map;
  * can process events. No states or transitions can be added while
  * the state machine is running. When not running, this
  * phase can be entered by the {@link #start()} method.
- * </il>
+ * </ul>
  * <p>
  * The following kind of transitions are supported:
  * <ul>
  * <li><b>Normal transition:</b> Added with
  * {@link #addTransition(Object, Object, ITransitionAction, Object, IGuard) addTransition}
- * with the event parameter not null. These transitions are explicitly
+ * with the event parameter not <code>null</code>. These transitions are explicitly
  * triggered with {@link #processEvent(Object) processEvent} and change the
  * state (or exit then enter the same state if the source and target state
  * are the same).
  * <li><b>Internal transition:</b> Added with
  * {@link #addInternalTransition(Object, Object, ITransitionAction, IGuard) addInternalTransition}.
- * The event parameter cannot be null. These transitions trigger an action
+ * The event parameter cannot be <code>null</code>. These transitions trigger an action
  * without exiting the current state.
  * <li><b>Completion transition:</b> Added with
  * {@link #addTransition(Object, Object, ITransitionAction, Object, IGuard) addTransition}
- * with the event parameter null. These transitions are automatically
+ * with the event parameter <code>null</code>. These transitions are automatically
  * triggered after each successful transition. If guarded and the guard value
  * changes to true, it is cannot be checked automatically, only when the next
  * (internal or external) transition happens. It can also be triggered
@@ -219,8 +219,8 @@ public class StateMachine<StateId, Event> {
 
 	/**
 	 * Add a new transition. The action and guard parameters are optional.
-	 * The fromState parameter is mandatory and cannot be null. If event is
-	 * null, that means it is a completion transition. Otherwise, it is a
+	 * The fromState parameter is mandatory and cannot be <code>null</code>. If event is
+	 * <code>null</code>, that means it is a completion transition. Otherwise, it is a
 	 * normal transition.
 	 * <p>
 	 * For each state and event, only one transition is allowed, except if
@@ -233,7 +233,7 @@ public class StateMachine<StateId, Event> {
 	 * cause an infinite loop.
 	 *
 	 * @param fromState The initial state of the transition.
-	 * @param event The event that triggers the transition. If null, it is a
+	 * @param event The event that triggers the transition. If <code>null</code>, it is a
 	 * completion transition.
 	 * @param action The action to be executed.
 	 * @param toState The final state of the transition.
@@ -256,7 +256,8 @@ public class StateMachine<StateId, Event> {
 	}
 
 	/**
-	 * Same as addTransition(fromState, event, action, toState, null).
+	 * Same as {@link #addTransition(Object, Object, ITransitionAction, Object, IGuard)
+	 * addTransition(fromState, event, action, toState, null)}.
 	 */
 	public void addTransition(StateId fromState, Event event,
 			ITransitionAction<StateId, Event> action, StateId toState) {
@@ -268,7 +269,7 @@ public class StateMachine<StateId, Event> {
 	 * leave the state when performing an action. The action and
 	 * guard parameters are optional (though it would not make sense
 	 * omitting it). The state and event parameters is mandatory and
-	 * cannot be null.
+	 * cannot be <code>null</code>.
 	 *
 	 * @param state The initial state of the transition.
 	 * @param event The event that triggers the transition.
@@ -296,7 +297,8 @@ public class StateMachine<StateId, Event> {
 	}
 
 	/**
-	 * Same as addInternalTransition(state, event, action, null).
+	 * Same as {@link #addInternalTransition(Object, Object, ITransitionAction, IGuard)
+	 * addInternalTransition(state, event, action, null)}.
 	 */
 	public void addInternalTransition(StateId state, Event event,
 			ITransitionAction<StateId, Event> action) {
@@ -338,7 +340,7 @@ public class StateMachine<StateId, Event> {
 	 * by the event. It must not be called from within callbacks. If
 	 * called while it is already running, an exception is thrown.
 	 * <p>
-	 * The null value of event is special: it represents completion
+	 * The <code>null</code> value of event is special: it represents completion
 	 * transitions. It is automatically processed after each transition.
 	 * It can also be explicitly triggered (for example if there is a
 	 * guarded completion transition and the guard value may have changed).

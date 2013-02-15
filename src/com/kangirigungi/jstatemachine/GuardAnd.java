@@ -45,7 +45,7 @@ public class GuardAnd<StateId, Event> implements IGuard<StateId, Event> {
 	private IGuard<StateId, Event> right;
 
 	/**
-	 * Initialize the guard. The check returns left && right.
+	 * Initialize the guard. The check returns <code>left && right</code>.
 	 */
 	public GuardAnd(IGuard<StateId, Event> left,
 			IGuard<StateId, Event> right) {

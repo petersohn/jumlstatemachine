@@ -45,7 +45,7 @@ public class GuardOr<StateId, Event> implements IGuard<StateId, Event> {
 	private IGuard<StateId, Event> right;
 
 	/**
-	 * Initialize the guard. The check returns left || right.
+	 * Initialize the guard. The check returns <code>left || right</code>.
 	 */
 	public GuardOr(IGuard<StateId, Event> left,
 			IGuard<StateId, Event> right) {

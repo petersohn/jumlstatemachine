@@ -44,7 +44,7 @@ public class GuardNot<StateId, Event> implements IGuard<StateId, Event> {
 	private IGuard<StateId, Event> other;
 
 	/**
-	 * Initialize the guard. The check returns ! other.
+	 * Initialize the guard. The check returns <code>! other</code>.
 	 */
 	public GuardNot(IGuard<StateId, Event> other) {
 		this.other = other;

@@ -35,7 +35,7 @@ package com.kangirigungi.jstatemachine;
 
 /**
  * Interface representation of a state. Each state has a unique identifier
- * represented by an Id type (which is typically an enum). When referring
+ * represented by an Id type (which is typically an <code>enum</code>). When referring
  * to states, this identifier is used in the state machine.
  * <p>
  * The actual implementation of the state is in the {@link State} class.

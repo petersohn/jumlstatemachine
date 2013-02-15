@@ -43,8 +43,8 @@ package com.kangirigungi.jstatemachine;
  */
 public interface IEntryExitAction<StateId, Event> {
 	/**
-	 * Called when the state is entered. The event parameter contains
-	 * the event by which the state is entered, or null in the following
+	 * Called when the state is entered. The <code>event</code> parameter contains
+	 * the event by which the state is entered, or <code>null</code> in the following
 	 * situations:
 	 * <ul>
 	 * <li>Entering the initial state of a state machine when calling
