@@ -1,6 +1,6 @@
 package com.kangirigungi.jstatemachine;
 
-class MockGuard<StateId, Event> implements IGuard<StateId, Event> {
+public class MockGuard<StateId, Event> implements IGuard<StateId, Event> {
 
 	private boolean value;
 
