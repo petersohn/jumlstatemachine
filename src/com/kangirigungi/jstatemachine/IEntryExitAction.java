@@ -35,7 +35,7 @@ package com.kangirigungi.jstatemachine;
 
 /**
  * Callback interface for state entry and exit actions.
- * 
+ *
  * @author Peter Szabados
  *
  * @param <Id> The type used for referencing states.
@@ -43,13 +43,22 @@ package com.kangirigungi.jstatemachine;
  */
 public interface IEntryExitAction<StateId, Event> {
 	/**
-	 * Called when the state is entered.
+	 * Called when the state is entered. The event parameter contains
+	 * the event by which the state is entered, or null in the following
+	 * situations:
+	 * <ul>
+	 * <li>Entering the initial state of a state machine when calling
+	 * {@link StateMachine.start() start()}.
+	 * <li>Entering the state through a completion transition.
+	 * <li>An exception is thrown from an action callback and the original
+	 * state is being reentered.
+	 * </ul>
+	 *
 	 * @param state The state being entered.
 	 * @param event The event triggering the transition into the state.
-	 * If the state is the initial state, it is null.
 	 */
 	public void onEnter(IState<StateId, Event> state, Event event);
-	
+
 	/**
 	 * Called when the state is exited.
 	 * @param state The state being exited.

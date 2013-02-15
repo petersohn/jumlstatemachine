@@ -177,12 +177,7 @@ public class StateMachine<StateId, Event> {
 		initialState.state.enterState(null);
 		currentState = initialState;
 
-		inTransition = true;
-		try {
-			doProcessEvent(null);
-		} finally {
-			inTransition = false;
-		}
+		checkedProcessEvent(null);
 	}
 
 	/**
@@ -341,11 +336,18 @@ public class StateMachine<StateId, Event> {
 	 * Process an event and trigger any transitions needed to be done
 	 * by the event. It must not be called from within callbacks. If
 	 * called while it is already running, an exception is thrown.
-	 *
+	 * <p>
 	 * The null value of event is special: it represents completion
 	 * transitions. It is automatically processed after each transition.
 	 * It can also be explicitly triggered (for example if there is a
 	 * guarded completion transition and the guard value may have changed).
+	 * <p>
+	 * If an exception is thrown from a callback, the state machine doesn't
+	 * change state. If the exit action of a state is already called (the
+	 * exception is thrown from the action or the entry action of the next
+	 * state) then the entry action of the original state is called again.
+	 * After this, the exception is rethrown. No completion transitions
+	 * are triggered after such exceptions.
 	 *
 	 * @param event The event to be processed.
 	 * @throws StateMachineException for various cases of improper usage.
@@ -358,6 +360,10 @@ public class StateMachine<StateId, Event> {
 					"while another transition is running.");
 		}
 
+		checkedProcessEvent(event);
+	}
+
+	private void checkedProcessEvent(Event event) {
 		inTransition = true;
 		try {
 			doProcessEvent(event);
@@ -407,11 +413,16 @@ public class StateMachine<StateId, Event> {
 		} else {
 			// change the state
 			currentState.state.exitState(event);
-			if (target.action != null) {
-				target.action.onTransition(currentState.state,
-						targetState, event);
+			try {
+				if (target.action != null) {
+					target.action.onTransition(currentState.state,
+							targetState, event);
+				}
+				target.targetState.state.enterState(event);
+			} catch (RuntimeException e) {
+				currentState.state.enterState(null);
+				throw e;
 			}
-			target.targetState.state.enterState(event);
 			currentState = target.targetState;
 		}
 		return true;
