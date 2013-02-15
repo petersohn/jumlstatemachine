@@ -44,7 +44,7 @@ package com.kangirigungi.jstatemachine;
  *
  * @author Peter Szabados
  *
- * @param <Id> The type used for referencing states.
+ * @param <StateId> The type used for referencing states.
  * @param <Event> The type used for referencing events.
  */
 public interface IGuard<StateId, Event> {

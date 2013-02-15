@@ -35,20 +35,20 @@ package com.kangirigungi.jstatemachine;
 
 /**
  * Callback interface for transition actions.
- * 
+ *
  * @author Peter Szabados
  *
- * @param <Id> The type used for referencing states.
+ * @param <StateId> The type used for referencing states.
  * @param <Event> The type used for referencing events.
  */
 public interface ITransitionAction<StateId, Event> {
 	/**
 	 * Called when a state transition happens.
-	 * 
+	 *
 	 * @param fromState The initial state of the transition.
 	 * @param toState The final state of the transition.
 	 * @param event The event triggering the transition.
 	 */
-	public void onTransition(IState<StateId, Event> fromState, 
+	public void onTransition(IState<StateId, Event> fromState,
 			IState<StateId, Event> toState, Event event);
 }

@@ -48,37 +48,38 @@ import java.util.Map;
  * <li><b>Not running:</b> The state machine starts in this phase.
  * The states and transitions of the state machine are defined here,
  * but the state machine has no current phase. When running, this
- * phase can be entered by the {@link stop()} method.
+ * phase can be entered by the {@link #stop()} method.
  * <li><b>Running:</b> The state machine has an actual state and
  * can process events. No states or transitions can be added while
  * the state machine is running. When not running, this
- * phase can be entered by the {@link start()} method.
+ * phase can be entered by the {@link #start()} method.
  * </il>
  * <p>
  * The following kind of transitions are supported:
  * <ul>
  * <li><b>Normal transition:</b> Added with
- * {@link addTransition(StateId, Event, ITransitionAction<StateId, Event>, StateId, IGuard<StateId, Event>) addTransition}
- * with the event parameter not {@value null}. These transitions are explicitly
- * triggered with {@link processEvent(Event) processEvent} and change the
+ * {@link #addTransition(Object, Object, ITransitionAction, Object, IGuard) addTransition}
+ * with the event parameter not null. These transitions are explicitly
+ * triggered with {@link #processEvent(Object) processEvent} and change the
  * state (or exit then enter the same state if the source and target state
  * are the same).
  * <li><b>Internal transition:</b> Added with
- * {@link addInternalTransition(StateId, Event, ITransitionAction<StateId, Event>, IGuard<StateId, Event>) addInternalTransition}.
- * The event parameter cannot be {@value null}. These transitions trigger an action
+ * {@link #addInternalTransition(Object, Object, ITransitionAction, IGuard) addInternalTransition}.
+ * The event parameter cannot be null. These transitions trigger an action
  * without exiting the current state.
  * <li><b>Completion transition:</b> Added with
- * {@link addTransition(StateId, Event, ITransitionAction<StateId, Event>, StateId, IGuard<StateId, Event>) addTransition}
- * with the event parameter {@value null}. These transitions are automatically
+ * {@link #addTransition(Object, Object, ITransitionAction, Object, IGuard) addTransition}
+ * with the event parameter null. These transitions are automatically
  * triggered after each successful transition. If guarded and the guard value
  * changes to true, it is cannot be checked automatically, only when the next
  * (internal or external) transition happens. It can also be triggered
- * explicitly with {@link processEvent(Event) processEvent(null)}.
+ * explicitly with {@link #processEvent(Object) processEvent(null)}.
  * </ul>
  * <p>
  * This class (and the entire library) is not thread-safe. This means
  * that in order to use it from within multiple threads, calls to any
- * methods (typically {@link processEvent(Event)}) must be synchronized.
+ * methods (typically {@link #processEvent(Object)} processEvent)
+ * must be synchronized.
  * <p>
  * Exceptions thrown by this class are unchecked because the only way
  * they are thrown is because bad usage of the class and should never
@@ -86,7 +87,7 @@ import java.util.Map;
  *
  * @author Peter Szabados
  *
- * @param <Id> The type used for referencing states.
+ * @param <StateId> The type used for referencing states.
  * @param <Event> The type used for referencing events.
  */
 public class StateMachine<StateId, Event> {
@@ -147,7 +148,7 @@ public class StateMachine<StateId, Event> {
 	/**
 	 * Get the state associated with the given id. If the state does not
 	 * exist, an exception is thrown. States are added by the
-	 * {@link addState(StateId) addState} method.
+	 * {@link #addState(Object) addState} method.
 	 * @param id The identifier of the state.
 	 * @return The state.
 	 */
@@ -236,9 +237,9 @@ public class StateMachine<StateId, Event> {
 	 * completion transition.
 	 * @param action The action to be executed.
 	 * @param toState The final state of the transition.
-	 * @throw DuplicateTransitionException If there is an ambiguous transition.
-	 * @throws {@link NoStateException} If either {@link fromState} of
-	 * {@link toState} does not exist.
+	 * @throws DuplicateTransitionException If there is an ambiguous transition.
+	 * @throws {@link NoStateException} If either fromState of
+	 * toState does not exist.
 	 */
 	public void addTransition(StateId fromState, Event event,
 			ITransitionAction<StateId, Event> action,
@@ -272,10 +273,10 @@ public class StateMachine<StateId, Event> {
 	 * @param state The initial state of the transition.
 	 * @param event The event that triggers the transition.
 	 * @param action The action to be executed.
-	 * @throw DuplicateTransitionException If there is already a transition
+	 * @throws DuplicateTransitionException If there is already a transition
 	 * from the same state with the same event.
-	 * @throws {@link NoStateException} If either {@link fromState} of
-	 * {@link toState} does not exist.
+	 * @throws {@link NoStateException} If either fromState of
+	 * toState does not exist.
 	 */
 	public void addInternalTransition(StateId state, Event event,
 			ITransitionAction<StateId, Event> action,

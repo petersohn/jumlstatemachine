@@ -34,7 +34,7 @@
 package com.kangirigungi.jstatemachine;
 
 /**
- * Thrown when an event is {@value null} where it is not allowed.
+ * Thrown when an event is null where it is not allowed.
  *
  * @author Peter Szabados
  *

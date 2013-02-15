@@ -38,7 +38,7 @@ package com.kangirigungi.jstatemachine;
  *
  * @author Peter Szabados
  *
- * @param <Id> The type used for referencing states.
+ * @param <StateId> The type used for referencing states.
  * @param <Event> The type used for referencing events.
  */
 public interface IEntryExitAction<StateId, Event> {
@@ -48,7 +48,7 @@ public interface IEntryExitAction<StateId, Event> {
 	 * situations:
 	 * <ul>
 	 * <li>Entering the initial state of a state machine when calling
-	 * {@link StateMachine.start() start()}.
+	 * {@link StateMachine#start() start()}.
 	 * <li>Entering the state through a completion transition.
 	 * <li>An exception is thrown from an action callback and the original
 	 * state is being reentered.
