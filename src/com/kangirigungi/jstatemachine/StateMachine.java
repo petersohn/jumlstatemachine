@@ -169,7 +169,11 @@ public class StateMachine<StateId, Event> {
 
 	/**
 	 * Start the state machine. When the state machine is started, no more
-	 * states or transitions can be added.
+	 * states or transitions can be added. The entry action of the initial
+	 * state is executed.
+	 * <p>
+	 * If an exception is thrown from the entry action, then the state
+	 * machine is not started.
 	 *
 	 * @throws AlreadyRunningException When the state machine is running.
 	 */
@@ -182,10 +186,16 @@ public class StateMachine<StateId, Event> {
 	}
 
 	/**
-	 * Stop the state machine. States and transitions can only be added
-	 * when the state machine is stopped.
+	 * Stop the state machine. No more events can be triggered after the
+	 * state machine is stopped. The exit action of the current state is
+	 * executed.
+	 * <p>
+	 * If an exception is thrown from the exit action, then the state
+	 * machine is not stopped.
 	 */
 	public void stop() {
+		checkRunning("stop");
+		currentState.state.exitState(null);
 		currentState = null;
 	}
 

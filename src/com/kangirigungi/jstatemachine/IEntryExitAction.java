@@ -43,9 +43,9 @@ package com.kangirigungi.jstatemachine;
  */
 public interface IEntryExitAction<StateId, Event> {
 	/**
-	 * Called when the state is entered. The <code>event</code> parameter contains
-	 * the event by which the state is entered, or <code>null</code> in the following
-	 * situations:
+	 * Called when the state is entered. The <code>event</code> parameter
+	 * contains the event by which the state is entered, or <code>null</code>
+	 * in the following situations:
 	 * <ul>
 	 * <li>Entering the initial state of a state machine when calling
 	 * {@link StateMachine#start() start()}.
@@ -60,7 +60,14 @@ public interface IEntryExitAction<StateId, Event> {
 	public void onEnter(IState<StateId, Event> state, Event event);
 
 	/**
-	 * Called when the state is exited.
+	 * Called when the state is exited. The <code>event</code> parameter
+	 * contains the event by which the state is exited, or <code>null</code>
+	 *  in the following situations:
+	 * <ul>
+	 * <li>After calling {@link StateMachine#stop() stop()}.
+	 * <li>Exiting the state through a completion transition.
+	 * </ul>
+	 *
 	 * @param state The state being exited.
 	 * @param event The event triggering the transition from the state.
 	 */

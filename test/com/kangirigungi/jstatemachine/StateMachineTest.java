@@ -380,9 +380,16 @@ public class StateMachineTest {
 
 		stateMachine.start();
 		Assert.assertTrue(stateMachine.isRunning());
+		Assert.assertEquals(1, ((MockState)stateMachine.getState(1)).enterStateCalled);
+		Assert.assertSame(null, ((MockState)stateMachine.getState(1)).enterStateEvent);
+		Assert.assertEquals(0, ((MockState)stateMachine.getState(1)).exitStateCalled);
 
 		stateMachine.stop();
 		Assert.assertFalse(stateMachine.isRunning());
+		Assert.assertEquals(1, ((MockState)stateMachine.getState(1)).enterStateCalled);
+		Assert.assertSame(null, ((MockState)stateMachine.getState(1)).enterStateEvent);
+		Assert.assertEquals(1, ((MockState)stateMachine.getState(1)).exitStateCalled);
+		Assert.assertSame(null, ((MockState)stateMachine.getState(1)).exitStateEvent);
 	}
 
 	@Test
