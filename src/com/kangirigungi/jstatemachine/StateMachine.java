@@ -78,7 +78,7 @@ import java.util.Map;
  * <p>
  * This class (and the entire library) is not thread-safe. This means
  * that in order to use it from within multiple threads, calls to any
- * methods (typically {@link #processEvent(Object)} processEvent)
+ * methods (typically {@link #processEvent(Object) processEvent})
  * must be synchronized.
  * <p>
  * Exceptions thrown by this class are unchecked because the only way
