@@ -40,13 +40,13 @@ import org.junit.Test;
 
 public class StateTest {
 
-	private static class MockEntryExitAction 
+	private static class MockEntryExitAction
 			implements IEntryExitAction<Integer, Integer> {
 		public IState<Integer, Integer> state;
 		public int event;
 		public boolean onEnterCalled = false;
 		public boolean onExitCalled = false;
-		
+
 		@Override
 		public void onEnter(IState<Integer, Integer> state, Integer event) {
 			onEnterCalled = true;
@@ -62,15 +62,15 @@ public class StateTest {
 			this.event = event;
 		}
 	}
-	
+
 	@Test
 	public void stateIdEquals() {
 		State<Integer, Integer> state =
-				new State<Integer, Integer>(null, 1);
+				new State<Integer, Integer>(1);
 		Assert.assertEquals(new Integer(1), state.getId());
 		Assert.assertFalse(state.getId().equals(new Integer(2)));
 
-		state = new State<Integer, Integer>(null, 42);
+		state = new State<Integer, Integer>(42);
 		Assert.assertEquals(new Integer(42), state.getId());
 		Assert.assertFalse(state.getId().equals(new Integer(1)));
 	}
@@ -78,40 +78,40 @@ public class StateTest {
 	@Test
 	public void stateEquals() {
 		State<Integer, Integer> state1 =
-				new State<Integer, Integer>(null, 1);
+				new State<Integer, Integer>(1);
 		State<Integer, Integer> state2 =
-				new State<Integer, Integer>(null, 1);
+				new State<Integer, Integer>(1);
 		State<Integer, Integer> state3 =
-				new State<Integer, Integer>(null, 2);
+				new State<Integer, Integer>(2);
 		Assert.assertEquals(state1, state2);
 		Assert.assertEquals(state1.hashCode(), state2.hashCode());
 		Assert.assertFalse(state1.equals(state3));
 		Assert.assertFalse(state2.equals(state3));
 
-		state1 = new State<Integer, Integer>(null, 42);
-		state2 = new State<Integer, Integer>(null, 42);
+		state1 = new State<Integer, Integer>(42);
+		state2 = new State<Integer, Integer>(42);
 		Assert.assertEquals(state1, state2);
 		Assert.assertEquals(state1.hashCode(), state2.hashCode());
 		Assert.assertFalse(state1.equals(state3));
 		Assert.assertFalse(state2.equals(state3));
 	}
-	
+
 	@Test
 	public void entryExitAction() {
 		State<Integer, Integer> state =
-				new State<Integer, Integer>(null, 1);
+				new State<Integer, Integer>(1);
 		MockEntryExitAction action = new MockEntryExitAction();
 		state.setEntryExitAction(action);
 		Assert.assertSame(action, state.getEntryExitAction());
 		Assert.assertEquals(false, action.onEnterCalled);
 		Assert.assertEquals(false, action.onExitCalled);
-		
+
 		state.enterState(20);
 		Assert.assertEquals(true, action.onEnterCalled);
 		Assert.assertEquals(false, action.onExitCalled);
 		Assert.assertSame(state, action.state);
 		Assert.assertEquals(20, action.event);
-		
+
 		state.exitState(30);
 		Assert.assertEquals(false, action.onEnterCalled);
 		Assert.assertEquals(true, action.onExitCalled);

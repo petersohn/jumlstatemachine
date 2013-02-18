@@ -36,6 +36,7 @@ package com.kangirigungi.jstatemachine;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -117,15 +118,22 @@ public class StateMachine<StateId, Event> implements IStateMachine<StateId, Even
 		}
 	}
 
-	private IStateFactory<StateId, Event> stateFactory;
-	private Map<StateId, StateDescription<StateId, Event>> states;
+	private IStateFactory<StateId, Event> stateFactory
+			= new StateFactory<StateId, Event>();;
+	private Map<StateId, StateDescription<StateId, Event>> states
+			= new HashMap<StateId, StateDescription<StateId, Event>>();
+	private List<ICompositeState<StateId, Event>> substates =
+			new ArrayList<ICompositeState<StateId, Event>>();
 	private StateDescription<StateId, Event> initialState;
 	private StateDescription<StateId, Event> currentState;
 	private boolean inTransition = false;
+	private IStateMachine<StateId, Event> topLevelStateMachine = null;
 
 	public StateMachine() {
-		stateFactory = new StateFactory<StateId, Event>();
-		states = new HashMap<StateId, StateDescription<StateId, Event>>();
+	}
+
+	StateMachine(IStateMachine<StateId, Event> topLevelStateMachine) {
+		this.topLevelStateMachine = topLevelStateMachine;
 	}
 
 	/* (non-Javadoc)
@@ -197,15 +205,31 @@ public class StateMachine<StateId, Event> implements IStateMachine<StateId, Even
 	 */
 	@Override
 	public IState<StateId, Event> addState(StateId id) {
-		if (states.get(id) != null) {
+		if (getTopLevelStateMachine().hasState(id)) {
 			throw new DuplicateStateException(
 					"Duplicate state: "+id.toString()+".",
 					this, id);
 		}
 
 		IState<StateId, Event> state =
-				stateFactory.createStete(this, id);
+				stateFactory.createState(id);
 		states.put(id, new StateDescription<StateId, Event>(state));
+		return state;
+	}
+
+	@Override
+	public ICompositeState<StateId, Event> addCompositeState(StateId id) {
+		if (getTopLevelStateMachine().hasState(id)) {
+			throw new DuplicateStateException(
+					"Duplicate state: "+id.toString()+".",
+					this, id);
+		}
+
+		ICompositeState<StateId, Event> state =
+				stateFactory.createCompositeState(id,
+						getTopLevelStateMachine());
+		states.put(id, new StateDescription<StateId, Event>(state));
+		substates.add(state);
 		return state;
 	}
 
@@ -375,6 +399,26 @@ public class StateMachine<StateId, Event> implements IStateMachine<StateId, Even
 		}
 		return true;
 	}
+
+	@Override
+	public boolean hasState(StateId id) {
+		for (ICompositeState<StateId, Event> substate: substates) {
+			if (substate.getStateMachine().hasState(id)) {
+				return true;
+			}
+		}
+		return states.containsKey(id);
+	}
+
+	@Override
+	public IStateMachine<StateId, Event> getTopLevelStateMachine() {
+		if (topLevelStateMachine == null) {
+			return this;
+		} else {
+			return topLevelStateMachine;
+		}
+	}
+
 
 	private void throwDuplicateTransitionException(
 			IState<StateId, Event> state,

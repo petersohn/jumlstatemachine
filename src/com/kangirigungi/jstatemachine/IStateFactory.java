@@ -34,6 +34,9 @@
 package com.kangirigungi.jstatemachine;
 
 interface IStateFactory<StateId, Event> {
-	IState<StateId, Event> createStete(
-			IStateMachine<StateId, Event> stateMachine, StateId id);
+	IState<StateId, Event> createState(StateId id);
+	ICompositeState<StateId, Event> createCompositeState(StateId id,
+			IStateMachine<StateId, Event> topLevelStateMachine);
+	IStateMachine<StateId, Event> createStateMachine(
+			IStateMachine<StateId, Event> topLevelStateMachine);
 }

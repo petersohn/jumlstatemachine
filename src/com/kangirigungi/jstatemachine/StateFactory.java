@@ -36,9 +36,21 @@ package com.kangirigungi.jstatemachine;
 class StateFactory<StateId, Event> implements IStateFactory<StateId, Event> {
 
 	@Override
-	public IState<StateId, Event> createStete(
-			IStateMachine<StateId, Event> stateMachine, StateId id) {
-		return new State<StateId, Event>(stateMachine, id);
+	public IState<StateId, Event> createState(StateId id) {
+		return new State<StateId, Event>(id);
+	}
+
+	@Override
+	public IStateMachine<StateId, Event> createStateMachine(
+			IStateMachine<StateId, Event> topLevelStateMachine) {
+		return new StateMachine<StateId, Event>(topLevelStateMachine);
+	}
+
+	@Override
+	public ICompositeState<StateId, Event> createCompositeState(StateId id,
+			IStateMachine<StateId, Event> topLevelStateMachine) {
+		return new CompositeState<StateId, Event>(id,
+				topLevelStateMachine, this);
 	}
 
 }

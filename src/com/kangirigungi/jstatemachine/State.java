@@ -45,12 +45,10 @@ package com.kangirigungi.jstatemachine;
  */
 public class State<Id, Event> implements IState<Id, Event> {
 
-	private IStateMachine<Id, Event> stateMachine;
 	private Id id;
 	private IEntryExitAction<Id, Event> entryExitAction;
 
-	State(IStateMachine<Id, Event> stateMachine, Id id) {
-		this.stateMachine = stateMachine;
+	State(Id id) {
 		this.id = id;
 	}
 

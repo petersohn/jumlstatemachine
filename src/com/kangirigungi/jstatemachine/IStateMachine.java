@@ -23,6 +23,10 @@ public interface IStateMachine<StateId, Event> {
 	 */
 	public IState<StateId, Event> getState(StateId id);
 
+	public boolean hasState(StateId id);
+
+	public IStateMachine<StateId, Event> getTopLevelStateMachine();
+
 	/**
 	 * Set the initial state for the state machine. This must always
 	 * be called before starting the state machine.
@@ -67,6 +71,7 @@ public interface IStateMachine<StateId, Event> {
 	 * @throws DuplicateStateException If the state id already exists.
 	 */
 	public IState<StateId, Event> addState(StateId id);
+	public ICompositeState<StateId, Event> addCompositeState(StateId id);
 
 	/**
 	 * Add a new transition. The action and guard parameters are optional.

@@ -95,9 +95,22 @@ public class StateMachineTest {
 			implements IStateFactory<Integer, Integer> {
 
 		@Override
-		public IState<Integer, Integer> createStete(
-				IStateMachine<Integer, Integer> stateMachine, Integer id) {
+		public IState<Integer, Integer> createState(Integer id) {
 			return new MockState(id);
+		}
+
+		@Override
+		public ICompositeState<Integer, Integer> createCompositeState(
+				Integer id, IStateMachine<Integer, Integer> topLevelStateMachine) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public IStateMachine<Integer, Integer> createStateMachine(
+				IStateMachine<Integer, Integer> topLevelStateMachine) {
+			// TODO Auto-generated method stub
+			return null;
 		}
 
 	}
