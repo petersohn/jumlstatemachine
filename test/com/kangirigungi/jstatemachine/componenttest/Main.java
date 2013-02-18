@@ -35,12 +35,15 @@ package com.kangirigungi.jstatemachine.componenttest;
 
 import com.kangirigungi.jstatemachine.IEntryExitAction;
 import com.kangirigungi.jstatemachine.IState;
+import com.kangirigungi.jstatemachine.IStateMachine;
 import com.kangirigungi.jstatemachine.ITransitionAction;
 import com.kangirigungi.jstatemachine.StateMachine;
+import com.kangirigungi.jstatemachine.componenttest.Main.Events;
+import com.kangirigungi.jstatemachine.componenttest.Main.States;
 
 /**
  * Class for the example on the wiki page.
- * @author Péter Szabados
+ * @author Pï¿½ter Szabados
  *
  */
 public class Main {
@@ -89,7 +92,7 @@ public class Main {
 
 	public static void main(String[] args) {
 		EntryExitHandler entryExitHandler = new EntryExitHandler();
-		StateMachine<States, Events> stateMachine = 
+		IStateMachine<States, Events> stateMachine = 
 				new StateMachine<States, Events>();
 
 		// define states

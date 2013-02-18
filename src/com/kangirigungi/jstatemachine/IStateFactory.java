@@ -35,5 +35,5 @@ package com.kangirigungi.jstatemachine;
 
 interface IStateFactory<StateId, Event> {
 	IState<StateId, Event> createStete(
-			StateMachine<StateId, Event> stateMachine, StateId id);
+			IStateMachine<StateId, Event> stateMachine, StateId id);
 }

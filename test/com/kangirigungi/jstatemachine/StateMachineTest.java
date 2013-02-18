@@ -96,7 +96,7 @@ public class StateMachineTest {
 
 		@Override
 		public IState<Integer, Integer> createStete(
-				StateMachine<Integer, Integer> stateMachine, Integer id) {
+				IStateMachine<Integer, Integer> stateMachine, Integer id) {
 			return new MockState(id);
 		}
 
