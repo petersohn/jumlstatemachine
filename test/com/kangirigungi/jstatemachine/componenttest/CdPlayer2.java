@@ -46,6 +46,8 @@ import com.kangirigungi.jstatemachine.IStateMachine;
 import com.kangirigungi.jstatemachine.ITransitionAction;
 import com.kangirigungi.jstatemachine.MockGuard;
 import com.kangirigungi.jstatemachine.StateMachine;
+import com.kangirigungi.jstatemachine.componenttest.CdPlayer2.Events;
+import com.kangirigungi.jstatemachine.componenttest.CdPlayer2.States;
 
 public class CdPlayer2 {
 

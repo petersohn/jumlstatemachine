@@ -44,6 +44,8 @@ import com.kangirigungi.jstatemachine.IState;
 import com.kangirigungi.jstatemachine.IStateMachine;
 import com.kangirigungi.jstatemachine.ITransitionAction;
 import com.kangirigungi.jstatemachine.StateMachine;
+import com.kangirigungi.jstatemachine.componenttest.CdPlayer.Events;
+import com.kangirigungi.jstatemachine.componenttest.CdPlayer.States;
 
 public class CdPlayer {
 
