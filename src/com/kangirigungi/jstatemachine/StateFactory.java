@@ -37,7 +37,7 @@ class StateFactory<StateId, Event> implements IStateFactory<StateId, Event> {
 
 	@Override
 	public IState<StateId, Event> createStete(
-			StateMachine<StateId, Event> stateMachine, StateId id) {
+			IStateMachine<StateId, Event> stateMachine, StateId id) {
 		return new State<StateId, Event>(stateMachine, id);
 	}
 

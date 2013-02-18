@@ -41,6 +41,7 @@ import org.junit.Test;
 
 import com.kangirigungi.jstatemachine.IEntryExitAction;
 import com.kangirigungi.jstatemachine.IState;
+import com.kangirigungi.jstatemachine.IStateMachine;
 import com.kangirigungi.jstatemachine.ITransitionAction;
 import com.kangirigungi.jstatemachine.StateMachine;
 
@@ -59,7 +60,7 @@ public class CdPlayer {
 		 ResumePlayback, StopAndOpen, OpenDrawer, CloseDrawer
 	}
 
-	private StateMachine<States, Events> stateMachine;
+	private IStateMachine<States, Events> stateMachine;
 	private Actions lastAction;
 	private States lastStateEntered;
 	private States lastStateExited;

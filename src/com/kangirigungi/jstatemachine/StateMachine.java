@@ -90,7 +90,7 @@ import java.util.Map;
  * @param <StateId> The type used for referencing states.
  * @param <Event> The type used for referencing events.
  */
-public class StateMachine<StateId, Event> {
+public class StateMachine<StateId, Event> implements IStateMachine<StateId, Event> {
 
 	private static class TransitionTarget<StateId, Event> {
 		public IGuard<StateId, Event> guard;
@@ -128,55 +128,44 @@ public class StateMachine<StateId, Event> {
 		states = new HashMap<StateId, StateDescription<StateId, Event>>();
 	}
 
-	/**
-	 * @return The initial state of the state machine.
+	/* (non-Javadoc)
+	 * @see com.kangirigungi.jstatemachine.IStateMachine#getInitialState()
 	 */
+	@Override
 	public IState<StateId, Event> getInitialState() {
 		return initialState.state;
 	}
 
-	/**
-	 *
-	 * @return The current state of the state machine.
-	 * @throws NotRunningException When the state machine is not running.
+	/* (non-Javadoc)
+	 * @see com.kangirigungi.jstatemachine.IStateMachine#getcurrentState()
 	 */
+	@Override
 	public IState<StateId, Event> getcurrentState() {
 		checkRunning("getcurrentState");
 		return currentState.state;
 	}
 
-	/**
-	 * Get the state associated with the given id. If the state does not
-	 * exist, an exception is thrown. States are added by the
-	 * {@link #addState(Object) addState} method.
-	 * @param id The identifier of the state.
-	 * @return The state.
+	/* (non-Javadoc)
+	 * @see com.kangirigungi.jstatemachine.IStateMachine#getState(StateId)
 	 */
+	@Override
 	public IState<StateId, Event> getState(StateId id) {
 		return getStateDescription(id).state;
 	}
 
-	/**
-	 * Set the initial state for the state machine. This must always
-	 * be called before starting the state machine.
-	 * @param initialState The new initial state.
-	 * @throws AlreadyRunningException When the state machine is running.
+	/* (non-Javadoc)
+	 * @see com.kangirigungi.jstatemachine.IStateMachine#setInitialState(StateId)
 	 */
+	@Override
 	public void setInitialState(StateId initialState) {
 		checkNotRunning("setInitialState");
 		this.initialState = getStateDescription(initialState);
 	}
 
-	/**
-	 * Start the state machine. When the state machine is started, no more
-	 * states or transitions can be added. The entry action of the initial
-	 * state is executed.
-	 * <p>
-	 * If an exception is thrown from the entry action, then the state
-	 * machine is not started.
-	 *
-	 * @throws AlreadyRunningException When the state machine is running.
+	/* (non-Javadoc)
+	 * @see com.kangirigungi.jstatemachine.IStateMachine#start()
 	 */
+	@Override
 	public void start() {
 		checkNotRunning("start");
 		initialState.state.enterState(null);
@@ -185,35 +174,28 @@ public class StateMachine<StateId, Event> {
 		checkedProcessEvent(null);
 	}
 
-	/**
-	 * Stop the state machine. No more events can be triggered after the
-	 * state machine is stopped. The exit action of the current state is
-	 * executed.
-	 * <p>
-	 * If an exception is thrown from the exit action, then the state
-	 * machine is not stopped.
+	/* (non-Javadoc)
+	 * @see com.kangirigungi.jstatemachine.IStateMachine#stop()
 	 */
+	@Override
 	public void stop() {
 		checkRunning("stop");
 		currentState.state.exitState(null);
 		currentState = null;
 	}
 
-	/**
-	 * @return True if the state machine is running.
+	/* (non-Javadoc)
+	 * @see com.kangirigungi.jstatemachine.IStateMachine#isRunning()
 	 */
+	@Override
 	public boolean isRunning() {
 		return currentState != null;
 	}
 
-	/**
-	 * Add a new state. Only one state with one id is allowed. If another
-	 * one with the same idis attempted to be added, an exception is thrown.
-	 *
-	 * @param id The identifier of the new state.
-	 * @return The instance of the new state.
-	 * @throws DuplicateStateException If the state id already exists.
+	/* (non-Javadoc)
+	 * @see com.kangirigungi.jstatemachine.IStateMachine#addState(StateId)
 	 */
+	@Override
 	public IState<StateId, Event> addState(StateId id) {
 		if (states.get(id) != null) {
 			throw new DuplicateStateException(
@@ -227,30 +209,10 @@ public class StateMachine<StateId, Event> {
 		return state;
 	}
 
-	/**
-	 * Add a new transition. The action and guard parameters are optional.
-	 * The fromState parameter is mandatory and cannot be <code>null</code>. If event is
-	 * <code>null</code>, that means it is a completion transition. Otherwise, it is a
-	 * normal transition.
-	 * <p>
-	 * For each state and event, only one transition is allowed, except if
-	 * all transitions for that state and event are guarded.
-	 * <b>Warning:</b> There is no guarantee that all guard checks are
-	 * executed. The first transition where the guard returns true is
-	 * executed.
-	 * <p>
-	 * <b>Warning:</b> There is no check that completion transitions won't
-	 * cause an infinite loop.
-	 *
-	 * @param fromState The initial state of the transition.
-	 * @param event The event that triggers the transition. If <code>null</code>, it is a
-	 * completion transition.
-	 * @param action The action to be executed.
-	 * @param toState The final state of the transition.
-	 * @throws DuplicateTransitionException If there is an ambiguous transition.
-	 * @throws {@link NoStateException} If either fromState of
-	 * toState does not exist.
+	/* (non-Javadoc)
+	 * @see com.kangirigungi.jstatemachine.IStateMachine#addTransition(StateId, Event, com.kangirigungi.jstatemachine.ITransitionAction, StateId, com.kangirigungi.jstatemachine.IGuard)
 	 */
+	@Override
 	public void addTransition(StateId fromState, Event event,
 			ITransitionAction<StateId, Event> action,
 			StateId toState, IGuard<StateId, Event> guard) {
@@ -265,30 +227,19 @@ public class StateMachine<StateId, Event> {
 				toDescription, guard);
 	}
 
-	/**
-	 * Same as {@link #addTransition(Object, Object, ITransitionAction, Object, IGuard)
-	 * addTransition(fromState, event, action, toState, null)}.
+	/* (non-Javadoc)
+	 * @see com.kangirigungi.jstatemachine.IStateMachine#addTransition(StateId, Event, com.kangirigungi.jstatemachine.ITransitionAction, StateId)
 	 */
+	@Override
 	public void addTransition(StateId fromState, Event event,
 			ITransitionAction<StateId, Event> action, StateId toState) {
 		addTransition(fromState, event, action, toState, null);
 	}
 
-	/**
-	 * Add a new internal transition. Internal transitions do not
-	 * leave the state when performing an action. The action and
-	 * guard parameters are optional (though it would not make sense
-	 * omitting it). The state and event parameters is mandatory and
-	 * cannot be <code>null</code>.
-	 *
-	 * @param state The initial state of the transition.
-	 * @param event The event that triggers the transition.
-	 * @param action The action to be executed.
-	 * @throws DuplicateTransitionException If there is already a transition
-	 * from the same state with the same event.
-	 * @throws {@link NoStateException} If either fromState of
-	 * toState does not exist.
+	/* (non-Javadoc)
+	 * @see com.kangirigungi.jstatemachine.IStateMachine#addInternalTransition(StateId, Event, com.kangirigungi.jstatemachine.ITransitionAction, com.kangirigungi.jstatemachine.IGuard)
 	 */
+	@Override
 	public void addInternalTransition(StateId state, Event event,
 			ITransitionAction<StateId, Event> action,
 			IGuard<StateId, Event> guard) {
@@ -306,10 +257,10 @@ public class StateMachine<StateId, Event> {
 				null, guard);
 	}
 
-	/**
-	 * Same as {@link #addInternalTransition(Object, Object, ITransitionAction, IGuard)
-	 * addInternalTransition(state, event, action, null)}.
+	/* (non-Javadoc)
+	 * @see com.kangirigungi.jstatemachine.IStateMachine#addInternalTransition(StateId, Event, com.kangirigungi.jstatemachine.ITransitionAction)
 	 */
+	@Override
 	public void addInternalTransition(StateId state, Event event,
 			ITransitionAction<StateId, Event> action) {
 		addInternalTransition(state, event, action, null);
@@ -345,26 +296,10 @@ public class StateMachine<StateId, Event> {
 
 	}
 
-	/**
-	 * Process an event and trigger any transitions needed to be done
-	 * by the event. It must not be called from within callbacks. If
-	 * called while it is already running, an exception is thrown.
-	 * <p>
-	 * The <code>null</code> value of event is special: it represents completion
-	 * transitions. It is automatically processed after each transition.
-	 * It can also be explicitly triggered (for example if there is a
-	 * guarded completion transition and the guard value may have changed).
-	 * <p>
-	 * If an exception is thrown from a callback, the state machine doesn't
-	 * change state. If the exit action of a state is already called (the
-	 * exception is thrown from the action or the entry action of the next
-	 * state) then the entry action of the original state is called again.
-	 * After this, the exception is rethrown. No completion transitions
-	 * are triggered after such exceptions.
-	 *
-	 * @param event The event to be processed.
-	 * @throws StateMachineException for various cases of improper usage.
+	/* (non-Javadoc)
+	 * @see com.kangirigungi.jstatemachine.IStateMachine#processEvent(Event)
 	 */
+	@Override
 	public void processEvent(Event event) {
 		checkRunning("processEvent");
 
