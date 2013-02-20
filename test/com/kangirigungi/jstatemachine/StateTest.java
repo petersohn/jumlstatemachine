@@ -78,7 +78,7 @@ public class StateTest {
 		State<Integer, Integer> state =
 				new State<Integer, Integer>(1);
 		MockEntryExitAction<Integer, Integer> action =
-				new MockEntryExitAction();
+				new MockEntryExitAction<Integer, Integer>();
 		state.setEntryExitAction(action);
 		Assert.assertSame(action, state.getEntryExitAction());
 		Assert.assertEquals(false, action.onEnterCalled);
