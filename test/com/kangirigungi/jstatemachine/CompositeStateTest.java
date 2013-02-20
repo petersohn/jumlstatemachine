@@ -33,29 +33,36 @@
 
 package com.kangirigungi.jstatemachine;
 
-public class MockStateFactory<StateId, Event>
-		implements IStateFactory<StateId, Event> {
+import junit.framework.Assert;
 
-	public MockState<StateId, Event> lastCreatedState;
+import org.junit.Test;
 
-	@Override
-	public IState<StateId, Event> createState(StateId id) {
-		lastCreatedState = new MockState<StateId, Event>(id);
-		return lastCreatedState;
+public class CompositeStateTest {
+	@Test
+	public void legacyState() {
+		MockStateFactory<Integer, Integer> mockStateFactory =
+				new MockStateFactory<Integer, Integer>();
+		CompositeState<Integer, Integer> compositeState =
+				new CompositeState<Integer, Integer>(1, null, mockStateFactory);
+
+		Assert.assertNotNull(mockStateFactory.lastCreatedState);
+		Assert.assertEquals(0, mockStateFactory.lastCreatedState.
+				enterStateCalled);
+		Assert.assertEquals(0, mockStateFactory.lastCreatedState.
+				exitStateCalled);
+		Assert.assertEquals(0, mockStateFactory.lastCreatedState.
+				processEventCalled);
+
+		compositeState.enterState(10);
+		Assert.assertEquals(1, mockStateFactory.lastCreatedState.
+				enterStateCalled);
+		Assert.assertEquals(new Integer(10), mockStateFactory.lastCreatedState.
+				enterStateEvent);
+
+		compositeState.exitState(20);
+		Assert.assertEquals(1, mockStateFactory.lastCreatedState.
+				exitStateCalled);
+		Assert.assertEquals(new Integer(20), mockStateFactory.lastCreatedState.
+				exitStateEvent);
 	}
-
-	@Override
-	public ICompositeState<StateId, Event> createCompositeState(
-			StateId id, IStateMachine<StateId, Event> topLevelStateMachine) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public IStateMachine<StateId, Event> createStateMachine(
-		IStateMachine<StateId, Event> topLevelStateMachine) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 }
