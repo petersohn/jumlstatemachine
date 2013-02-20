@@ -40,105 +40,12 @@ import org.junit.Test;
 
 public class StateMachineTest {
 
-	private static class MockState implements IState<Integer, Integer> {
-
-		public Integer enterStateEvent;
-		public Integer exitStateEvent;
-		public Integer processEventEvent;
-		public int enterStateCalled = 0;
-		public int exitStateCalled = 0;
-		public int processEventCalled = 0;
-		private Integer id;
-
-		public MockState(Integer id) {
-			this.id = id;
-		}
-
-		@Override
-		public void enterState(Integer event) {
-			System.out.println(id+": enterState("+event+")");
-			++enterStateCalled;
-			enterStateEvent = event;
-		}
-
-		@Override
-		public void exitState(Integer event) {
-			System.out.println(id+": exitState("+event+")");
-			++exitStateCalled;
-			exitStateEvent = event;
-		}
-
-		@Override
-		public void processEvent(Integer event) {
-			System.out.println(id+": processEvent("+event+")");
-			++processEventCalled;
-			processEventEvent = event;
-		}
-
-		@Override
-		public Integer getId() {
-			return id;
-		}
-
-		@Override
-		public IEntryExitAction<Integer, Integer> getEntryExitAction() {
-			return null;
-		}
-
-		@Override
-		public void setEntryExitAction(IEntryExitAction<Integer, Integer> action) {
-		}
-
-	}
-
-	private static class MockStateFactory
-			implements IStateFactory<Integer, Integer> {
-
-		@Override
-		public IState<Integer, Integer> createState(Integer id) {
-			return new MockState(id);
-		}
-
-		@Override
-		public ICompositeState<Integer, Integer> createCompositeState(
-				Integer id, IStateMachine<Integer, Integer> topLevelStateMachine) {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public IStateMachine<Integer, Integer> createStateMachine(
-				IStateMachine<Integer, Integer> topLevelStateMachine) {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-	}
-
-	private static class MockTransitionAction implements
-			ITransitionAction<Integer, Integer> {
-
-		public boolean called = false;
-		public IState<Integer, Integer> fromState;
-		public IState<Integer, Integer> toState;
-		public Integer event;
-
-		@Override
-		public void onTransition(IState<Integer, Integer> fromState,
-				IState<Integer, Integer> toState, Integer event) {
-			called = true;
-			this.fromState = fromState;
-			this.toState = toState;
-			this.event = event;
-		}
-	}
-
 	private StateMachine<Integer, Integer> stateMachine;
 
 	@Before
 	public void initialize() {
 		stateMachine = new StateMachine<Integer, Integer>();
-		stateMachine.setStateFactory(new MockStateFactory());
+		stateMachine.setStateFactory(new MockStateFactory<Integer, Integer>());
 	}
 
 	@Test
@@ -147,26 +54,40 @@ public class StateMachineTest {
 		stateMachine.addState(1);
 		stateMachine.addState(2);
 		stateMachine.setInitialState(1);
-		Assert.assertSame(stateMachine.getState(1), stateMachine.getInitialState());
+		Assert.assertSame(stateMachine.getState(1),
+				stateMachine.getInitialState());
 
 		Assert.assertFalse(stateMachine.isRunning());
 		stateMachine.start();
 		Assert.assertTrue(stateMachine.isRunning());
-		Assert.assertSame(stateMachine.getState(1), stateMachine.getcurrentState());
+		Assert.assertSame(stateMachine.getState(1),
+				stateMachine.getcurrentState());
 
-		Assert.assertEquals(1, ((MockState)stateMachine.getState(1)).enterStateCalled);
-		Assert.assertSame(null, ((MockState)stateMachine.getState(1)).enterStateEvent);
-		Assert.assertEquals(0, ((MockState)stateMachine.getState(1)).exitStateCalled);
-		Assert.assertEquals(0, ((MockState)stateMachine.getState(1)).processEventCalled);
+		Assert.assertTrue(stateMachine.hasState(1));
+		Assert.assertTrue(stateMachine.hasState(2));
+		Assert.assertFalse(stateMachine.hasState(4));
 
-		Assert.assertEquals(0, ((MockState)stateMachine.getState(2)).enterStateCalled);
-		Assert.assertEquals(0, ((MockState)stateMachine.getState(2)).exitStateCalled);
-		Assert.assertEquals(0, ((MockState)stateMachine.getState(2)).processEventCalled);
+		Assert.assertEquals(1, ((MockState<Integer, Integer>)stateMachine.
+				getState(1)).enterStateCalled);
+		Assert.assertSame(null, ((MockState<Integer, Integer>)stateMachine.
+				getState(1)).enterStateEvent);
+		Assert.assertEquals(0, ((MockState<Integer, Integer>)stateMachine.
+				getState(1)).exitStateCalled);
+		Assert.assertEquals(0, ((MockState<Integer, Integer>)stateMachine.
+				getState(1)).processEventCalled);
+
+		Assert.assertEquals(0, ((MockState<Integer, Integer>)stateMachine.
+				getState(2)).enterStateCalled);
+		Assert.assertEquals(0, ((MockState<Integer, Integer>)stateMachine.
+				getState(2)).exitStateCalled);
+		Assert.assertEquals(0, ((MockState<Integer, Integer>)stateMachine.
+				getState(2)).processEventCalled);
 	}
 
 	@Test
 	public void transition() {
-		MockTransitionAction action = new MockTransitionAction();
+		MockTransitionAction<Integer, Integer> action =
+				new MockTransitionAction<Integer, Integer>();
 
 		System.out.println("transition");
 		stateMachine.addState(1);
@@ -176,18 +97,30 @@ public class StateMachineTest {
 		stateMachine.start();
 		stateMachine.processEvent(10);
 
-		Assert.assertSame(stateMachine.getState(2), stateMachine.getcurrentState());
+		Assert.assertSame(stateMachine.getState(2),
+				stateMachine.getcurrentState());
 
-		Assert.assertEquals(1, ((MockState)stateMachine.getState(1)).enterStateCalled);
-		Assert.assertSame(null, ((MockState)stateMachine.getState(1)).enterStateEvent);
-		Assert.assertEquals(1, ((MockState)stateMachine.getState(1)).exitStateCalled);
-		Assert.assertEquals(new Integer(10), ((MockState)stateMachine.getState(1)).exitStateEvent);
-		Assert.assertEquals(0, ((MockState)stateMachine.getState(1)).processEventCalled);
+		Assert.assertEquals(1, ((MockState<Integer, Integer>)stateMachine.
+				getState(1)).enterStateCalled);
+		Assert.assertSame(null, ((MockState<Integer, Integer>)stateMachine.
+				getState(1)).enterStateEvent);
+		Assert.assertEquals(1, ((MockState<Integer, Integer>)stateMachine.
+				getState(1)).exitStateCalled);
+		Assert.assertEquals(new Integer(10),
+				((MockState<Integer, Integer>)stateMachine.getState(1)).
+				exitStateEvent);
+		Assert.assertEquals(0, ((MockState<Integer, Integer>)stateMachine.
+				getState(1)).processEventCalled);
 
-		Assert.assertEquals(1, ((MockState)stateMachine.getState(2)).enterStateCalled);
-		Assert.assertEquals(new Integer(10), ((MockState)stateMachine.getState(2)).enterStateEvent);
-		Assert.assertEquals(0, ((MockState)stateMachine.getState(2)).exitStateCalled);
-		Assert.assertEquals(0, ((MockState)stateMachine.getState(2)).processEventCalled);
+		Assert.assertEquals(1, ((MockState<Integer, Integer>)stateMachine.
+				getState(2)).enterStateCalled);
+		Assert.assertEquals(new Integer(10),
+				((MockState<Integer, Integer>)stateMachine.getState(2)).
+				enterStateEvent);
+		Assert.assertEquals(0, ((MockState<Integer, Integer>)stateMachine.
+				getState(2)).exitStateCalled);
+		Assert.assertEquals(0, ((MockState<Integer, Integer>)stateMachine.
+				getState(2)).processEventCalled);
 
 		Assert.assertTrue(action.called);
 		Assert.assertSame(stateMachine.getState(1), action.fromState);
@@ -197,7 +130,8 @@ public class StateMachineTest {
 
 	@Test
 	public void backAndForthTransition() {
-		MockTransitionAction action = new MockTransitionAction();
+		MockTransitionAction<Integer, Integer> action =
+				new MockTransitionAction<Integer, Integer>();
 
 		System.out.println("transition");
 		stateMachine.addState(1);
@@ -209,19 +143,36 @@ public class StateMachineTest {
 		stateMachine.processEvent(10);
 		stateMachine.processEvent(10);
 
-		Assert.assertSame(stateMachine.getState(1), stateMachine.getcurrentState());
+		Assert.assertSame(stateMachine.getState(1),
+				stateMachine.getcurrentState());
 
-		Assert.assertEquals(2, ((MockState)stateMachine.getState(1)).enterStateCalled);
-		Assert.assertEquals(new Integer(10), ((MockState)stateMachine.getState(1)).enterStateEvent);
-		Assert.assertEquals(1, ((MockState)stateMachine.getState(1)).exitStateCalled);
-		Assert.assertEquals(new Integer(10), ((MockState)stateMachine.getState(1)).exitStateEvent);
-		Assert.assertEquals(0, ((MockState)stateMachine.getState(1)).processEventCalled);
+		Assert.assertEquals(2, ((MockState<Integer, Integer>)stateMachine.
+				getState(1)).enterStateCalled);
+		Assert.assertEquals(new Integer(10),
+				((MockState<Integer, Integer>)stateMachine.getState(1)).
+				enterStateEvent);
+		Assert.assertEquals(1,
+				((MockState<Integer, Integer>)stateMachine.getState(1)).
+				exitStateCalled);
+		Assert.assertEquals(new Integer(10),
+				((MockState<Integer, Integer>)stateMachine.getState(1)).
+				exitStateEvent);
+		Assert.assertEquals(0, ((MockState<Integer, Integer>)stateMachine.
+				getState(1)).processEventCalled);
 
-		Assert.assertEquals(1, ((MockState)stateMachine.getState(2)).enterStateCalled);
-		Assert.assertEquals(new Integer(10), ((MockState)stateMachine.getState(2)).enterStateEvent);
-		Assert.assertEquals(1, ((MockState)stateMachine.getState(2)).exitStateCalled);
-		Assert.assertEquals(new Integer(10), ((MockState)stateMachine.getState(2)).exitStateEvent);
-		Assert.assertEquals(0, ((MockState)stateMachine.getState(2)).processEventCalled);
+		Assert.assertEquals(1, ((MockState<Integer, Integer>)stateMachine.
+				getState(2)).enterStateCalled);
+		Assert.assertEquals(new Integer(10),
+				((MockState<Integer, Integer>)stateMachine.getState(2)).
+				enterStateEvent);
+		Assert.assertEquals(1, ((MockState<Integer, Integer>)stateMachine.
+				getState(2)).exitStateCalled);
+		Assert.assertEquals(new Integer(10),
+				((MockState<Integer, Integer>)stateMachine.getState(2)).
+				exitStateEvent);
+		Assert.assertEquals(0,
+				((MockState<Integer, Integer>)stateMachine.getState(2)).
+				processEventCalled);
 
 		Assert.assertTrue(action.called);
 		Assert.assertSame(stateMachine.getState(2), action.fromState);
@@ -231,7 +182,8 @@ public class StateMachineTest {
 
 	@Test
 	public void noTransition() {
-		MockTransitionAction action = new MockTransitionAction();
+		MockTransitionAction<Integer, Integer> action =
+				new MockTransitionAction<Integer, Integer>();
 
 		System.out.println("noTransition");
 		stateMachine.addState(1);
@@ -241,24 +193,35 @@ public class StateMachineTest {
 		stateMachine.start();
 		stateMachine.processEvent(20);
 
-		Assert.assertSame(stateMachine.getState(1), stateMachine.getcurrentState());
+		Assert.assertSame(stateMachine.getState(1),
+				stateMachine.getcurrentState());
 
-		Assert.assertEquals(1, ((MockState)stateMachine.getState(1)).enterStateCalled);
-		Assert.assertSame(null, ((MockState)stateMachine.getState(1)).enterStateEvent);
-		Assert.assertEquals(0, ((MockState)stateMachine.getState(1)).exitStateCalled);
-		Assert.assertEquals(1, ((MockState)stateMachine.getState(1)).processEventCalled);
-		Assert.assertEquals(new Integer(20), ((MockState)stateMachine.getState(1)).processEventEvent);
+		Assert.assertEquals(1, ((MockState<Integer, Integer>)stateMachine.
+				getState(1)).enterStateCalled);
+		Assert.assertSame(null, ((MockState<Integer, Integer>)stateMachine.
+				getState(1)).enterStateEvent);
+		Assert.assertEquals(0, ((MockState<Integer, Integer>)stateMachine.
+				getState(1)).exitStateCalled);
+		Assert.assertEquals(1, ((MockState<Integer, Integer>)stateMachine.
+				getState(1)).processEventCalled);
+		Assert.assertEquals(new Integer(20),
+				((MockState<Integer, Integer>)stateMachine.
+						getState(1)).processEventEvent);
 
-		Assert.assertEquals(0, ((MockState)stateMachine.getState(2)).enterStateCalled);
-		Assert.assertEquals(0, ((MockState)stateMachine.getState(2)).exitStateCalled);
-		Assert.assertEquals(0, ((MockState)stateMachine.getState(2)).processEventCalled);
+		Assert.assertEquals(0, ((MockState<Integer, Integer>)stateMachine.
+				getState(2)).enterStateCalled);
+		Assert.assertEquals(0, ((MockState<Integer, Integer>)stateMachine.
+				getState(2)).exitStateCalled);
+		Assert.assertEquals(0, ((MockState<Integer, Integer>)stateMachine.
+				getState(2)).processEventCalled);
 
 		Assert.assertFalse(action.called);
 	}
 
 	@Test
 	public void internalTransition() {
-		MockTransitionAction action = new MockTransitionAction();
+		MockTransitionAction<Integer, Integer> action =
+				new MockTransitionAction<Integer, Integer>();
 
 		System.out.println("internalTransition");
 		stateMachine.addState(1);
@@ -269,16 +232,24 @@ public class StateMachineTest {
 		stateMachine.start();
 		stateMachine.processEvent(20);
 
-		Assert.assertSame(stateMachine.getState(1), stateMachine.getcurrentState());
+		Assert.assertSame(stateMachine.getState(1),
+				stateMachine.getcurrentState());
 
-		Assert.assertEquals(1, ((MockState)stateMachine.getState(1)).enterStateCalled);
-		Assert.assertSame(null, ((MockState)stateMachine.getState(1)).enterStateEvent);
-		Assert.assertEquals(0, ((MockState)stateMachine.getState(1)).exitStateCalled);
-		Assert.assertEquals(1, ((MockState)stateMachine.getState(1)).processEventCalled);
+		Assert.assertEquals(1, ((MockState<Integer, Integer>)stateMachine.
+				getState(1)).enterStateCalled);
+		Assert.assertSame(null, ((MockState<Integer, Integer>)stateMachine.
+				getState(1)).enterStateEvent);
+		Assert.assertEquals(0, ((MockState<Integer, Integer>)stateMachine.
+				getState(1)).exitStateCalled);
+		Assert.assertEquals(1, ((MockState<Integer, Integer>)stateMachine.
+				getState(1)).processEventCalled);
 
-		Assert.assertEquals(0, ((MockState)stateMachine.getState(2)).enterStateCalled);
-		Assert.assertEquals(0, ((MockState)stateMachine.getState(2)).exitStateCalled);
-		Assert.assertEquals(0, ((MockState)stateMachine.getState(2)).processEventCalled);
+		Assert.assertEquals(0, ((MockState<Integer, Integer>)stateMachine.
+				getState(2)).enterStateCalled);
+		Assert.assertEquals(0, ((MockState<Integer, Integer>)stateMachine.
+				getState(2)).exitStateCalled);
+		Assert.assertEquals(0, ((MockState<Integer, Integer>)stateMachine.
+				getState(2)).processEventCalled);
 
 		Assert.assertTrue(action.called);
 		Assert.assertSame(stateMachine.getState(1), action.fromState);
@@ -288,8 +259,10 @@ public class StateMachineTest {
 
 	@Test
 	public void guardTransition() {
-		MockGuard<Integer, Integer> guard = new MockGuard<Integer, Integer>(false);
-		MockTransitionAction action = new MockTransitionAction();
+		MockGuard<Integer, Integer> guard =
+				new MockGuard<Integer, Integer>(false);
+		MockTransitionAction<Integer, Integer> action =
+				new MockTransitionAction<Integer, Integer>();
 
 		System.out.println("guardInternalTransition");
 		stateMachine.addState(1);
@@ -299,25 +272,39 @@ public class StateMachineTest {
 		stateMachine.start();
 		stateMachine.processEvent(10);
 
-		Assert.assertSame(stateMachine.getState(1), stateMachine.getcurrentState());
+		Assert.assertSame(stateMachine.getState(1),
+				stateMachine.getcurrentState());
 
-		Assert.assertEquals(1, ((MockState)stateMachine.getState(1)).enterStateCalled);
-		Assert.assertSame(null, ((MockState)stateMachine.getState(1)).enterStateEvent);
-		Assert.assertEquals(0, ((MockState)stateMachine.getState(1)).processEventCalled);
-		Assert.assertEquals(0, ((MockState)stateMachine.getState(2)).enterStateCalled);
-		Assert.assertEquals(0, ((MockState)stateMachine.getState(2)).exitStateCalled);
-		Assert.assertEquals(0, ((MockState)stateMachine.getState(2)).processEventCalled);
+		Assert.assertEquals(1, ((MockState<Integer, Integer>)stateMachine.
+				getState(1)).enterStateCalled);
+		Assert.assertSame(null, ((MockState<Integer, Integer>)stateMachine.
+				getState(1)).enterStateEvent);
+		Assert.assertEquals(0, ((MockState<Integer, Integer>)stateMachine.
+				getState(1)).processEventCalled);
+		Assert.assertEquals(0, ((MockState<Integer, Integer>)stateMachine.
+				getState(2)).enterStateCalled);
+		Assert.assertEquals(0, ((MockState<Integer, Integer>)stateMachine.
+				getState(2)).exitStateCalled);
+		Assert.assertEquals(0, ((MockState<Integer, Integer>)stateMachine.
+				getState(2)).processEventCalled);
 		Assert.assertFalse(action.called);
 
 		guard.setValue(true);
 		stateMachine.processEvent(10);
 
-		Assert.assertEquals(1, ((MockState)stateMachine.getState(1)).exitStateCalled);
-		Assert.assertEquals(0, ((MockState)stateMachine.getState(1)).processEventCalled);
-		Assert.assertEquals(1, ((MockState)stateMachine.getState(2)).enterStateCalled);
-		Assert.assertEquals(new Integer(10), ((MockState)stateMachine.getState(2)).enterStateEvent);
-		Assert.assertEquals(0, ((MockState)stateMachine.getState(2)).exitStateCalled);
-		Assert.assertEquals(0, ((MockState)stateMachine.getState(2)).processEventCalled);
+		Assert.assertEquals(1, ((MockState<Integer, Integer>)stateMachine.
+				getState(1)).exitStateCalled);
+		Assert.assertEquals(0, ((MockState<Integer, Integer>)stateMachine.
+				getState(1)).processEventCalled);
+		Assert.assertEquals(1, ((MockState<Integer, Integer>)stateMachine.
+				getState(2)).enterStateCalled);
+		Assert.assertEquals(new Integer(10),
+				((MockState<Integer, Integer>)stateMachine.getState(2)).
+				enterStateEvent);
+		Assert.assertEquals(0, ((MockState<Integer, Integer>)stateMachine.
+				getState(2)).exitStateCalled);
+		Assert.assertEquals(0, ((MockState<Integer, Integer>)stateMachine.
+				getState(2)).processEventCalled);
 		Assert.assertTrue(action.called);
 		Assert.assertSame(stateMachine.getState(1), action.fromState);
 		Assert.assertSame(stateMachine.getState(2), action.toState);
@@ -327,7 +314,8 @@ public class StateMachineTest {
 	@Test
 	public void guardInternalTransition() {
 		MockGuard<Integer, Integer> guard = new MockGuard<Integer, Integer>(false);
-		MockTransitionAction action = new MockTransitionAction();
+		MockTransitionAction<Integer, Integer> action =
+				new MockTransitionAction<Integer, Integer>();
 
 		System.out.println("guardInternalTransition");
 		stateMachine.addState(1);
@@ -336,18 +324,24 @@ public class StateMachineTest {
 		stateMachine.start();
 		stateMachine.processEvent(10);
 
-		Assert.assertSame(stateMachine.getState(1), stateMachine.getcurrentState());
+		Assert.assertSame(stateMachine.getState(1),
+				stateMachine.getcurrentState());
 
-		Assert.assertEquals(1, ((MockState)stateMachine.getState(1)).enterStateCalled);
-		Assert.assertSame(null, ((MockState)stateMachine.getState(1)).enterStateEvent);
-		Assert.assertEquals(0, ((MockState)stateMachine.getState(1)).processEventCalled);
+		Assert.assertEquals(1, ((MockState<Integer, Integer>)stateMachine.
+				getState(1)).enterStateCalled);
+		Assert.assertSame(null, ((MockState<Integer, Integer>)stateMachine.
+				getState(1)).enterStateEvent);
+		Assert.assertEquals(0, ((MockState<Integer, Integer>)stateMachine.
+				getState(1)).processEventCalled);
 		Assert.assertFalse(action.called);
 
 		guard.setValue(true);
 		stateMachine.processEvent(10);
 
-		Assert.assertEquals(0, ((MockState)stateMachine.getState(1)).exitStateCalled);
-		Assert.assertEquals(1, ((MockState)stateMachine.getState(1)).processEventCalled);
+		Assert.assertEquals(0, ((MockState<Integer, Integer>)stateMachine.
+				getState(1)).exitStateCalled);
+		Assert.assertEquals(1, ((MockState<Integer, Integer>)stateMachine.
+				getState(1)).processEventCalled);
 		Assert.assertSame(stateMachine.getState(1), action.fromState);
 		Assert.assertSame(null, action.toState);
 		Assert.assertEquals(new Integer(10), action.event);
@@ -355,7 +349,8 @@ public class StateMachineTest {
 
 	@Test
 	public void completionTransition() {
-		MockTransitionAction action = new MockTransitionAction();
+		MockTransitionAction<Integer, Integer> action =
+				new MockTransitionAction<Integer, Integer>();
 
 		System.out.println("completionTransition");
 		stateMachine.addState(1);
@@ -364,18 +359,28 @@ public class StateMachineTest {
 		stateMachine.setInitialState(1);
 		stateMachine.start();
 
-		Assert.assertSame(stateMachine.getState(2), stateMachine.getcurrentState());
+		Assert.assertSame(stateMachine.getState(2),
+				stateMachine.getcurrentState());
 
-		Assert.assertEquals(1, ((MockState)stateMachine.getState(1)).enterStateCalled);
-		Assert.assertSame(null, ((MockState)stateMachine.getState(1)).enterStateEvent);
-		Assert.assertEquals(1, ((MockState)stateMachine.getState(1)).exitStateCalled);
-		Assert.assertSame(null, ((MockState)stateMachine.getState(1)).exitStateEvent);
-		Assert.assertEquals(0, ((MockState)stateMachine.getState(1)).processEventCalled);
+		Assert.assertEquals(1, ((MockState<Integer, Integer>)stateMachine.
+				getState(1)).enterStateCalled);
+		Assert.assertSame(null, ((MockState<Integer, Integer>)stateMachine.
+				getState(1)).enterStateEvent);
+		Assert.assertEquals(1, ((MockState<Integer, Integer>)stateMachine.
+				getState(1)).exitStateCalled);
+		Assert.assertSame(null, ((MockState<Integer, Integer>)stateMachine.
+				getState(1)).exitStateEvent);
+		Assert.assertEquals(0, ((MockState<Integer, Integer>)stateMachine.
+				getState(1)).processEventCalled);
 
-		Assert.assertEquals(1, ((MockState)stateMachine.getState(2)).enterStateCalled);
-		Assert.assertSame(null, ((MockState)stateMachine.getState(2)).enterStateEvent);
-		Assert.assertEquals(0, ((MockState)stateMachine.getState(2)).exitStateCalled);
-		Assert.assertEquals(0, ((MockState)stateMachine.getState(2)).processEventCalled);
+		Assert.assertEquals(1, ((MockState<Integer, Integer>)stateMachine.
+				getState(2)).enterStateCalled);
+		Assert.assertSame(null, ((MockState<Integer, Integer>)stateMachine.
+				getState(2)).enterStateEvent);
+		Assert.assertEquals(0, ((MockState<Integer, Integer>)stateMachine.
+				getState(2)).exitStateCalled);
+		Assert.assertEquals(0, ((MockState<Integer, Integer>)stateMachine.
+				getState(2)).processEventCalled);
 
 		Assert.assertTrue(action.called);
 		Assert.assertSame(stateMachine.getState(1), action.fromState);
@@ -393,16 +398,23 @@ public class StateMachineTest {
 
 		stateMachine.start();
 		Assert.assertTrue(stateMachine.isRunning());
-		Assert.assertEquals(1, ((MockState)stateMachine.getState(1)).enterStateCalled);
-		Assert.assertSame(null, ((MockState)stateMachine.getState(1)).enterStateEvent);
-		Assert.assertEquals(0, ((MockState)stateMachine.getState(1)).exitStateCalled);
+		Assert.assertEquals(1, ((MockState<Integer, Integer>)stateMachine.
+				getState(1)).enterStateCalled);
+		Assert.assertSame(null, ((MockState<Integer, Integer>)stateMachine.
+				getState(1)).enterStateEvent);
+		Assert.assertEquals(0, ((MockState<Integer, Integer>)stateMachine.
+				getState(1)).exitStateCalled);
 
 		stateMachine.stop();
 		Assert.assertFalse(stateMachine.isRunning());
-		Assert.assertEquals(1, ((MockState)stateMachine.getState(1)).enterStateCalled);
-		Assert.assertSame(null, ((MockState)stateMachine.getState(1)).enterStateEvent);
-		Assert.assertEquals(1, ((MockState)stateMachine.getState(1)).exitStateCalled);
-		Assert.assertSame(null, ((MockState)stateMachine.getState(1)).exitStateEvent);
+		Assert.assertEquals(1, ((MockState<Integer, Integer>)stateMachine.
+				getState(1)).enterStateCalled);
+		Assert.assertSame(null, ((MockState<Integer, Integer>)stateMachine.
+				getState(1)).enterStateEvent);
+		Assert.assertEquals(1, ((MockState<Integer, Integer>)stateMachine.
+				getState(1)).exitStateCalled);
+		Assert.assertSame(null, ((MockState<Integer, Integer>)stateMachine.
+				getState(1)).exitStateEvent);
 	}
 
 	@Test
@@ -461,13 +473,21 @@ public class StateMachineTest {
 		Assert.assertTrue(exceptionThrown);
 		Assert.assertSame(stateMachine.getState(1), stateMachine.getcurrentState());
 
-		Assert.assertEquals(2, ((MockState)stateMachine.getState(1)).enterStateCalled);
-		Assert.assertSame(null, ((MockState)stateMachine.getState(1)).enterStateEvent);
-		Assert.assertEquals(1, ((MockState)stateMachine.getState(1)).exitStateCalled);
-		Assert.assertEquals(new Integer(10), ((MockState)stateMachine.getState(1)).exitStateEvent);
+		Assert.assertEquals(2, ((MockState<Integer, Integer>)stateMachine.
+				getState(1)).enterStateCalled);
+		Assert.assertSame(null, ((MockState<Integer, Integer>)stateMachine.
+				getState(1)).enterStateEvent);
+		Assert.assertEquals(1, ((MockState<Integer, Integer>)stateMachine.
+				getState(1)).exitStateCalled);
+		Assert.assertEquals(new Integer(10),
+				((MockState<Integer, Integer>)stateMachine.getState(1)).
+				exitStateEvent);
 
-		Assert.assertEquals(0, ((MockState)stateMachine.getState(2)).enterStateCalled);
-		Assert.assertEquals(0, ((MockState)stateMachine.getState(2)).exitStateCalled);
+		Assert.assertEquals(0, ((MockState<Integer, Integer>)stateMachine.
+				getState(2)).enterStateCalled);
+		Assert.assertEquals(0, ((MockState<Integer, Integer>)stateMachine.
+				getState(2)).exitStateCalled);
 	}
+
 
 }
