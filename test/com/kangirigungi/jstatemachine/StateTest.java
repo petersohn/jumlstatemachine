@@ -40,29 +40,6 @@ import org.junit.Test;
 
 public class StateTest {
 
-	private static class MockEntryExitAction
-			implements IEntryExitAction<Integer, Integer> {
-		public IState<Integer, Integer> state;
-		public int event;
-		public boolean onEnterCalled = false;
-		public boolean onExitCalled = false;
-
-		@Override
-		public void onEnter(IState<Integer, Integer> state, Integer event) {
-			onEnterCalled = true;
-			onExitCalled = false;
-			this.state = state;
-			this.event = event;
-		}
-		@Override
-		public void onExit(IState<Integer, Integer> state, Integer event) {
-			onExitCalled = true;
-			onEnterCalled = false;
-			this.state = state;
-			this.event = event;
-		}
-	}
-
 	@Test
 	public void stateIdEquals() {
 		State<Integer, Integer> state =
@@ -100,7 +77,8 @@ public class StateTest {
 	public void entryExitAction() {
 		State<Integer, Integer> state =
 				new State<Integer, Integer>(1);
-		MockEntryExitAction action = new MockEntryExitAction();
+		MockEntryExitAction<Integer, Integer> action =
+				new MockEntryExitAction();
 		state.setEntryExitAction(action);
 		Assert.assertSame(action, state.getEntryExitAction());
 		Assert.assertEquals(false, action.onEnterCalled);
@@ -110,13 +88,13 @@ public class StateTest {
 		Assert.assertEquals(true, action.onEnterCalled);
 		Assert.assertEquals(false, action.onExitCalled);
 		Assert.assertSame(state, action.state);
-		Assert.assertEquals(20, action.event);
+		Assert.assertEquals(new Integer(20), action.event);
 
 		state.exitState(30);
 		Assert.assertEquals(false, action.onEnterCalled);
 		Assert.assertEquals(true, action.onExitCalled);
 		Assert.assertSame(state, action.state);
-		Assert.assertEquals(30, action.event);
+		Assert.assertEquals(new Integer(30), action.event);
 	}
 
 }
