@@ -37,6 +37,7 @@ public class MockStateFactory<StateId, Event>
 		implements IStateFactory<StateId, Event> {
 
 	public MockState<StateId, Event> lastCreatedState;
+	public MockStateMachine<StateId, Event> lastCreatedStateMachine;
 
 	@Override
 	public IState<StateId, Event> createState(StateId id) {
@@ -54,8 +55,9 @@ public class MockStateFactory<StateId, Event>
 	@Override
 	public IStateMachine<StateId, Event> createStateMachine(
 		IStateMachine<StateId, Event> topLevelStateMachine) {
-		// TODO Auto-generated method stub
-		return null;
+		lastCreatedStateMachine = new MockStateMachine<StateId, Event>(
+				topLevelStateMachine);
+		return lastCreatedStateMachine;
 	}
 
 }
