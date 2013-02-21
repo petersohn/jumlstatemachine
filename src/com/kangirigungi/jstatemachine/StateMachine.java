@@ -176,6 +176,9 @@ public class StateMachine<StateId, Event> implements IStateMachine<StateId, Even
 	@Override
 	public void start() {
 		checkNotRunning("start");
+		for (ICompositeState<StateId, Event> substate: substates) {
+			substate.getStateMachine().start();
+		}
 		initialState.state.enterState(null);
 		currentState = initialState;
 
@@ -190,6 +193,9 @@ public class StateMachine<StateId, Event> implements IStateMachine<StateId, Even
 		checkRunning("stop");
 		currentState.state.exitState(null);
 		currentState = null;
+		for (ICompositeState<StateId, Event> substate: substates) {
+			substate.getStateMachine().stop();
+		}
 	}
 
 	/* (non-Javadoc)

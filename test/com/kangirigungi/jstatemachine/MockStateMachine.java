@@ -37,6 +37,10 @@ public class MockStateMachine<StateId, Event> implements
 		IStateMachine<StateId, Event> {
 
 	public IStateMachine<StateId, Event> topLevelStateMachine;
+	public int startCalled = 0;
+	public int stopCalled = 0;
+	public int processEventCalled = 0;
+	public Event lastEvent;
 
 	public MockStateMachine() {
 
@@ -85,14 +89,12 @@ public class MockStateMachine<StateId, Event> implements
 
 	@Override
 	public void start() {
-		// TODO Auto-generated method stub
-
+		++startCalled;
 	}
 
 	@Override
 	public void stop() {
-		// TODO Auto-generated method stub
-
+		++stopCalled;
 	}
 
 	@Override
@@ -145,8 +147,8 @@ public class MockStateMachine<StateId, Event> implements
 
 	@Override
 	public void processEvent(Event event) {
-		// TODO Auto-generated method stub
-
+		processEventCalled++;
+		lastEvent = event;
 	}
 
 

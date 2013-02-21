@@ -82,5 +82,11 @@ public class CompositeStateTest {
 				compositeState.getStateMachine());
 		Assert.assertSame(mockStateMachine,
 				mockStateFactory.lastCreatedStateMachine.topLevelStateMachine);
+
+		compositeState.processEvent(10);
+		Assert.assertEquals(1, mockStateFactory.lastCreatedStateMachine.
+				processEventCalled);
+		Assert.assertEquals(new Integer(10), mockStateFactory.
+				lastCreatedStateMachine.lastEvent);
 	}
 }

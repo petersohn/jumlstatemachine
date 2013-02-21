@@ -41,18 +41,26 @@ import org.junit.Test;
 public class StateMachineTest {
 
 	private StateMachine<Integer, Integer> stateMachine;
+	private MockStateFactory<Integer, Integer> stateFactory;
 
 	@Before
 	public void initialize() {
 		stateMachine = new StateMachine<Integer, Integer>();
-		stateMachine.setStateFactory(new MockStateFactory<Integer, Integer>());
+		stateFactory = new MockStateFactory<Integer, Integer>();
+		stateMachine.setStateFactory(stateFactory);
 	}
 
 	@Test
 	public void initialState() {
 		System.out.println("initialState");
 		stateMachine.addState(1);
+		Assert.assertSame(stateFactory.lastCreatedState,
+				stateMachine.getState(1));
+
 		stateMachine.addState(2);
+		Assert.assertSame(stateFactory.lastCreatedState,
+				stateMachine.getState(2));
+
 		stateMachine.setInitialState(1);
 		Assert.assertSame(stateMachine.getState(1),
 				stateMachine.getInitialState());
@@ -489,5 +497,14 @@ public class StateMachineTest {
 				getState(2)).exitStateCalled);
 	}
 
+	@Test
+	public void compositeState() {
+		stateMachine.addCompositeState(1);
+		MockCompositeState<Integer, Integer> state =
+				stateFactory.lastCreatedCompositeState;
+		Assert.assertSame(state, stateMachine.getState(1));
+		Assert.assertSame(stateFactory.lastCreatedStateMachine,
+				stateFactory.lastCreatedCompositeState.getStateMachine());
+	}
 
 }
