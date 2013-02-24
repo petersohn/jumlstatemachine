@@ -15,4 +15,10 @@ public class MockCompositeState<StateId, Event>
 		return stateMachine;
 	}
 
+	@Override
+	public ICompositeState<StateId, Event> setEntryExitAction(
+			IEntryExitAction<StateId, Event> action) {
+		return this;
+	}
+
 }
