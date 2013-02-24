@@ -101,8 +101,10 @@ public class State<Id, Event> implements IState<Id, Event> {
 	}
 
 	@Override
-	public void setEntryExitAction(IEntryExitAction<Id, Event> action) {
+	public IState<Id, Event> setEntryExitAction(
+			IEntryExitAction<Id, Event> action) {
 		entryExitAction = action;
+		return this;
 	}
 
 }

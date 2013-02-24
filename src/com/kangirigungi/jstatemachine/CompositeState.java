@@ -75,8 +75,9 @@ public class CompositeState<StateId, Event>
 	}
 
 	@Override
-	public void setEntryExitAction(IEntryExitAction<StateId, Event> action) {
-		state.setEntryExitAction(action);
+	public IState<StateId, Event> setEntryExitAction(
+			IEntryExitAction<StateId, Event> action) {
+		return state.setEntryExitAction(action);
 	}
 
 	@Override

@@ -79,7 +79,9 @@ public class MockState<StateId, Event> implements IState<StateId, Event> {
 	}
 
 	@Override
-	public void setEntryExitAction(IEntryExitAction<StateId, Event> action) {
+	public IState<StateId, Event> setEntryExitAction(
+			IEntryExitAction<StateId, Event> action) {
+		return this;
 	}
 
 }

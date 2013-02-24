@@ -89,8 +89,10 @@ public interface IState<Id, Event> {
 	 * Set the callbacks that are called when the state is entered or exited.
 	 *
 	 * @param action The entry/exit action handler defined for this state.
+	 * @return this.
 	 */
-	public void setEntryExitAction(IEntryExitAction<Id, Event> action);
+	public IState<Id, Event> setEntryExitAction(
+			IEntryExitAction<Id, Event> action);
 }
 
 
