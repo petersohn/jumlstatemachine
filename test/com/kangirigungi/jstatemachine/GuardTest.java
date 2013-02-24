@@ -87,4 +87,53 @@ public class GuardTest {
 				trueGuard, trueGuard);
 		Assert.assertTrue(guard.checkTransition(null, null, null));
 	}
+
+	@Test
+	public void guardState() {
+		MockStateMachine<Integer, Integer> stateMachine =
+				new MockStateMachine<Integer, Integer>();
+		MockState<Integer, Integer> state1 = new MockState<Integer, Integer>(1);
+		MockState<Integer, Integer> state2 = new MockState<Integer, Integer>(2);
+		MockState<Integer, Integer> state3 = new MockState<Integer, Integer>(3);
+
+		GuardState<Integer, Integer> guard =
+				new GuardState<Integer, Integer>(stateMachine,
+						new Integer[] {1, 2}, false);
+
+		Assert.assertFalse(guard.checkTransition(null, null, null));
+		stateMachine.running = true;
+
+		stateMachine.currentState = state1;
+		Assert.assertTrue(guard.checkTransition(null, null, null));
+		stateMachine.currentState = state2;
+		Assert.assertTrue(guard.checkTransition(null, null, null));
+		stateMachine.currentState = state3;
+		Assert.assertFalse(guard.checkTransition(null, null, null));
+	}
+
+	@Test
+	public void guardStateDeep() {
+		MockStateMachine<Integer, Integer> stateMachine =
+				new MockStateMachine<Integer, Integer>();
+		MockCompositeState<Integer, Integer> state1 =
+				new MockCompositeState<Integer, Integer>(1);
+		MockCompositeState<Integer, Integer> state2 =
+				new MockCompositeState<Integer, Integer>(2);
+		MockCompositeState<Integer, Integer> state3 =
+				new MockCompositeState<Integer, Integer>(3);
+
+		GuardState<Integer, Integer> guard =
+				new GuardState<Integer, Integer>(stateMachine,
+						new Integer[] {1, 2}, true);
+
+		Assert.assertFalse(guard.checkTransition(null, null, null));
+		stateMachine.running = true;
+
+		stateMachine.currentDeepState = state1;
+		Assert.assertTrue(guard.checkTransition(null, null, null));
+		stateMachine.currentDeepState = state2;
+		Assert.assertTrue(guard.checkTransition(null, null, null));
+		stateMachine.currentDeepState = state3;
+		Assert.assertFalse(guard.checkTransition(null, null, null));
+	}
 }

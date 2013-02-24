@@ -42,6 +42,10 @@ public class MockStateMachine<StateId, Event> implements
 	public int processEventCalled = 0;
 	public Event lastEvent;
 
+	public IState<StateId, Event> currentState;
+	public ICompositeState<StateId, Event> currentDeepState;
+	public boolean running = false;
+
 	public MockStateMachine() {
 
 	}
@@ -59,14 +63,12 @@ public class MockStateMachine<StateId, Event> implements
 
 	@Override
 	public IState<StateId, Event> getcurrentState() {
-		// TODO Auto-generated method stub
-		return null;
+		return currentState;
 	}
 
 	@Override
 	public IState<StateId, Event> getcurrentDeepState() {
-		// TODO Auto-generated method stub
-		return null;
+		return currentDeepState;
 	}
 
 	@Override
@@ -105,8 +107,7 @@ public class MockStateMachine<StateId, Event> implements
 
 	@Override
 	public boolean isRunning() {
-		// TODO Auto-generated method stub
-		return false;
+		return running;
 	}
 
 	@Override
