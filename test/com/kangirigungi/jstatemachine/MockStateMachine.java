@@ -64,6 +64,12 @@ public class MockStateMachine<StateId, Event> implements
 	}
 
 	@Override
+	public IState<StateId, Event> getcurrentDeepState() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
 	public IState<StateId, Event> getState(StateId id) {
 		// TODO Auto-generated method stub
 		return null;

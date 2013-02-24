@@ -154,6 +154,23 @@ public class StateMachine<StateId, Event> implements IStateMachine<StateId, Even
 	}
 
 	/* (non-Javadoc)
+	 * @see com.kangirigungi.jstatemachine.IStateMachine#getcurrentState()
+	 */
+	@Override
+	public IState<StateId, Event> getcurrentDeepState() {
+		checkRunning("getcurrentDeepState");
+		IState<StateId, Event> state = currentState.state;
+		if (state instanceof ICompositeState<?, ?>) {
+			return ((ICompositeState<StateId, Event>)state).getStateMachine().
+					getcurrentDeepState();
+		} else {
+			return state;
+		}
+
+	}
+
+
+	/* (non-Javadoc)
 	 * @see com.kangirigungi.jstatemachine.IStateMachine#getState(StateId)
 	 */
 	@Override
@@ -176,9 +193,6 @@ public class StateMachine<StateId, Event> implements IStateMachine<StateId, Even
 	@Override
 	public void start() {
 		checkNotRunning("start");
-		for (ICompositeState<StateId, Event> substate: substates) {
-			substate.getStateMachine().start();
-		}
 		initialState.state.enterState(null);
 		currentState = initialState;
 
@@ -193,9 +207,6 @@ public class StateMachine<StateId, Event> implements IStateMachine<StateId, Even
 		checkRunning("stop");
 		currentState.state.exitState(null);
 		currentState = null;
-		for (ICompositeState<StateId, Event> substate: substates) {
-			substate.getStateMachine().stop();
-		}
 	}
 
 	/* (non-Javadoc)

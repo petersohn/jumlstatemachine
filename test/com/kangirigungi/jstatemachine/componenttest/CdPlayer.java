@@ -147,9 +147,8 @@ public class CdPlayer {
 		stateMachine.start();
 	}
 
-	@Override
 	@After
-	public void finalize() {
+	public void finalizeTest() {
 		System.out.println("");
 	}
 

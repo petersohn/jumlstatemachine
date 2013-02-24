@@ -44,6 +44,8 @@ public class CompositeStateTest {
 				new MockStateFactory<Integer, Integer>();
 		CompositeState<Integer, Integer> compositeState =
 				new CompositeState<Integer, Integer>(1, null, mockStateFactory);
+		MockStateMachine<Integer, Integer> stateMachine =
+				mockStateFactory.lastCreatedStateMachine;
 
 		Assert.assertNotNull(mockStateFactory.lastCreatedState);
 		Assert.assertEquals(new Integer(1),
@@ -54,18 +56,25 @@ public class CompositeStateTest {
 				exitStateCalled);
 		Assert.assertEquals(0, mockStateFactory.lastCreatedState.
 				processEventCalled);
+		Assert.assertSame(stateMachine, compositeState.getStateMachine());
+		Assert.assertEquals(0, stateMachine.startCalled);
+		Assert.assertEquals(0, stateMachine.stopCalled);
 
 		compositeState.enterState(10);
 		Assert.assertEquals(1, mockStateFactory.lastCreatedState.
 				enterStateCalled);
 		Assert.assertEquals(new Integer(10), mockStateFactory.lastCreatedState.
 				enterStateEvent);
+		Assert.assertEquals(1, stateMachine.startCalled);
+		Assert.assertEquals(0, stateMachine.stopCalled);
 
 		compositeState.exitState(20);
 		Assert.assertEquals(1, mockStateFactory.lastCreatedState.
 				exitStateCalled);
 		Assert.assertEquals(new Integer(20), mockStateFactory.lastCreatedState.
 				exitStateEvent);
+		Assert.assertEquals(1, stateMachine.startCalled);
+		Assert.assertEquals(1, stateMachine.stopCalled);
 	}
 
 	@Test

@@ -48,6 +48,15 @@ public interface IStateMachine<StateId, Event> {
 	public IState<StateId, Event> getcurrentState();
 
 	/**
+	 *
+	 * @return The current state of the state machine. If the current state
+	 * is a composite state, return the deepest state we are in.
+	 * @throws NotRunningException When the state machine is not running.
+	 */
+	public IState<StateId, Event> getcurrentDeepState();
+
+
+	/**
 	 * Get the state associated with the given id. If the state does not
 	 * exist, an exception is thrown. States are added by the
 	 * {@link #addState(Object) addState} method.

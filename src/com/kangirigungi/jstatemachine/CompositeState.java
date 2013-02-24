@@ -49,13 +49,13 @@ public class CompositeState<StateId, Event>
 	@Override
 	public void enterState(Event event) {
 		state.enterState(event);
-
+		stateMachine.start();
 	}
 
 	@Override
 	public void exitState(Event event) {
 		state.exitState(event);
-
+		stateMachine.stop();
 	}
 
 	@Override
