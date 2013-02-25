@@ -54,8 +54,8 @@ public class CompositeState<StateId, Event>
 
 	@Override
 	public void exitState(Event event) {
-		state.exitState(event);
 		stateMachine.stop();
+		state.exitState(event);
 	}
 
 	@Override

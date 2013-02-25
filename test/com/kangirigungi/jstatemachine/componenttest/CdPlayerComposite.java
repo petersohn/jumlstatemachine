@@ -169,7 +169,7 @@ public class CdPlayerComposite {
 		checkState(States.Paused, States.Playback, Actions.ForwardTrack);
 		isLastTrack.setValue(true);
 		stateMachine.processEvent(Events.FastForward);
-		checkState(States.Playback, States.Stopped, Actions.StopPlayback);
+		checkState(States.Playing, States.Stopped, Actions.StopPlayback);
 	}
 
 	@Test
@@ -183,12 +183,12 @@ public class CdPlayerComposite {
 		stateMachine.processEvent(Events.Pause);
 		checkState(States.Playback, States.Paused, Actions.PausePlayback);
 		stateMachine.processEvent(Events.Stop);
-		checkState(States.Paused, States.Stopped, Actions.StopPlayback);
+		checkState(States.Playing, States.Stopped, Actions.StopPlayback);
 		stateMachine.processEvent(Events.Play);
 		checkState(States.Stopped, States.Playback, Actions.StartPlayback);
 		stateMachine.processEvent(Events.Pause);
 		checkState(States.Playback, States.Paused, Actions.PausePlayback);
 		stateMachine.processEvent(Events.OpenClose);
-		checkState(States.Paused, States.Open, Actions.StopAndOpen);
+		checkState(States.Playing, States.Open, Actions.StopAndOpen);
 	}
 }
