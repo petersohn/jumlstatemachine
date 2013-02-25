@@ -172,5 +172,23 @@ public class CdPlayerComposite {
 		checkState(States.Playback, States.Stopped, Actions.StopPlayback);
 	}
 
-
+	@Test
+	public void playPauseStopPlayPauseOpen() {
+		System.out.println("playPauseStopPlayPauseOpen");
+		isCdDetected.setValue(true);
+		stateMachine.start();
+		checkState(States.Empty, States.Stopped, Actions.StoreCdInfo);
+		stateMachine.processEvent(Events.Play);
+		checkState(States.Stopped, States.Playback, Actions.StartPlayback);
+		stateMachine.processEvent(Events.Pause);
+		checkState(States.Playback, States.Paused, Actions.PausePlayback);
+		stateMachine.processEvent(Events.Stop);
+		checkState(States.Paused, States.Stopped, Actions.StopPlayback);
+		stateMachine.processEvent(Events.Play);
+		checkState(States.Stopped, States.Playback, Actions.StartPlayback);
+		stateMachine.processEvent(Events.Pause);
+		checkState(States.Playback, States.Paused, Actions.PausePlayback);
+		stateMachine.processEvent(Events.OpenClose);
+		checkState(States.Paused, States.Open, Actions.StopAndOpen);
+	}
 }
