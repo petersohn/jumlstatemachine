@@ -40,58 +40,16 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Representation of a state machine.
- * <p>
- * A state machine has two working phases. In each phase, different
- * methods can be called. If a method is called in the wrong state,
- * an exception is thrown.
- * <ul>
- * <li><b>Not running:</b> The state machine starts in this phase.
- * The states and transitions of the state machine are defined here,
- * but the state machine has no current phase. When running, this
- * phase can be entered by the {@link #stop()} method.
- * <li><b>Running:</b> The state machine has an actual state and
- * can process events. No states or transitions can be added while
- * the state machine is running. When not running, this
- * phase can be entered by the {@link #start()} method.
- * </ul>
- * <p>
- * The following kind of transitions are supported:
- * <ul>
- * <li><b>Normal transition:</b> Added with
- * {@link #addTransition(Object, Object, ITransitionAction, Object, IGuard) addTransition}
- * with the event parameter not <code>null</code>. These transitions are explicitly
- * triggered with {@link #processEvent(Object) processEvent} and change the
- * state (or exit then enter the same state if the source and target state
- * are the same).
- * <li><b>Internal transition:</b> Added with
- * {@link #addInternalTransition(Object, Object, ITransitionAction, IGuard) addInternalTransition}.
- * The event parameter cannot be <code>null</code>. These transitions trigger an action
- * without exiting the current state.
- * <li><b>Completion transition:</b> Added with
- * {@link #addTransition(Object, Object, ITransitionAction, Object, IGuard) addTransition}
- * with the event parameter <code>null</code>. These transitions are automatically
- * triggered after each successful transition. If guarded and the guard value
- * changes to true, it is cannot be checked automatically, only when the next
- * (internal or external) transition happens. It can also be triggered
- * explicitly with {@link #processEvent(Object) processEvent(null)}.
- * </ul>
- * <p>
- * This class (and the entire library) is not thread-safe. This means
- * that in order to use it from within multiple threads, calls to any
- * methods (typically {@link #processEvent(Object) processEvent})
- * must be synchronized.
- * <p>
- * Exceptions thrown by this class are unchecked because the only way
- * they are thrown is because bad usage of the class and should never
- * happen in a well-written code.
+ * Basic implementation of {@link IStateMachine}. It can be instantiated
+ * directly for top level state machines.
  *
  * @author Peter Szabados
  *
  * @param <StateId> The type used for referencing states.
  * @param <Event> The type used for referencing events.
  */
-public class StateMachine<StateId, Event> implements IStateMachine<StateId, Event> {
+public class StateMachine<StateId, Event> implements
+		IStateMachine<StateId, Event> {
 
 	private static class TransitionTarget<StateId, Event> {
 		public IGuard<StateId, Event> guard;
