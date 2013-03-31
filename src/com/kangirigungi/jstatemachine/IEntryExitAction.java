@@ -48,7 +48,7 @@ public interface IEntryExitAction<StateId, Event> {
 	 * in the following situations:
 	 * <ul>
 	 * <li>Entering the initial state of a state machine when calling
-	 * {@link StateMachine#start() start()}.
+	 * {@link StateMachineEngine#enter() start()}.
 	 * <li>Entering the state through a completion transition.
 	 * <li>An exception is thrown from an action callback and the original
 	 * state is being reentered.
@@ -64,7 +64,7 @@ public interface IEntryExitAction<StateId, Event> {
 	 * contains the event by which the state is exited, or <code>null</code>
 	 *  in the following situations:
 	 * <ul>
-	 * <li>After calling {@link StateMachine#stop() stop()}.
+	 * <li>After calling {@link StateMachineEngine#leave() stop()}.
 	 * <li>Exiting the state through a completion transition.
 	 * </ul>
 	 *

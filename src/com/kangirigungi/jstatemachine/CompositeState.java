@@ -46,10 +46,10 @@ public class CompositeState<StateId, Event>
 		implements ICompositeState<StateId, Event> {
 
 	IState<StateId, Event> state;
-	private IStateMachine<StateId, Event> stateMachine;
+	private IStateMachineEngine<StateId, Event> stateMachine;
 
 	public CompositeState(StateId id,
-			IStateMachine<StateId, Event> topLevelStateMachine,
+			IStateMachineEngine<StateId, Event> topLevelStateMachine,
 			IStateFactory<StateId, Event> factory) {
 		this.state = factory.createState(id);
 		this.stateMachine = factory.createStateMachine(topLevelStateMachine);
@@ -58,12 +58,12 @@ public class CompositeState<StateId, Event>
 	@Override
 	public void enterState(Event event) {
 		state.enterState(event);
-		stateMachine.start();
+		stateMachine.enter();
 	}
 
 	@Override
 	public void exitState(Event event) {
-		stateMachine.stop();
+		stateMachine.leave();
 		state.exitState(event);
 	}
 
@@ -84,14 +84,13 @@ public class CompositeState<StateId, Event>
 	}
 
 	@Override
-	public ICompositeState<StateId, Event> setEntryExitAction(
+	public void setEntryExitAction(
 			IEntryExitAction<StateId, Event> action) {
 		state.setEntryExitAction(action);
-		return this;
 	}
 
 	@Override
-	public IStateMachine<StateId, Event> getStateMachine() {
+	public IStateMachineEngine<StateId, Event> getStateMachine() {
 		return stateMachine;
 	}
 

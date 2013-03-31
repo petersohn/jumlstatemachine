@@ -40,7 +40,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Basic implementation of {@link IStateMachine}. It can be instantiated
+ * Basic implementation of {@link IStateMachineEngine}. It can be instantiated
  * directly for top level state machines.
  *
  * @author Peter Szabados
@@ -48,8 +48,8 @@ import java.util.Map;
  * @param <StateId> The type used for referencing states.
  * @param <Event> The type used for referencing events.
  */
-public class StateMachine<StateId, Event> implements
-		IStateMachine<StateId, Event> {
+class StateMachineEngine<StateId, Event> implements
+		IStateMachineEngine<StateId, Event> {
 
 	private static class TransitionTarget<StateId, Event> {
 		public IGuard<StateId, Event> guard;
@@ -85,12 +85,12 @@ public class StateMachine<StateId, Event> implements
 	private StateDescription<StateId, Event> initialState;
 	private StateDescription<StateId, Event> currentState;
 	private boolean inTransition = false;
-	private IStateMachine<StateId, Event> topLevelStateMachine = null;
+	private IStateMachineEngine<StateId, Event> topLevelStateMachine = null;
 
-	public StateMachine() {
+	public StateMachineEngine() {
 	}
 
-	StateMachine(IStateMachine<StateId, Event> topLevelStateMachine) {
+	StateMachineEngine(IStateMachineEngine<StateId, Event> topLevelStateMachine) {
 		this.topLevelStateMachine = topLevelStateMachine;
 	}
 
@@ -107,7 +107,6 @@ public class StateMachine<StateId, Event> implements
 	 */
 	@Override
 	public IState<StateId, Event> getcurrentState() {
-		checkRunning("getcurrentState");
 		return currentState.state;
 	}
 
@@ -116,7 +115,6 @@ public class StateMachine<StateId, Event> implements
 	 */
 	@Override
 	public IState<StateId, Event> getcurrentDeepState() {
-		checkRunning("getcurrentDeepState");
 		IState<StateId, Event> state = currentState.state;
 		if (state instanceof ICompositeState<?, ?>) {
 			return ((ICompositeState<StateId, Event>)state).getStateMachine().
@@ -141,7 +139,6 @@ public class StateMachine<StateId, Event> implements
 	 */
 	@Override
 	public void setInitialState(StateId initialState) {
-		checkNotRunning("setInitialState");
 		this.initialState = getStateDescription(initialState);
 	}
 
@@ -149,8 +146,7 @@ public class StateMachine<StateId, Event> implements
 	 * @see com.kangirigungi.jstatemachine.IStateMachine#start()
 	 */
 	@Override
-	public void start() {
-		checkNotRunning("start");
+	public void enter() {
 		initialState.state.enterState(null);
 		currentState = initialState;
 
@@ -161,8 +157,7 @@ public class StateMachine<StateId, Event> implements
 	 * @see com.kangirigungi.jstatemachine.IStateMachine#stop()
 	 */
 	@Override
-	public void stop() {
-		checkRunning("stop");
+	public void leave() {
 		currentState.state.exitState(null);
 		currentState = null;
 	}
@@ -171,7 +166,7 @@ public class StateMachine<StateId, Event> implements
 	 * @see com.kangirigungi.jstatemachine.IStateMachine#isRunning()
 	 */
 	@Override
-	public boolean isRunning() {
+	public boolean isActive() {
 		return currentState != null;
 	}
 
@@ -215,8 +210,6 @@ public class StateMachine<StateId, Event> implements
 	public void addTransition(StateId fromState, Event event,
 			ITransitionAction<StateId, Event> action,
 			StateId toState, IGuard<StateId, Event> guard) {
-		checkNotRunning("addTransition");
-
 		StateDescription<StateId, Event> fromDescription =
 				getStateDescription(fromState);
 		StateDescription<StateId, Event> toDescription =
@@ -242,8 +235,6 @@ public class StateMachine<StateId, Event> implements
 	public void addInternalTransition(StateId state, Event event,
 			ITransitionAction<StateId, Event> action,
 			IGuard<StateId, Event> guard) {
-		checkNotRunning("addInternalTransition");
-
 		if (event == null) {
 			throw new IllegalEventException("No internal completion " +
 					"transitions are allowed.");
@@ -300,8 +291,6 @@ public class StateMachine<StateId, Event> implements
 	 */
 	@Override
 	public void processEvent(Event event) {
-		checkRunning("processEvent");
-
 		if (inTransition) {
 			throw new InTransitionException("Cannot initiate transition " +
 					"while another transition is running.");
@@ -386,7 +375,7 @@ public class StateMachine<StateId, Event> implements
 	}
 
 	@Override
-	public IStateMachine<StateId, Event> getTopLevelStateMachine() {
+	public IStateMachineEngine<StateId, Event> getTopLevelStateMachine() {
 		if (topLevelStateMachine == null) {
 			return this;
 		} else {
@@ -394,44 +383,9 @@ public class StateMachine<StateId, Event> implements
 		}
 	}
 
-
-	private void throwDuplicateTransitionException(
-			IState<StateId, Event> state,
-			Event event) {
-		throw new DuplicateTransitionException(
-				"For each event, either all transitions must be " +
-				"guarded or only one unguarded transition must " +
-				"occur.", this, state, event);
-	}
-
-	private void checkRunning(String action) {
-		if (!isRunning()) {
-			throw new NotRunningException(
-					"Cannot execute \""+action+
-					"\" while the state machine is not running.");
-		}
-	}
-
-	private void checkNotRunning(String action) {
-		if (isRunning()) {
-			throw new AlreadyRunningException(
-					"Cannot execute \""+action+
-					"\" while the state machine is running.");
-		}
-	}
-
-	private StateDescription<StateId, Event> getStateDescription(StateId id)
-			throws NoStateException {
+	private StateDescription<StateId, Event> getStateDescription(StateId id) {
 		StateDescription<StateId, Event> result = states.get(id);
-		if (result == null) {
-			throwNoStateException(id);
-		}
 		return result;
-	}
-
-	private void throwNoStateException(StateId state) {
-		throw new NoStateException("State "+state.toString()+
-				" does not exist.", this, state);
 	}
 
 	void setStateFactory(IStateFactory<StateId, Event> stateFactory) {

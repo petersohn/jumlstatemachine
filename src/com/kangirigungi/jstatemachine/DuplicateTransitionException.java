@@ -36,50 +36,50 @@ package com.kangirigungi.jstatemachine;
 /**
  * Exception thrown when a transaction with an already existing from
  * state and event to be added.
- *  
+ *
  * @author Peter Szabados
- * 
+ *
  */
 public class DuplicateTransitionException extends StateMachineException {
 	private static final long serialVersionUID = 1L;
 
-	private IStateMachine<?, ?> stateMachine;
+	private SubStateMachineBuilder<?, ?> stateMachine;
 	private Object fromState;
 	private Object event;
 
-	public DuplicateTransitionException(IStateMachine<?, ?> stateMachine,
+	public DuplicateTransitionException(SubStateMachineBuilder<?, ?> stateMachine,
 			Object fromState, Object event) {
 		super();
 		init(stateMachine, fromState, event);
 	}
 
-	public DuplicateTransitionException(String message, IStateMachine<?, ?> stateMachine,
+	public DuplicateTransitionException(String message, SubStateMachineBuilder<?, ?> stateMachine,
 			Object fromState, Object event) {
 		super(message);
 		init(stateMachine, fromState, event);
 	}
 
 	public DuplicateTransitionException(String message, Throwable cause,
-			IStateMachine<?, ?> stateMachine,
+			SubStateMachineBuilder<?, ?> stateMachine,
 			Object fromState, Object event) {
 		super(message, cause);
 		init(stateMachine, fromState, event);
 	}
 
-	public DuplicateTransitionException(Throwable cause, IStateMachine<?, ?> stateMachine,
+	public DuplicateTransitionException(Throwable cause, SubStateMachineBuilder<?, ?> stateMachine,
 			Object fromState, Object event) {
 		super(cause);
 		init(stateMachine, fromState, event);
 	}
 
-	private void init(IStateMachine<?, ?> stateMachine,
+	private void init(SubStateMachineBuilder<?, ?> stateMachine,
 			Object fromState, Object event) {
 		this.stateMachine = stateMachine;
 		this.fromState = fromState;
 		this.event = event;
 	}
 
-	public IStateMachine<?, ?> getStateMachine() {
+	public SubStateMachineBuilder<?, ?> getStateMachine() {
 		return stateMachine;
 	}
 

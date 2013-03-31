@@ -36,14 +36,14 @@ package com.kangirigungi.jstatemachine;
 /**
  * Represents a state of the state machine. This is the basic
  * implementation of {@link IState}. Instantiation is done
- * by {@link StateMachine}.
+ * by {@link StateMachineEngine}.
  *
  * @author Peter Szabados
  *
  * @param <Id> The type used for referencing states.
  * @param <Event> The type used for referencing events.
  */
-public class State<Id, Event> implements IState<Id, Event> {
+class State<Id, Event> implements IState<Id, Event> {
 
 	private Id id;
 	private IEntryExitAction<Id, Event> entryExitAction;
@@ -101,10 +101,8 @@ public class State<Id, Event> implements IState<Id, Event> {
 	}
 
 	@Override
-	public IState<Id, Event> setEntryExitAction(
-			IEntryExitAction<Id, Event> action) {
+	public void setEntryExitAction(IEntryExitAction<Id, Event> action) {
 		entryExitAction = action;
-		return this;
 	}
 
 }

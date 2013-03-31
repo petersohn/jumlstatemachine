@@ -40,12 +40,12 @@ import org.junit.Test;
 
 public class StateMachineTest {
 
-	private StateMachine<Integer, Integer> stateMachine;
+	private StateMachineEngine<Integer, Integer> stateMachine;
 	private MockStateFactory<Integer, Integer> stateFactory;
 
 	@Before
 	public void initialize() {
-		stateMachine = new StateMachine<Integer, Integer>();
+		stateMachine = new StateMachineEngine<Integer, Integer>();
 		stateFactory = new MockStateFactory<Integer, Integer>();
 		stateMachine.setStateFactory(stateFactory);
 	}
@@ -65,9 +65,9 @@ public class StateMachineTest {
 		Assert.assertSame(stateMachine.getState(1),
 				stateMachine.getInitialState());
 
-		Assert.assertFalse(stateMachine.isRunning());
-		stateMachine.start();
-		Assert.assertTrue(stateMachine.isRunning());
+		Assert.assertFalse(stateMachine.isActive());
+		stateMachine.enter();
+		Assert.assertTrue(stateMachine.isActive());
 		Assert.assertSame(stateMachine.getState(1),
 				stateMachine.getcurrentState());
 
@@ -102,7 +102,7 @@ public class StateMachineTest {
 		stateMachine.addState(2);
 		stateMachine.addTransition(1, 10, action, 2);
 		stateMachine.setInitialState(1);
-		stateMachine.start();
+		stateMachine.enter();
 		stateMachine.processEvent(10);
 
 		Assert.assertSame(stateMachine.getState(2),
@@ -147,7 +147,7 @@ public class StateMachineTest {
 		stateMachine.addTransition(1, 10, action, 2);
 		stateMachine.addTransition(2, 10, action, 1);
 		stateMachine.setInitialState(1);
-		stateMachine.start();
+		stateMachine.enter();
 		stateMachine.processEvent(10);
 		stateMachine.processEvent(10);
 
@@ -198,7 +198,7 @@ public class StateMachineTest {
 		stateMachine.addState(2);
 		stateMachine.addTransition(1, 10, action, 2);
 		stateMachine.setInitialState(1);
-		stateMachine.start();
+		stateMachine.enter();
 		stateMachine.processEvent(20);
 
 		Assert.assertSame(stateMachine.getState(1),
@@ -237,7 +237,7 @@ public class StateMachineTest {
 		stateMachine.addTransition(1, 10, null, 2);
 		stateMachine.addInternalTransition(1, 20, action);
 		stateMachine.setInitialState(1);
-		stateMachine.start();
+		stateMachine.enter();
 		stateMachine.processEvent(20);
 
 		Assert.assertSame(stateMachine.getState(1),
@@ -277,7 +277,7 @@ public class StateMachineTest {
 		stateMachine.addState(2);
 		stateMachine.addTransition(1, 10, action, 2, guard);
 		stateMachine.setInitialState(1);
-		stateMachine.start();
+		stateMachine.enter();
 		stateMachine.processEvent(10);
 
 		Assert.assertSame(stateMachine.getState(1),
@@ -329,7 +329,7 @@ public class StateMachineTest {
 		stateMachine.addState(1);
 		stateMachine.addInternalTransition(1, 10, action, guard);
 		stateMachine.setInitialState(1);
-		stateMachine.start();
+		stateMachine.enter();
 		stateMachine.processEvent(10);
 
 		Assert.assertSame(stateMachine.getState(1),
@@ -365,7 +365,7 @@ public class StateMachineTest {
 		stateMachine.addState(2);
 		stateMachine.addTransition(1, null, action, 2);
 		stateMachine.setInitialState(1);
-		stateMachine.start();
+		stateMachine.enter();
 
 		Assert.assertSame(stateMachine.getState(2),
 				stateMachine.getcurrentState());
@@ -402,10 +402,10 @@ public class StateMachineTest {
 		System.out.println("stop");
 		stateMachine.addState(1);
 		stateMachine.setInitialState(1);
-		Assert.assertFalse(stateMachine.isRunning());
+		Assert.assertFalse(stateMachine.isActive());
 
-		stateMachine.start();
-		Assert.assertTrue(stateMachine.isRunning());
+		stateMachine.enter();
+		Assert.assertTrue(stateMachine.isActive());
 		Assert.assertEquals(1, ((MockState<Integer, Integer>)stateMachine.
 				getState(1)).enterStateCalled);
 		Assert.assertSame(null, ((MockState<Integer, Integer>)stateMachine.
@@ -413,8 +413,8 @@ public class StateMachineTest {
 		Assert.assertEquals(0, ((MockState<Integer, Integer>)stateMachine.
 				getState(1)).exitStateCalled);
 
-		stateMachine.stop();
-		Assert.assertFalse(stateMachine.isRunning());
+		stateMachine.leave();
+		Assert.assertFalse(stateMachine.isActive());
 		Assert.assertEquals(1, ((MockState<Integer, Integer>)stateMachine.
 				getState(1)).enterStateCalled);
 		Assert.assertSame(null, ((MockState<Integer, Integer>)stateMachine.
@@ -441,7 +441,7 @@ public class StateMachineTest {
 		stateMachine.addState(2);
 		stateMachine.addTransition(1, 10, action, 2);
 		stateMachine.setInitialState(1);
-		stateMachine.start();
+		stateMachine.enter();
 
 		boolean exceptionThrown = false;
 		try {
@@ -469,7 +469,7 @@ public class StateMachineTest {
 		stateMachine.addState(2);
 		stateMachine.addTransition(1, 10, action, 2);
 		stateMachine.setInitialState(1);
-		stateMachine.start();
+		stateMachine.enter();
 
 		boolean exceptionThrown = false;
 		try {

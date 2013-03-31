@@ -43,9 +43,9 @@ package com.kangirigungi.jstatemachine;
  *
  * The inner state machine of a composite state is running if and only if
  * the parent state machine is running and its active state is this composite
- * state. This means that calling the {@link IStateMachine#start() start()},
- * {@link IStateMachine#stop() stop()} or
- * {@link IStateMachine#processEvent(Object) processEvent()} methods of an
+ * state. This means that calling the {@link IStateMachineEngine#enter() start()},
+ * {@link IStateMachineEngine#leave() stop()} or
+ * {@link IStateMachineEngine#processEvent(Object) processEvent()} methods of an
  * inner state machine results in undefined behavior.
  *
  * @author Peter Szabados
@@ -58,9 +58,9 @@ public interface ICompositeState<StateId, Event>
 	/**
 	 * Return the inner state machine associated with this composite state.
 	 */
-	public IStateMachine<StateId, Event> getStateMachine();
+	public IStateMachineEngine<StateId, Event> getStateMachine();
 
 	@Override
-	public ICompositeState<StateId, Event> setEntryExitAction(
+	public void setEntryExitAction(
 			IEntryExitAction<StateId, Event> action);
 }

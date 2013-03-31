@@ -34,9 +34,9 @@
 package com.kangirigungi.jstatemachine;
 
 public class MockStateMachine<StateId, Event> implements
-		IStateMachine<StateId, Event> {
+		IStateMachineEngine<StateId, Event> {
 
-	public IStateMachine<StateId, Event> topLevelStateMachine;
+	public IStateMachineEngine<StateId, Event> topLevelStateMachine;
 	public int startCalled = 0;
 	public int stopCalled = 0;
 	public int processEventCalled = 0;
@@ -51,7 +51,7 @@ public class MockStateMachine<StateId, Event> implements
 	}
 
 	public MockStateMachine(
-			IStateMachine<StateId, Event> topLevelStateMachine) {
+			IStateMachineEngine<StateId, Event> topLevelStateMachine) {
 		this.topLevelStateMachine = topLevelStateMachine;
 	}
 
@@ -84,7 +84,7 @@ public class MockStateMachine<StateId, Event> implements
 	}
 
 	@Override
-	public IStateMachine<StateId, Event> getTopLevelStateMachine() {
+	public IStateMachineEngine<StateId, Event> getTopLevelStateMachine() {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -96,17 +96,17 @@ public class MockStateMachine<StateId, Event> implements
 	}
 
 	@Override
-	public void start() {
+	public void enter() {
 		++startCalled;
 	}
 
 	@Override
-	public void stop() {
+	public void leave() {
 		++stopCalled;
 	}
 
 	@Override
-	public boolean isRunning() {
+	public boolean isActive() {
 		return running;
 	}
 

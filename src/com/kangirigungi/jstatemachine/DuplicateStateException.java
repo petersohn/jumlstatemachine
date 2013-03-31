@@ -43,41 +43,41 @@ package com.kangirigungi.jstatemachine;
 public class DuplicateStateException extends StateMachineException {
 	private static final long serialVersionUID = 1L;
 
-	private IStateMachine<?, ?> stateMachine;
+	private IStateMachineEngine<?, ?> stateMachine;
 	Object state;
 
-	public DuplicateStateException(IStateMachine<?, ?> stateMachine,
+	public DuplicateStateException(IStateMachineEngine<?, ?> stateMachine,
 			Object state) {
 		super();
 		init(stateMachine, state);
 	}
 
-	public DuplicateStateException(String message, IStateMachine<?, ?> stateMachine,
+	public DuplicateStateException(String message, IStateMachineEngine<?, ?> stateMachine,
 			Object state) {
 		super(message);
 		init(stateMachine, state);
 	}
 
 	public DuplicateStateException(String message, Throwable cause,
-			IStateMachine<?, ?> stateMachine,
+			IStateMachineEngine<?, ?> stateMachine,
 			Object state) {
 		super(message, cause);
 		init(stateMachine, state);
 	}
 
-	public DuplicateStateException(Throwable cause, IStateMachine<?, ?> stateMachine,
+	public DuplicateStateException(Throwable cause, IStateMachineEngine<?, ?> stateMachine,
 			Object state) {
 		super(cause);
 		init(stateMachine, state);
 	}
 
-	private void init(IStateMachine<?, ?> stateMachine,
+	private void init(IStateMachineEngine<?, ?> stateMachine,
 			Object state) {
 		this.stateMachine = stateMachine;
 		this.state = state;
 	}
 
-	public IStateMachine<?, ?> getStateMachine() {
+	public IStateMachineEngine<?, ?> getStateMachine() {
 		return stateMachine;
 	}
 

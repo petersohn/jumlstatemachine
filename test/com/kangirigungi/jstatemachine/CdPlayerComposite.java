@@ -1,4 +1,4 @@
-package com.kangirigungi.jstatemachine.componenttest;
+package com.kangirigungi.jstatemachine;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -8,10 +8,9 @@ import org.junit.Test;
 import com.kangirigungi.jstatemachine.GuardNot;
 import com.kangirigungi.jstatemachine.IEntryExitAction;
 import com.kangirigungi.jstatemachine.IState;
-import com.kangirigungi.jstatemachine.IStateMachine;
+import com.kangirigungi.jstatemachine.IStateMachineEngine;
 import com.kangirigungi.jstatemachine.ITransitionAction;
-import com.kangirigungi.jstatemachine.MockGuard;
-import com.kangirigungi.jstatemachine.StateMachine;
+import com.kangirigungi.jstatemachine.StateMachineEngine;
 
 
 public class CdPlayerComposite {
@@ -29,7 +28,7 @@ public class CdPlayerComposite {
 		 ForwardTrack
 	}
 
-	private IStateMachine<States, Events> stateMachine;
+	private IStateMachineEngine<States, Events> stateMachine;
 	private Actions lastAction;
 	private States lastStateEntered;
 	private States lastStateExited;
@@ -95,12 +94,12 @@ public class CdPlayerComposite {
 		isCdDetected = new MockGuard<States, Events>(false);
 		isLastTrack = new MockGuard<States, Events>(false);
 
-		stateMachine = new StateMachine<States, Events>();
+		stateMachine = new StateMachineEngine<States, Events>();
 
 		stateMachine.addState(States.Empty).setEntryExitAction(entryExitHandler);
 		stateMachine.addState(States.Stopped).setEntryExitAction(entryExitHandler);
 		stateMachine.addState(States.Open).setEntryExitAction(entryExitHandler);
-		IStateMachine<States, Events> statePlaying =
+		IStateMachineEngine<States, Events> statePlaying =
 				stateMachine.addCompositeState(States.Playing).
 				setEntryExitAction(entryExitHandler).getStateMachine();
 
@@ -147,7 +146,7 @@ public class CdPlayerComposite {
 	public void playOpenClosePlayPause2FastForward3() {
 		System.out.println("playOpenClosePlayPause2FastForward3");
 		isCdDetected.setValue(false);
-		stateMachine.start();
+		stateMachine.enter();
 		checkState(null, States.Empty, null);
 
 		stateMachine.processEvent(Events.Play);
@@ -176,7 +175,7 @@ public class CdPlayerComposite {
 	public void playPauseStopPlayPauseOpen() {
 		System.out.println("playPauseStopPlayPauseOpen");
 		isCdDetected.setValue(true);
-		stateMachine.start();
+		stateMachine.enter();
 		checkState(States.Empty, States.Stopped, Actions.StoreCdInfo);
 		stateMachine.processEvent(Events.Play);
 		checkState(States.Stopped, States.Playback, Actions.StartPlayback);

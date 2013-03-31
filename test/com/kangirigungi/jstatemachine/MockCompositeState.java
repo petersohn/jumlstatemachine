@@ -4,14 +4,14 @@ public class MockCompositeState<StateId, Event>
 		extends MockState<StateId, Event>
 		implements ICompositeState<StateId, Event> {
 
-	public IStateMachine<StateId, Event> stateMachine;
+	public IStateMachineEngine<StateId, Event> stateMachine;
 
 	public MockCompositeState(StateId stateId) {
 		super(stateId);
 	}
 
 	@Override
-	public IStateMachine<StateId, Event> getStateMachine() {
+	public IStateMachineEngine<StateId, Event> getStateMachine() {
 		return stateMachine;
 	}
 

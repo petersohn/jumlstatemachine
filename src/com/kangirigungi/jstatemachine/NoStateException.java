@@ -35,48 +35,48 @@ package com.kangirigungi.jstatemachine;
 
 /**
  * Exception thrown when a non-existing state id is queried.
- *  
+ *
  * @author Peter Szabados
- * 
+ *
  */
 public class NoStateException extends StateMachineException {
 	private static final long serialVersionUID = 1L;
 
-	private IStateMachine<?, ?> stateMachine;
+	private SubStateMachineBuilder<?, ?> stateMachine;
 	Object state;
 
-	public NoStateException(IStateMachine<?, ?> stateMachine,
+	public NoStateException(SubStateMachineBuilder<?, ?> stateMachine,
 			Object state) {
 		super();
 		init(stateMachine, state);
 	}
 
-	public NoStateException(String message, IStateMachine<?, ?> stateMachine,
+	public NoStateException(String message, SubStateMachineBuilder<?, ?> stateMachine,
 			Object state) {
 		super(message);
 		init(stateMachine, state);
 	}
 
 	public NoStateException(String message, Throwable cause,
-			IStateMachine<?, ?> stateMachine,
+			SubStateMachineBuilder<?, ?> stateMachine,
 			Object state) {
 		super(message, cause);
 		init(stateMachine, state);
 	}
 
-	public NoStateException(Throwable cause, IStateMachine<?, ?> stateMachine,
+	public NoStateException(Throwable cause, SubStateMachineBuilder<?, ?> stateMachine,
 			Object state) {
 		super(cause);
 		init(stateMachine, state);
 	}
 
-	private void init(IStateMachine<?, ?> stateMachine,
+	private void init(SubStateMachineBuilder<?, ?> stateMachine,
 			Object state) {
 		this.stateMachine = stateMachine;
 		this.state = state;
 	}
 
-	public IStateMachine<?, ?> getStateMachine() {
+	public SubStateMachineBuilder<?, ?> getStateMachine() {
 		return stateMachine;
 	}
 

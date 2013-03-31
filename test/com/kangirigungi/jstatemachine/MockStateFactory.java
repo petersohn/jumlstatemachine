@@ -48,7 +48,7 @@ public class MockStateFactory<StateId, Event>
 
 	@Override
 	public ICompositeState<StateId, Event> createCompositeState(
-			StateId id, IStateMachine<StateId, Event> topLevelStateMachine) {
+			StateId id, IStateMachineEngine<StateId, Event> topLevelStateMachine) {
 		lastCreatedCompositeState =
 				new MockCompositeState<StateId, Event>(id);
 		lastCreatedCompositeState.stateMachine =
@@ -57,8 +57,8 @@ public class MockStateFactory<StateId, Event>
 	}
 
 	@Override
-	public IStateMachine<StateId, Event> createStateMachine(
-		IStateMachine<StateId, Event> topLevelStateMachine) {
+	public IStateMachineEngine<StateId, Event> createStateMachine(
+		IStateMachineEngine<StateId, Event> topLevelStateMachine) {
 		lastCreatedStateMachine = new MockStateMachine<StateId, Event>(
 				topLevelStateMachine);
 		return lastCreatedStateMachine;

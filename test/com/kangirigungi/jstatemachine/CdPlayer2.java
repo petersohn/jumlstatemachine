@@ -31,7 +31,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-package com.kangirigungi.jstatemachine.componenttest;
+package com.kangirigungi.jstatemachine;
 
 import junit.framework.Assert;
 
@@ -42,10 +42,9 @@ import org.junit.Test;
 import com.kangirigungi.jstatemachine.GuardNot;
 import com.kangirigungi.jstatemachine.IEntryExitAction;
 import com.kangirigungi.jstatemachine.IState;
-import com.kangirigungi.jstatemachine.IStateMachine;
+import com.kangirigungi.jstatemachine.IStateMachineEngine;
 import com.kangirigungi.jstatemachine.ITransitionAction;
-import com.kangirigungi.jstatemachine.MockGuard;
-import com.kangirigungi.jstatemachine.StateMachine;
+import com.kangirigungi.jstatemachine.StateMachineEngine;
 
 public class CdPlayer2 {
 
@@ -63,7 +62,7 @@ public class CdPlayer2 {
 		 ForwardTrack
 	}
 
-	private IStateMachine<States, Events> stateMachine;
+	private IStateMachineEngine<States, Events> stateMachine;
 	private Actions lastAction;
 	private States lastStateEntered;
 	private States lastStateExited;
@@ -129,7 +128,7 @@ public class CdPlayer2 {
 		isCdDetected = new MockGuard<States, Events>(false);
 		isLastTrack = new MockGuard<States, Events>(false);
 
-		stateMachine = new StateMachine<States, Events>();
+		stateMachine = new StateMachineEngine<States, Events>();
 
 		stateMachine.addState(States.Empty).setEntryExitAction(entryExitHandler);
 		stateMachine.addState(States.Stopped).setEntryExitAction(entryExitHandler);
@@ -179,7 +178,7 @@ public class CdPlayer2 {
 	public void playFastForwardStopOpenClose() {
 		System.out.println("playFastForwardStopOpenClose");
 		isCdDetected.setValue(true);
-		stateMachine.start();
+		stateMachine.enter();
 		checkState(States.Empty, States.Stopped, Actions.StoreCdInfo);
 
 		stateMachine.processEvent(Events.Play);
@@ -199,7 +198,7 @@ public class CdPlayer2 {
 	public void playOpenClosePlayPause2FastForward3() {
 		System.out.println("playOpenClosePlayPause2FastForward3");
 		isCdDetected.setValue(false);
-		stateMachine.start();
+		stateMachine.enter();
 		checkState(null, States.Empty, null);
 
 		stateMachine.processEvent(Events.Play);

@@ -42,11 +42,11 @@ package com.kangirigungi.jstatemachine;
  *
  * @author Peter Szabados
  *
- * @param <Id> The type used for referencing states.
+ * @param <StateId> The type used for referencing states.
  * @param <Event> The type used for referencing events.
  * @see State
  */
-public interface IState<Id, Event> {
+public interface IState<StateId, Event> {
 	/**
 	 * This method is called internally when the state is entered.
 	 * Do not call this method from outside.
@@ -74,7 +74,7 @@ public interface IState<Id, Event> {
 	/**
 	 * @return the unique identifier of the state.
 	 */
-	public Id getId();
+	public StateId getId();
 
 	/**
 	 * Get the callbacks that are called when the state is entered or exited.
@@ -83,7 +83,7 @@ public interface IState<Id, Event> {
 	 *
 	 * @return The entry/exit action handler defined for this state.
 	 */
-	public IEntryExitAction<Id, Event> getEntryExitAction();
+	public IEntryExitAction<StateId, Event> getEntryExitAction();
 
 	/**
 	 * Set the callbacks that are called when the state is entered or exited.
@@ -91,8 +91,7 @@ public interface IState<Id, Event> {
 	 * @param action The entry/exit action handler defined for this state.
 	 * @return this.
 	 */
-	public IState<Id, Event> setEntryExitAction(
-			IEntryExitAction<Id, Event> action);
+	public void setEntryExitAction(IEntryExitAction<StateId, Event> action);
 }
 
 

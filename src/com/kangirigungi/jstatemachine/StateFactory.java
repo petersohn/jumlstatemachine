@@ -41,14 +41,14 @@ class StateFactory<StateId, Event> implements IStateFactory<StateId, Event> {
 	}
 
 	@Override
-	public IStateMachine<StateId, Event> createStateMachine(
-			IStateMachine<StateId, Event> topLevelStateMachine) {
-		return new StateMachine<StateId, Event>(topLevelStateMachine);
+	public IStateMachineEngine<StateId, Event> createStateMachine(
+			IStateMachineEngine<StateId, Event> topLevelStateMachine) {
+		return new StateMachineEngine<StateId, Event>(topLevelStateMachine);
 	}
 
 	@Override
 	public ICompositeState<StateId, Event> createCompositeState(StateId id,
-			IStateMachine<StateId, Event> topLevelStateMachine) {
+			IStateMachineEngine<StateId, Event> topLevelStateMachine) {
 		return new CompositeState<StateId, Event>(id,
 				topLevelStateMachine, this);
 	}

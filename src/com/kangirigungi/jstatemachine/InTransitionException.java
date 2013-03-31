@@ -36,7 +36,7 @@ package com.kangirigungi.jstatemachine;
 /**
  * Thrown when a transition is triggered while another transition
  * is in progress. This typically happens when
- * {@link StateMachine#processEvent(Object) processEvent} is called
+ * {@link StateMachineEngine#processEvent(Object) processEvent} is called
  * from within a callback, or when calling from multiple threads
  * without synchronization (this can also cause undefined
  * behavior).

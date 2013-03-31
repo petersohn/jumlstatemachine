@@ -2,11 +2,11 @@ package com.kangirigungi.jstatemachine;
 
 public class GuardState<StateId, Event> implements IGuard<StateId, Event> {
 
-	private IStateMachine<StateId, Event> stateMachine;
+	private IStateMachineEngine<StateId, Event> stateMachine;
 	private StateId[] states;
 	private boolean deep;
 
-	public GuardState(IStateMachine<StateId, Event> stateMachine,
+	public GuardState(IStateMachineEngine<StateId, Event> stateMachine,
 			StateId[] states, boolean deep) {
 		this.stateMachine = stateMachine;
 		this.states = states.clone();
@@ -16,7 +16,7 @@ public class GuardState<StateId, Event> implements IGuard<StateId, Event> {
 	@Override
 	public boolean checkTransition(IState<StateId, Event> fromState,
 			IState<StateId, Event> toState, Event event) {
-		if (!stateMachine.isRunning()) {
+		if (!stateMachine.isActive()) {
 			return false;
 		}
 
