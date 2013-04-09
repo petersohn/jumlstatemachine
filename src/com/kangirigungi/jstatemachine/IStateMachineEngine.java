@@ -85,7 +85,7 @@ package com.kangirigungi.jstatemachine;
  * @param <StateId> The type used for referencing states.
  * @param <Event> The type used for referencing events.
  */
-interface IStateMachineEngine<StateId, Event> extends Cloneable {
+interface IStateMachineEngine<StateId, Event> {
 
 	/**
 	 * @return The initial state of the state machine.
@@ -106,7 +106,6 @@ interface IStateMachineEngine<StateId, Event> extends Cloneable {
 	 * @throws NotRunningException When the state machine is not running.
 	 */
 	public IState<StateId, Event> getcurrentDeepState();
-
 
 	/**
 	 * Get the state associated with the given id. If the state does not
@@ -220,13 +219,6 @@ interface IStateMachineEngine<StateId, Event> extends Cloneable {
 			IGuard<StateId, Event> guard);
 
 	/**
-	 * Same as {@link #addTransition(Object, Object, ITransitionAction, Object, IGuard)
-	 * addTransition(fromState, event, action, toState, null)}.
-	 */
-	public void addTransition(StateId fromState, Event event,
-			ITransitionAction<StateId, Event> action, StateId toState);
-
-	/**
 	 * Add a new internal transition. Internal transitions do not
 	 * leave the state when performing an action. The action and
 	 * guard parameters are optional (though it would not make sense
@@ -244,13 +236,6 @@ interface IStateMachineEngine<StateId, Event> extends Cloneable {
 	public void addInternalTransition(StateId state, Event event,
 			ITransitionAction<StateId, Event> action,
 			IGuard<StateId, Event> guard);
-
-	/**
-	 * Same as {@link #addInternalTransition(Object, Object, ITransitionAction, IGuard)
-	 * addInternalTransition(state, event, action, null)}.
-	 */
-	public void addInternalTransition(StateId state, Event event,
-			ITransitionAction<StateId, Event> action);
 
 	/**
 	 * Process an event and trigger any transitions needed to be done

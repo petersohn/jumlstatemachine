@@ -79,7 +79,7 @@ public class SubStateMachineBuilder<StateId, Event> {
 	 */
 	public void addTransition(StateId fromState, Event event,
 			ITransitionAction<StateId, Event> action, StateId toState) {
-		stateMachineEngine.addTransition(fromState, event, action, toState);
+		stateMachineEngine.addTransition(fromState, event, action, toState, null);
 	}
 
 
@@ -110,21 +110,7 @@ public class SubStateMachineBuilder<StateId, Event> {
 	 */
 	public void addInternalTransition(StateId state, Event event,
 			ITransitionAction<StateId, Event> action) {
-		stateMachineEngine.addInternalTransition(state, event, action);
-	}
-
-	private void throwDuplicateTransitionException(
-			IState<StateId, Event> state,
-			Event event) {
-		throw new DuplicateTransitionException(
-				"For each event, either all transitions must be " +
-				"guarded or only one unguarded transition must " +
-				"occur.", this, state, event);
-	}
-
-	private void throwNoStateException(StateId state) {
-		throw new NoStateException("State "+state.toString()+
-				" does not exist.", this, state);
+		stateMachineEngine.addInternalTransition(state, event, action, null);
 	}
 
 }

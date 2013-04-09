@@ -74,10 +74,11 @@ class StateMachineEngine<StateId, Event> implements
 			transitions = new HashMap<Event,
 					Collection<TransitionTarget<StateId, Event>>>();
 		}
+
 	}
 
 	private IStateFactory<StateId, Event> stateFactory
-			= new StateFactory<StateId, Event>();;
+			= new StateFactory<StateId, Event>();
 	private Map<StateId, StateDescription<StateId, Event>> states
 			= new HashMap<StateId, StateDescription<StateId, Event>>();
 	private List<ICompositeState<StateId, Event>> substates =
@@ -220,15 +221,6 @@ class StateMachineEngine<StateId, Event> implements
 	}
 
 	/* (non-Javadoc)
-	 * @see com.kangirigungi.jstatemachine.IStateMachine#addTransition(StateId, Event, com.kangirigungi.jstatemachine.ITransitionAction, StateId)
-	 */
-	@Override
-	public void addTransition(StateId fromState, Event event,
-			ITransitionAction<StateId, Event> action, StateId toState) {
-		addTransition(fromState, event, action, toState, null);
-	}
-
-	/* (non-Javadoc)
 	 * @see com.kangirigungi.jstatemachine.IStateMachine#addInternalTransition(StateId, Event, com.kangirigungi.jstatemachine.ITransitionAction, com.kangirigungi.jstatemachine.IGuard)
 	 */
 	@Override
@@ -245,15 +237,6 @@ class StateMachineEngine<StateId, Event> implements
 
 		doAddTransition(description, event, action,
 				null, guard);
-	}
-
-	/* (non-Javadoc)
-	 * @see com.kangirigungi.jstatemachine.IStateMachine#addInternalTransition(StateId, Event, com.kangirigungi.jstatemachine.ITransitionAction)
-	 */
-	@Override
-	public void addInternalTransition(StateId state, Event event,
-			ITransitionAction<StateId, Event> action) {
-		addInternalTransition(state, event, action, null);
 	}
 
 	private void doAddTransition(
@@ -385,7 +368,26 @@ class StateMachineEngine<StateId, Event> implements
 
 	private StateDescription<StateId, Event> getStateDescription(StateId id) {
 		StateDescription<StateId, Event> result = states.get(id);
+		if (result == null) {
+			throwNoStateException(id);
+		}
 		return result;
+	}
+
+	private void throwDuplicateTransitionException(
+			IState<StateId, Event> state,
+			Event event) {
+		throw new DuplicateTransitionException(
+				"Duplicate transition from "+state.getId().toString()+
+				" with event "+event.toString()+". " +
+				"For each event, either all transitions must be " +
+				"guarded or only one unguarded transition must " +
+				"occur.");
+	}
+
+	private void throwNoStateException(StateId state) {
+		throw new NoStateException("State "+state.toString()+
+				" does not exist.");
 	}
 
 	void setStateFactory(IStateFactory<StateId, Event> stateFactory) {

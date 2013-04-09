@@ -1,7 +1,41 @@
-package com.kangirigungi.jstatemachine;
+/*
+ * Copyright (c) 2013, Peter Szabados
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ *     (1) Redistributions of source code must retain the above copyright
+ *     notice, this list of conditions and the following disclaimer.
+ *
+ *     (2) Redistributions in binary form must reproduce the above copyright
+ *     notice, this list of conditions and the following disclaimer in
+ *     the documentation and/or other materials provided with the
+ *     distribution.
+ *
+ *     (3)The name of the author may not be used to
+ *     endorse or promote products derived from this software without
+ *     specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+ * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+ * STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+ * IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ */
+
+package com.kangirigungi.jstatemachine.componenttest;
+
+import junit.framework.Assert;
 
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -10,12 +44,13 @@ import com.kangirigungi.jstatemachine.IEntryExitAction;
 import com.kangirigungi.jstatemachine.IState;
 import com.kangirigungi.jstatemachine.IStateMachineEngine;
 import com.kangirigungi.jstatemachine.ITransitionAction;
+import com.kangirigungi.jstatemachine.MockGuard;
 import com.kangirigungi.jstatemachine.StateMachineEngine;
 
+public class CdPlayer2 {
 
-public class CdPlayerComposite {
 	private static enum States {
-		Empty, Stopped, Playing, Playback, Paused, Open
+		Empty, Stopped, Playing, Paused, Open
 	}
 
 	private static enum Events {
@@ -78,7 +113,7 @@ public class CdPlayerComposite {
 	}
 
 	private void checkState(States previousState, States nextState, Actions action) {
-		Assert.assertEquals(nextState, stateMachine.getcurrentDeepState().getId());
+		Assert.assertEquals(nextState, stateMachine.getcurrentState().getId());
 		Assert.assertEquals(nextState, lastStateEntered);
 		Assert.assertEquals(previousState, lastStateExited);
 		Assert.assertEquals(action, lastAction);
@@ -98,16 +133,11 @@ public class CdPlayerComposite {
 
 		stateMachine.addState(States.Empty).setEntryExitAction(entryExitHandler);
 		stateMachine.addState(States.Stopped).setEntryExitAction(entryExitHandler);
+		stateMachine.addState(States.Playing).setEntryExitAction(entryExitHandler);
 		stateMachine.addState(States.Open).setEntryExitAction(entryExitHandler);
-		IStateMachineEngine<States, Events> statePlaying =
-				stateMachine.addCompositeState(States.Playing).
-				setEntryExitAction(entryExitHandler).getStateMachine();
-
-		statePlaying.addState(States.Playback).setEntryExitAction(entryExitHandler);
-		statePlaying.addState(States.Paused).setEntryExitAction(entryExitHandler);
+		stateMachine.addState(States.Paused).setEntryExitAction(entryExitHandler);
 
 		stateMachine.setInitialState(States.Empty);
-		statePlaying.setInitialState(States.Playback);
 
 		stateMachine.addTransition(States.Empty,           null,
 				new ActionHandler(Actions.StoreCdInfo),      States.Stopped,
@@ -118,6 +148,8 @@ public class CdPlayerComposite {
 				new ActionHandler(Actions.StartPlayback),    States.Playing);
 		stateMachine.addTransition(States.Stopped,         Events.OpenClose,
 				new ActionHandler(Actions.OpenDrawer),       States.Open);
+		stateMachine.addTransition(States.Playing,         Events.Pause,
+				new ActionHandler(Actions.PausePlayback),    States.Paused);
 		stateMachine.addTransition(States.Playing,         Events.Stop,
 				new ActionHandler(Actions.StopPlayback),     States.Stopped);
 		stateMachine.addTransition(States.Playing,         Events.FastForward,
@@ -128,18 +160,39 @@ public class CdPlayerComposite {
 				new GuardNot<States, Events>(isLastTrack));
 		stateMachine.addTransition(States.Playing,         Events.OpenClose,
 				new ActionHandler(Actions.StopAndOpen),      States.Open);
+		stateMachine.addTransition(States.Paused,          Events.Pause,
+				new ActionHandler(Actions.ResumePlayback),   States.Playing);
+		stateMachine.addTransition(States.Paused,          Events.Stop,
+				new ActionHandler(Actions.StopPlayback),     States.Stopped);
+		stateMachine.addTransition(States.Paused,          Events.OpenClose,
+				new ActionHandler(Actions.StopAndOpen),      States.Open);
 		stateMachine.addTransition(States.Open,            Events.OpenClose,
 				new ActionHandler(Actions.CloseDrawer),      States.Empty);
-
-		statePlaying.addTransition(States.Playback,          Events.Pause,
-				new ActionHandler(Actions.PausePlayback),   States.Paused);
-		statePlaying.addTransition(States.Paused,          Events.Pause,
-				new ActionHandler(Actions.ResumePlayback),   States.Playback);
 	}
 
 	@After
 	public void finalizeTest() {
 		System.out.println("");
+	}
+
+	@Test
+	public void playFastForwardStopOpenClose() {
+		System.out.println("playFastForwardStopOpenClose");
+		isCdDetected.setValue(true);
+		stateMachine.enter();
+		checkState(States.Empty, States.Stopped, Actions.StoreCdInfo);
+
+		stateMachine.processEvent(Events.Play);
+		checkState(States.Stopped, States.Playing, Actions.StartPlayback);
+		stateMachine.processEvent(Events.FastForward);
+		checkState(States.Stopped, States.Playing, Actions.ForwardTrack);
+		stateMachine.processEvent(Events.Stop);
+		checkState(States.Playing, States.Stopped, Actions.StopPlayback);
+		stateMachine.processEvent(Events.OpenClose);
+		checkState(States.Stopped, States.Open, Actions.OpenDrawer);
+		isCdDetected.setValue(false);
+		stateMachine.processEvent(Events.OpenClose);
+		checkState(States.Open, States.Empty, Actions.CloseDrawer);
 	}
 
 	@Test
@@ -157,37 +210,19 @@ public class CdPlayerComposite {
 		stateMachine.processEvent(Events.OpenClose);
 		checkState(States.Empty, States.Stopped, Actions.StoreCdInfo);
 		stateMachine.processEvent(Events.Play);
-		checkState(States.Stopped, States.Playback, Actions.StartPlayback);
+		checkState(States.Stopped, States.Playing, Actions.StartPlayback);
 		stateMachine.processEvent(Events.Pause);
-		checkState(States.Playback, States.Paused, Actions.PausePlayback);
+		checkState(States.Playing, States.Paused, Actions.PausePlayback);
 		stateMachine.processEvent(Events.Pause);
-		checkState(States.Paused, States.Playback, Actions.ResumePlayback);
+		checkState(States.Paused, States.Playing, Actions.ResumePlayback);
 		stateMachine.processEvent(Events.FastForward);
-		checkState(States.Paused, States.Playback, Actions.ForwardTrack);
+		checkState(States.Paused, States.Playing, Actions.ForwardTrack);
 		stateMachine.processEvent(Events.FastForward);
-		checkState(States.Paused, States.Playback, Actions.ForwardTrack);
+		checkState(States.Paused, States.Playing, Actions.ForwardTrack);
 		isLastTrack.setValue(true);
 		stateMachine.processEvent(Events.FastForward);
 		checkState(States.Playing, States.Stopped, Actions.StopPlayback);
 	}
 
-	@Test
-	public void playPauseStopPlayPauseOpen() {
-		System.out.println("playPauseStopPlayPauseOpen");
-		isCdDetected.setValue(true);
-		stateMachine.enter();
-		checkState(States.Empty, States.Stopped, Actions.StoreCdInfo);
-		stateMachine.processEvent(Events.Play);
-		checkState(States.Stopped, States.Playback, Actions.StartPlayback);
-		stateMachine.processEvent(Events.Pause);
-		checkState(States.Playback, States.Paused, Actions.PausePlayback);
-		stateMachine.processEvent(Events.Stop);
-		checkState(States.Playing, States.Stopped, Actions.StopPlayback);
-		stateMachine.processEvent(Events.Play);
-		checkState(States.Stopped, States.Playback, Actions.StartPlayback);
-		stateMachine.processEvent(Events.Pause);
-		checkState(States.Playback, States.Paused, Actions.PausePlayback);
-		stateMachine.processEvent(Events.OpenClose);
-		checkState(States.Playing, States.Open, Actions.StopAndOpen);
-	}
+
 }

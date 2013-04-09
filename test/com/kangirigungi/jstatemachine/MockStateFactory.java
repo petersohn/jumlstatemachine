@@ -33,35 +33,41 @@
 
 package com.kangirigungi.jstatemachine;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 public class MockStateFactory<StateId, Event>
 		implements IStateFactory<StateId, Event> {
 
-	public MockState<StateId, Event> lastCreatedState;
-	public MockCompositeState<StateId, Event> lastCreatedCompositeState;
-	public MockStateMachine<StateId, Event> lastCreatedStateMachine;
+	public IState<StateId, Event> lastCreatedState;
+	public ICompositeState<StateId, Event> lastCreatedCompositeState;
+	public IStateMachineEngine<StateId, Event> lastCreatedStateMachine;
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public IState<StateId, Event> createState(StateId id) {
-		lastCreatedState = new MockState<StateId, Event>(id);
+		lastCreatedState = mock(IState.class);
+		when(lastCreatedState.getId()).thenReturn(id);
 		return lastCreatedState;
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public ICompositeState<StateId, Event> createCompositeState(
 			StateId id, IStateMachineEngine<StateId, Event> topLevelStateMachine) {
-		lastCreatedCompositeState =
-				new MockCompositeState<StateId, Event>(id);
-		lastCreatedCompositeState.stateMachine =
-				createStateMachine(topLevelStateMachine);
+		lastCreatedCompositeState = mock(ICompositeState.class);
+		when(lastCreatedCompositeState.getStateMachine()).
+				thenReturn(topLevelStateMachine);
 		return lastCreatedCompositeState;
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public IStateMachineEngine<StateId, Event> createStateMachine(
 		IStateMachineEngine<StateId, Event> topLevelStateMachine) {
-		lastCreatedStateMachine = new MockStateMachine<StateId, Event>(
-				topLevelStateMachine);
+		lastCreatedStateMachine = mock(IStateMachineEngine.class);
+		when(lastCreatedStateMachine.getTopLevelStateMachine()).
+				thenReturn(topLevelStateMachine);
 		return lastCreatedStateMachine;
 	}
-
 }

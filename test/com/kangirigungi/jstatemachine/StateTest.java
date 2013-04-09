@@ -33,10 +33,13 @@
 
 package com.kangirigungi.jstatemachine;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import junit.framework.Assert;
 
 import org.junit.Test;
-
 
 public class StateTest {
 
@@ -74,27 +77,24 @@ public class StateTest {
 	}
 
 	@Test
+	@SuppressWarnings("unchecked")
 	public void entryExitAction() {
 		State<Integer, Integer> state =
 				new State<Integer, Integer>(1);
-		MockEntryExitAction<Integer, Integer> action =
-				new MockEntryExitAction<Integer, Integer>();
-		Assert.assertSame(state, state.setEntryExitAction(action));
+		IEntryExitAction<Integer, Integer> action =
+				mock(IEntryExitAction.class);
+
+		state.setEntryExitAction(action);
 		Assert.assertSame(action, state.getEntryExitAction());
-		Assert.assertEquals(false, action.onEnterCalled);
-		Assert.assertEquals(false, action.onExitCalled);
+		verifyNoMoreInteractions(action);
 
 		state.enterState(20);
-		Assert.assertEquals(true, action.onEnterCalled);
-		Assert.assertEquals(false, action.onExitCalled);
-		Assert.assertSame(state, action.state);
-		Assert.assertEquals(new Integer(20), action.event);
+		verify(action, times(1)).onEnter(state, 20);
+		verifyNoMoreInteractions(action);
 
 		state.exitState(30);
-		Assert.assertEquals(false, action.onEnterCalled);
-		Assert.assertEquals(true, action.onExitCalled);
-		Assert.assertSame(state, action.state);
-		Assert.assertEquals(new Integer(30), action.event);
+		verify(action, times(1)).onExit(state, 30);
+		verifyNoMoreInteractions(action);
 	}
 
 }

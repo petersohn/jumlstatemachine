@@ -40,47 +40,21 @@ package com.kangirigungi.jstatemachine;
  *
  */
 public class NoStateException extends StateMachineException {
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 2L;
 
-	private SubStateMachineBuilder<?, ?> stateMachine;
-	Object state;
-
-	public NoStateException(SubStateMachineBuilder<?, ?> stateMachine,
-			Object state) {
+	public NoStateException() {
 		super();
-		init(stateMachine, state);
 	}
 
-	public NoStateException(String message, SubStateMachineBuilder<?, ?> stateMachine,
-			Object state) {
+	public NoStateException(String message) {
 		super(message);
-		init(stateMachine, state);
 	}
 
-	public NoStateException(String message, Throwable cause,
-			SubStateMachineBuilder<?, ?> stateMachine,
-			Object state) {
+	public NoStateException(String message, Throwable cause) {
 		super(message, cause);
-		init(stateMachine, state);
 	}
 
-	public NoStateException(Throwable cause, SubStateMachineBuilder<?, ?> stateMachine,
-			Object state) {
+	public NoStateException(Throwable cause) {
 		super(cause);
-		init(stateMachine, state);
-	}
-
-	private void init(SubStateMachineBuilder<?, ?> stateMachine,
-			Object state) {
-		this.stateMachine = stateMachine;
-		this.state = state;
-	}
-
-	public SubStateMachineBuilder<?, ?> getStateMachine() {
-		return stateMachine;
-	}
-
-	public Object getState() {
-		return state;
 	}
 }

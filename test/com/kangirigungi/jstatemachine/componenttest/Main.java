@@ -31,7 +31,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-package com.kangirigungi.jstatemachine;
+package com.kangirigungi.jstatemachine.componenttest;
 
 import com.kangirigungi.jstatemachine.IEntryExitAction;
 import com.kangirigungi.jstatemachine.IState;

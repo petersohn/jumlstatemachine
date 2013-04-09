@@ -41,54 +41,21 @@ package com.kangirigungi.jstatemachine;
  *
  */
 public class DuplicateTransitionException extends StateMachineException {
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 2L;
 
-	private SubStateMachineBuilder<?, ?> stateMachine;
-	private Object fromState;
-	private Object event;
-
-	public DuplicateTransitionException(SubStateMachineBuilder<?, ?> stateMachine,
-			Object fromState, Object event) {
+	public DuplicateTransitionException() {
 		super();
-		init(stateMachine, fromState, event);
 	}
 
-	public DuplicateTransitionException(String message, SubStateMachineBuilder<?, ?> stateMachine,
-			Object fromState, Object event) {
+	public DuplicateTransitionException(String message) {
 		super(message);
-		init(stateMachine, fromState, event);
 	}
 
-	public DuplicateTransitionException(String message, Throwable cause,
-			SubStateMachineBuilder<?, ?> stateMachine,
-			Object fromState, Object event) {
+	public DuplicateTransitionException(String message, Throwable cause) {
 		super(message, cause);
-		init(stateMachine, fromState, event);
 	}
 
-	public DuplicateTransitionException(Throwable cause, SubStateMachineBuilder<?, ?> stateMachine,
-			Object fromState, Object event) {
+	public DuplicateTransitionException(Throwable cause) {
 		super(cause);
-		init(stateMachine, fromState, event);
 	}
-
-	private void init(SubStateMachineBuilder<?, ?> stateMachine,
-			Object fromState, Object event) {
-		this.stateMachine = stateMachine;
-		this.fromState = fromState;
-		this.event = event;
-	}
-
-	public SubStateMachineBuilder<?, ?> getStateMachine() {
-		return stateMachine;
-	}
-
-	public Object getFromState() {
-		return fromState;
-	}
-
-	public Object getEvent() {
-		return event;
-	}
-
 }

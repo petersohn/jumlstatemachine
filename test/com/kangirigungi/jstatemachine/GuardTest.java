@@ -34,12 +34,31 @@
 package com.kangirigungi.jstatemachine;
 
 import junit.framework.Assert;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 import org.junit.Test;
+import org.junit.Before;
 
 public class GuardTest {
-	private IGuard<Object, Object> trueGuard = new MockGuard<Object, Object>(true);
-	private IGuard<Object, Object> falseGuard = new MockGuard<Object, Object>(false);
+	private IGuard<Object, Object> trueGuard;
+	private IGuard<Object, Object> falseGuard;
+
+	@Before
+	@SuppressWarnings("unchecked")
+	public void preconditions() {
+		trueGuard = mock(IGuard.class);
+		when(trueGuard.checkTransition(
+				any(IState.class), any(IState.class), any())).thenReturn(true);
+
+		falseGuard = mock(IGuard.class);
+		when(falseGuard.checkTransition(
+				any(IState.class), any(IState.class), any())).thenReturn(false);
+	}
 
 	@Test
 	public void guardNot() {
@@ -89,51 +108,58 @@ public class GuardTest {
 	}
 
 	@Test
+	@SuppressWarnings("unchecked")
 	public void guardState() {
-		MockStateMachine<Integer, Integer> stateMachine =
-				new MockStateMachine<Integer, Integer>();
-		MockState<Integer, Integer> state1 = new MockState<Integer, Integer>(1);
-		MockState<Integer, Integer> state2 = new MockState<Integer, Integer>(2);
-		MockState<Integer, Integer> state3 = new MockState<Integer, Integer>(3);
+		IStateMachineEngine<Integer, Integer> stateMachine =
+				mock(IStateMachineEngine.class);
+		IState<Integer, Integer> state1 = mock(IState.class);
+		when(state1.getId()).thenReturn(1);
+		IState<Integer, Integer> state2 = mock(IState.class);
+		when(state2.getId()).thenReturn(2);
+		IState<Integer, Integer> state3 = mock(IState.class);
+		when(state3.getId()).thenReturn(3);
 
 		GuardState<Integer, Integer> guard =
 				new GuardState<Integer, Integer>(stateMachine,
 						new Integer[] {1, 2}, false);
 
 		Assert.assertFalse(guard.checkTransition(null, null, null));
-		stateMachine.running = true;
 
-		stateMachine.currentState = state1;
+		when(stateMachine.isActive()).thenReturn(true);
+
+		when(stateMachine.getcurrentState()).thenReturn(state1);
 		Assert.assertTrue(guard.checkTransition(null, null, null));
-		stateMachine.currentState = state2;
+		when(stateMachine.getcurrentState()).thenReturn(state2);
 		Assert.assertTrue(guard.checkTransition(null, null, null));
-		stateMachine.currentState = state3;
+		when(stateMachine.getcurrentState()).thenReturn(state3);
 		Assert.assertFalse(guard.checkTransition(null, null, null));
 	}
 
 	@Test
+	@SuppressWarnings("unchecked")
 	public void guardStateDeep() {
-		MockStateMachine<Integer, Integer> stateMachine =
-				new MockStateMachine<Integer, Integer>();
-		MockCompositeState<Integer, Integer> state1 =
-				new MockCompositeState<Integer, Integer>(1);
-		MockCompositeState<Integer, Integer> state2 =
-				new MockCompositeState<Integer, Integer>(2);
-		MockCompositeState<Integer, Integer> state3 =
-				new MockCompositeState<Integer, Integer>(3);
+		IStateMachineEngine<Integer, Integer> stateMachine =
+				mock(IStateMachineEngine.class);
+		IState<Integer, Integer> state1 = mock(IState.class);
+		when(state1.getId()).thenReturn(1);
+		IState<Integer, Integer> state2 = mock(IState.class);
+		when(state2.getId()).thenReturn(2);
+		IState<Integer, Integer> state3 = mock(IState.class);
+		when(state3.getId()).thenReturn(3);
 
 		GuardState<Integer, Integer> guard =
 				new GuardState<Integer, Integer>(stateMachine,
 						new Integer[] {1, 2}, true);
 
 		Assert.assertFalse(guard.checkTransition(null, null, null));
-		stateMachine.running = true;
 
-		stateMachine.currentDeepState = state1;
+		when(stateMachine.isActive()).thenReturn(true);
+
+		when(stateMachine.getcurrentDeepState()).thenReturn(state1);
 		Assert.assertTrue(guard.checkTransition(null, null, null));
-		stateMachine.currentDeepState = state2;
+		when(stateMachine.getcurrentDeepState()).thenReturn(state2);
 		Assert.assertTrue(guard.checkTransition(null, null, null));
-		stateMachine.currentDeepState = state3;
+		when(stateMachine.getcurrentDeepState()).thenReturn(state3);
 		Assert.assertFalse(guard.checkTransition(null, null, null));
 	}
 }

@@ -33,9 +33,14 @@
 
 package com.kangirigungi.jstatemachine;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import junit.framework.Assert;
 
 import org.junit.Test;
+
 
 public class CompositeStateTest {
 	@Test
@@ -44,58 +49,48 @@ public class CompositeStateTest {
 				new MockStateFactory<Integer, Integer>();
 		CompositeState<Integer, Integer> compositeState =
 				new CompositeState<Integer, Integer>(1, null, mockStateFactory);
-		MockStateMachine<Integer, Integer> stateMachine =
+		IState<Integer, Integer> state = mockStateFactory.lastCreatedState;
+		IStateMachineEngine<Integer, Integer> stateMachineEngine =
 				mockStateFactory.lastCreatedStateMachine;
 
 		Assert.assertNotNull(mockStateFactory.lastCreatedState);
-		Assert.assertEquals(new Integer(1),
-				mockStateFactory.lastCreatedState.getId());
-		Assert.assertEquals(0, mockStateFactory.lastCreatedState.
-				enterStateCalled);
-		Assert.assertEquals(0, mockStateFactory.lastCreatedState.
-				exitStateCalled);
-		Assert.assertEquals(0, mockStateFactory.lastCreatedState.
-				processEventCalled);
-		Assert.assertSame(stateMachine, compositeState.getStateMachine());
-		Assert.assertEquals(0, stateMachine.startCalled);
-		Assert.assertEquals(0, stateMachine.stopCalled);
+		Assert.assertEquals(new Integer(1), state.getId());
+		Assert.assertSame(stateMachineEngine, compositeState.getStateMachine());
+		verifyNoMoreInteractions(state);
+		verifyNoMoreInteractions(stateMachineEngine);
 
 		compositeState.enterState(10);
-		Assert.assertEquals(1, mockStateFactory.lastCreatedState.
-				enterStateCalled);
-		Assert.assertEquals(new Integer(10), mockStateFactory.lastCreatedState.
-				enterStateEvent);
-		Assert.assertEquals(1, stateMachine.startCalled);
-		Assert.assertEquals(0, stateMachine.stopCalled);
+		verify(state, times(1)).enterState(10);
+		verify(stateMachineEngine, times(1)).enter();
+		verifyNoMoreInteractions(state);
+		verifyNoMoreInteractions(stateMachineEngine);
 
 		compositeState.exitState(20);
-		Assert.assertEquals(1, mockStateFactory.lastCreatedState.
-				exitStateCalled);
-		Assert.assertEquals(new Integer(20), mockStateFactory.lastCreatedState.
-				exitStateEvent);
-		Assert.assertEquals(1, stateMachine.startCalled);
-		Assert.assertEquals(1, stateMachine.stopCalled);
+		verify(state, times(1)).exitState(20);
+		verify(stateMachineEngine, times(1)).leave();
+		verifyNoMoreInteractions(state);
+		verifyNoMoreInteractions(stateMachineEngine);
 	}
 
 	@Test
+	@SuppressWarnings("unchecked")
 	public void stateMachine() {
 		MockStateFactory<Integer, Integer> mockStateFactory =
 				new MockStateFactory<Integer, Integer>();
-		MockStateMachine<Integer, Integer> mockStateMachine =
-				new MockStateMachine<Integer, Integer>();
+		IStateMachineEngine<Integer, Integer> mockStateMachine =
+				mock(IStateMachineEngine.class);
 		CompositeState<Integer, Integer> compositeState =
 				new CompositeState<Integer, Integer>(1,
 						mockStateMachine, mockStateFactory);
+		IStateMachineEngine<Integer, Integer> stateMachineEngine =
+				mockStateFactory.lastCreatedStateMachine;
 
-		Assert.assertSame(mockStateFactory.lastCreatedStateMachine,
-				compositeState.getStateMachine());
+		Assert.assertSame(stateMachineEngine, compositeState.getStateMachine());
 		Assert.assertSame(mockStateMachine,
-				mockStateFactory.lastCreatedStateMachine.topLevelStateMachine);
+				stateMachineEngine.getTopLevelStateMachine());
 
 		compositeState.processEvent(10);
-		Assert.assertEquals(1, mockStateFactory.lastCreatedStateMachine.
-				processEventCalled);
-		Assert.assertEquals(new Integer(10), mockStateFactory.
-				lastCreatedStateMachine.lastEvent);
+		verify(stateMachineEngine, times(1)).processEvent(10);
+		verifyNoMoreInteractions(stateMachineEngine);
 	}
 }
