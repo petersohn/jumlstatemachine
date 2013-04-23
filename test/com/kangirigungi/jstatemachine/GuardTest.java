@@ -33,16 +33,13 @@
 
 package com.kangirigungi.jstatemachine;
 
-import junit.framework.Assert;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
+import junit.framework.Assert;
 
-import org.junit.Test;
 import org.junit.Before;
+import org.junit.Test;
 
 public class GuardTest {
 	private IGuard<Object, Object> trueGuard;

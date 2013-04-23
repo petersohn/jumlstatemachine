@@ -33,10 +33,23 @@
 
 package com.kangirigungi.jstatemachine;
 
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 import junit.framework.Assert;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.InOrder;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
 public class StateMachineTest {
 
@@ -75,32 +88,21 @@ public class StateMachineTest {
 		Assert.assertTrue(stateMachine.hasState(2));
 		Assert.assertFalse(stateMachine.hasState(4));
 
-		Assert.assertEquals(1, ((MockState<Integer, Integer>)stateMachine.
-				getState(1)).enterStateCalled);
-		Assert.assertSame(null, ((MockState<Integer, Integer>)stateMachine.
-				getState(1)).enterStateEvent);
-		Assert.assertEquals(0, ((MockState<Integer, Integer>)stateMachine.
-				getState(1)).exitStateCalled);
-		Assert.assertEquals(0, ((MockState<Integer, Integer>)stateMachine.
-				getState(1)).processEventCalled);
-
-		Assert.assertEquals(0, ((MockState<Integer, Integer>)stateMachine.
-				getState(2)).enterStateCalled);
-		Assert.assertEquals(0, ((MockState<Integer, Integer>)stateMachine.
-				getState(2)).exitStateCalled);
-		Assert.assertEquals(0, ((MockState<Integer, Integer>)stateMachine.
-				getState(2)).processEventCalled);
+		verify(stateMachine.getState(1), times(1)).enterState(null);
+		verifyNoMoreInteractions(stateMachine.getState(1));
+		verifyNoMoreInteractions(stateMachine.getState(2));
 	}
 
 	@Test
+	@SuppressWarnings("unchecked")
 	public void transition() {
-		MockTransitionAction<Integer, Integer> action =
-				new MockTransitionAction<Integer, Integer>();
+		ITransitionAction<Integer, Integer> action =
+				mock(ITransitionAction.class);
 
 		System.out.println("transition");
 		stateMachine.addState(1);
 		stateMachine.addState(2);
-		stateMachine.addTransition(1, 10, action, 2);
+		stateMachine.addTransition(1, 10, action, 2, null);
 		stateMachine.setInitialState(1);
 		stateMachine.enter();
 		stateMachine.processEvent(10);
@@ -108,44 +110,30 @@ public class StateMachineTest {
 		Assert.assertSame(stateMachine.getState(2),
 				stateMachine.getcurrentState());
 
-		Assert.assertEquals(1, ((MockState<Integer, Integer>)stateMachine.
-				getState(1)).enterStateCalled);
-		Assert.assertSame(null, ((MockState<Integer, Integer>)stateMachine.
-				getState(1)).enterStateEvent);
-		Assert.assertEquals(1, ((MockState<Integer, Integer>)stateMachine.
-				getState(1)).exitStateCalled);
-		Assert.assertEquals(new Integer(10),
-				((MockState<Integer, Integer>)stateMachine.getState(1)).
-				exitStateEvent);
-		Assert.assertEquals(0, ((MockState<Integer, Integer>)stateMachine.
-				getState(1)).processEventCalled);
+		IState<Integer, Integer> state1 = stateMachine.getState(1);
+		IState<Integer, Integer> state2 = stateMachine.getState(2);
+		InOrder inOrder = inOrder(state1, state2, action);
 
-		Assert.assertEquals(1, ((MockState<Integer, Integer>)stateMachine.
-				getState(2)).enterStateCalled);
-		Assert.assertEquals(new Integer(10),
-				((MockState<Integer, Integer>)stateMachine.getState(2)).
-				enterStateEvent);
-		Assert.assertEquals(0, ((MockState<Integer, Integer>)stateMachine.
-				getState(2)).exitStateCalled);
-		Assert.assertEquals(0, ((MockState<Integer, Integer>)stateMachine.
-				getState(2)).processEventCalled);
-
-		Assert.assertTrue(action.called);
-		Assert.assertSame(stateMachine.getState(1), action.fromState);
-		Assert.assertSame(stateMachine.getState(2), action.toState);
-		Assert.assertEquals(new Integer(10), action.event);
+		inOrder.verify(state1, times(1)).enterState(null);
+		inOrder.verify(state1, times(1)).exitState(10);
+		inOrder.verify(action, times(1)).onTransition(state1, state2, 10);
+		inOrder.verify(state2, times(1)).enterState(10);
+		verifyNoMoreInteractions(state1);
+		verifyNoMoreInteractions(state2);
+		verifyNoMoreInteractions(action);
 	}
 
 	@Test
+	@SuppressWarnings("unchecked")
 	public void backAndForthTransition() {
-		MockTransitionAction<Integer, Integer> action =
-				new MockTransitionAction<Integer, Integer>();
+		ITransitionAction<Integer, Integer> action =
+				mock(ITransitionAction.class);
 
 		System.out.println("transition");
 		stateMachine.addState(1);
 		stateMachine.addState(2);
-		stateMachine.addTransition(1, 10, action, 2);
-		stateMachine.addTransition(2, 10, action, 1);
+		stateMachine.addTransition(1, 10, action, 2, null);
+		stateMachine.addTransition(2, 10, action, 1, null);
 		stateMachine.setInitialState(1);
 		stateMachine.enter();
 		stateMachine.processEvent(10);
@@ -154,49 +142,32 @@ public class StateMachineTest {
 		Assert.assertSame(stateMachine.getState(1),
 				stateMachine.getcurrentState());
 
-		Assert.assertEquals(2, ((MockState<Integer, Integer>)stateMachine.
-				getState(1)).enterStateCalled);
-		Assert.assertEquals(new Integer(10),
-				((MockState<Integer, Integer>)stateMachine.getState(1)).
-				enterStateEvent);
-		Assert.assertEquals(1,
-				((MockState<Integer, Integer>)stateMachine.getState(1)).
-				exitStateCalled);
-		Assert.assertEquals(new Integer(10),
-				((MockState<Integer, Integer>)stateMachine.getState(1)).
-				exitStateEvent);
-		Assert.assertEquals(0, ((MockState<Integer, Integer>)stateMachine.
-				getState(1)).processEventCalled);
+		IState<Integer, Integer> state1 = stateMachine.getState(1);
+		IState<Integer, Integer> state2 = stateMachine.getState(2);
+		InOrder inOrder = inOrder(state1, state2, action);
 
-		Assert.assertEquals(1, ((MockState<Integer, Integer>)stateMachine.
-				getState(2)).enterStateCalled);
-		Assert.assertEquals(new Integer(10),
-				((MockState<Integer, Integer>)stateMachine.getState(2)).
-				enterStateEvent);
-		Assert.assertEquals(1, ((MockState<Integer, Integer>)stateMachine.
-				getState(2)).exitStateCalled);
-		Assert.assertEquals(new Integer(10),
-				((MockState<Integer, Integer>)stateMachine.getState(2)).
-				exitStateEvent);
-		Assert.assertEquals(0,
-				((MockState<Integer, Integer>)stateMachine.getState(2)).
-				processEventCalled);
-
-		Assert.assertTrue(action.called);
-		Assert.assertSame(stateMachine.getState(2), action.fromState);
-		Assert.assertSame(stateMachine.getState(1), action.toState);
-		Assert.assertEquals(new Integer(10), action.event);
+		inOrder.verify(state1, times(1)).enterState(null);
+		inOrder.verify(state1, times(1)).exitState(10);
+		inOrder.verify(action, times(1)).onTransition(state1, state2, 10);
+		inOrder.verify(state2, times(1)).enterState(10);
+		inOrder.verify(state2, times(1)).exitState(10);
+		inOrder.verify(action, times(1)).onTransition(state2, state1, 10);
+		inOrder.verify(state1, times(1)).enterState(10);
+		verifyNoMoreInteractions(state1);
+		verifyNoMoreInteractions(state2);
+		verifyNoMoreInteractions(action);
 	}
 
 	@Test
+	@SuppressWarnings("unchecked")
 	public void noTransition() {
-		MockTransitionAction<Integer, Integer> action =
-				new MockTransitionAction<Integer, Integer>();
+		ITransitionAction<Integer, Integer> action =
+				mock(ITransitionAction.class);
 
 		System.out.println("noTransition");
 		stateMachine.addState(1);
 		stateMachine.addState(2);
-		stateMachine.addTransition(1, 10, action, 2);
+		stateMachine.addTransition(1, 10, action, 2, null);
 		stateMachine.setInitialState(1);
 		stateMachine.enter();
 		stateMachine.processEvent(20);
@@ -204,38 +175,28 @@ public class StateMachineTest {
 		Assert.assertSame(stateMachine.getState(1),
 				stateMachine.getcurrentState());
 
-		Assert.assertEquals(1, ((MockState<Integer, Integer>)stateMachine.
-				getState(1)).enterStateCalled);
-		Assert.assertSame(null, ((MockState<Integer, Integer>)stateMachine.
-				getState(1)).enterStateEvent);
-		Assert.assertEquals(0, ((MockState<Integer, Integer>)stateMachine.
-				getState(1)).exitStateCalled);
-		Assert.assertEquals(1, ((MockState<Integer, Integer>)stateMachine.
-				getState(1)).processEventCalled);
-		Assert.assertEquals(new Integer(20),
-				((MockState<Integer, Integer>)stateMachine.
-						getState(1)).processEventEvent);
+		IState<Integer, Integer> state1 = stateMachine.getState(1);
+		IState<Integer, Integer> state2 = stateMachine.getState(2);
+		InOrder inOrder = inOrder(state1, state2, action);
 
-		Assert.assertEquals(0, ((MockState<Integer, Integer>)stateMachine.
-				getState(2)).enterStateCalled);
-		Assert.assertEquals(0, ((MockState<Integer, Integer>)stateMachine.
-				getState(2)).exitStateCalled);
-		Assert.assertEquals(0, ((MockState<Integer, Integer>)stateMachine.
-				getState(2)).processEventCalled);
-
-		Assert.assertFalse(action.called);
+		inOrder.verify(state1, times(1)).enterState(null);
+		inOrder.verify(state1, times(1)).processEvent(20);
+		verifyNoMoreInteractions(state1);
+		verifyNoMoreInteractions(state2);
+		verifyNoMoreInteractions(action);
 	}
 
 	@Test
+	@SuppressWarnings("unchecked")
 	public void internalTransition() {
-		MockTransitionAction<Integer, Integer> action =
-				new MockTransitionAction<Integer, Integer>();
+		ITransitionAction<Integer, Integer> action =
+				mock(ITransitionAction.class);
 
 		System.out.println("internalTransition");
 		stateMachine.addState(1);
 		stateMachine.addState(2);
-		stateMachine.addTransition(1, 10, null, 2);
-		stateMachine.addInternalTransition(1, 20, action);
+		stateMachine.addTransition(1, 10, null, 2, null);
+		stateMachine.addInternalTransition(1, 20, action, null);
 		stateMachine.setInitialState(1);
 		stateMachine.enter();
 		stateMachine.processEvent(20);
@@ -243,34 +204,27 @@ public class StateMachineTest {
 		Assert.assertSame(stateMachine.getState(1),
 				stateMachine.getcurrentState());
 
-		Assert.assertEquals(1, ((MockState<Integer, Integer>)stateMachine.
-				getState(1)).enterStateCalled);
-		Assert.assertSame(null, ((MockState<Integer, Integer>)stateMachine.
-				getState(1)).enterStateEvent);
-		Assert.assertEquals(0, ((MockState<Integer, Integer>)stateMachine.
-				getState(1)).exitStateCalled);
-		Assert.assertEquals(1, ((MockState<Integer, Integer>)stateMachine.
-				getState(1)).processEventCalled);
+		IState<Integer, Integer> state1 = stateMachine.getState(1);
+		IState<Integer, Integer> state2 = stateMachine.getState(2);
+		InOrder inOrder = inOrder(state1, state2, action);
 
-		Assert.assertEquals(0, ((MockState<Integer, Integer>)stateMachine.
-				getState(2)).enterStateCalled);
-		Assert.assertEquals(0, ((MockState<Integer, Integer>)stateMachine.
-				getState(2)).exitStateCalled);
-		Assert.assertEquals(0, ((MockState<Integer, Integer>)stateMachine.
-				getState(2)).processEventCalled);
-
-		Assert.assertTrue(action.called);
-		Assert.assertSame(stateMachine.getState(1), action.fromState);
-		Assert.assertSame(null, action.toState);
-		Assert.assertEquals(new Integer(20), action.event);
+		inOrder.verify(state1, times(1)).enterState(null);
+		inOrder.verify(action, times(1)).onTransition(state1, null, 20);
+		inOrder.verify(state1, times(1)).processEvent(20);
+		verifyNoMoreInteractions(state1);
+		verifyNoMoreInteractions(state2);
+		verifyNoMoreInteractions(action);
 	}
 
 	@Test
+	@SuppressWarnings("unchecked")
 	public void guardTransition() {
-		MockGuard<Integer, Integer> guard =
-				new MockGuard<Integer, Integer>(false);
-		MockTransitionAction<Integer, Integer> action =
-				new MockTransitionAction<Integer, Integer>();
+		IGuard<Integer, Integer> guard = mock(IGuard.class);
+		when(guard.checkTransition(
+				any(IState.class), any(IState.class), any(Integer.class))).
+				thenReturn(false);
+		ITransitionAction<Integer, Integer> action =
+				mock(ITransitionAction.class);
 
 		System.out.println("guardInternalTransition");
 		stateMachine.addState(1);
@@ -283,47 +237,33 @@ public class StateMachineTest {
 		Assert.assertSame(stateMachine.getState(1),
 				stateMachine.getcurrentState());
 
-		Assert.assertEquals(1, ((MockState<Integer, Integer>)stateMachine.
-				getState(1)).enterStateCalled);
-		Assert.assertSame(null, ((MockState<Integer, Integer>)stateMachine.
-				getState(1)).enterStateEvent);
-		Assert.assertEquals(0, ((MockState<Integer, Integer>)stateMachine.
-				getState(1)).processEventCalled);
-		Assert.assertEquals(0, ((MockState<Integer, Integer>)stateMachine.
-				getState(2)).enterStateCalled);
-		Assert.assertEquals(0, ((MockState<Integer, Integer>)stateMachine.
-				getState(2)).exitStateCalled);
-		Assert.assertEquals(0, ((MockState<Integer, Integer>)stateMachine.
-				getState(2)).processEventCalled);
-		Assert.assertFalse(action.called);
+		IState<Integer, Integer> state1 = stateMachine.getState(1);
+		IState<Integer, Integer> state2 = stateMachine.getState(2);
+		InOrder inOrder = inOrder(state1, state2, action);
 
-		guard.setValue(true);
+		inOrder.verify(state1, times(1)).enterState(null);
+		verifyNoMoreInteractions(state1);
+		verifyNoMoreInteractions(state2);
+		verifyNoMoreInteractions(action);
+
+		when(guard.checkTransition(
+				any(IState.class), any(IState.class), any(Integer.class))).
+				thenReturn(true);
 		stateMachine.processEvent(10);
 
-		Assert.assertEquals(1, ((MockState<Integer, Integer>)stateMachine.
-				getState(1)).exitStateCalled);
-		Assert.assertEquals(0, ((MockState<Integer, Integer>)stateMachine.
-				getState(1)).processEventCalled);
-		Assert.assertEquals(1, ((MockState<Integer, Integer>)stateMachine.
-				getState(2)).enterStateCalled);
-		Assert.assertEquals(new Integer(10),
-				((MockState<Integer, Integer>)stateMachine.getState(2)).
-				enterStateEvent);
-		Assert.assertEquals(0, ((MockState<Integer, Integer>)stateMachine.
-				getState(2)).exitStateCalled);
-		Assert.assertEquals(0, ((MockState<Integer, Integer>)stateMachine.
-				getState(2)).processEventCalled);
-		Assert.assertTrue(action.called);
-		Assert.assertSame(stateMachine.getState(1), action.fromState);
-		Assert.assertSame(stateMachine.getState(2), action.toState);
-		Assert.assertEquals(new Integer(10), action.event);
+		inOrder.verify(action, times(1)).onTransition(state1, state2, 10);
+		inOrder.verify(state2, times(1)).enterState(10);
 	}
 
 	@Test
+	@SuppressWarnings("unchecked")
 	public void guardInternalTransition() {
-		MockGuard<Integer, Integer> guard = new MockGuard<Integer, Integer>(false);
-		MockTransitionAction<Integer, Integer> action =
-				new MockTransitionAction<Integer, Integer>();
+		IGuard<Integer, Integer> guard = mock(IGuard.class);
+		when(guard.checkTransition(
+				any(IState.class), any(IState.class), any(Integer.class))).
+				thenReturn(false);
+		ITransitionAction<Integer, Integer> action =
+				mock(ITransitionAction.class);
 
 		System.out.println("guardInternalTransition");
 		stateMachine.addState(1);
@@ -335,65 +275,51 @@ public class StateMachineTest {
 		Assert.assertSame(stateMachine.getState(1),
 				stateMachine.getcurrentState());
 
-		Assert.assertEquals(1, ((MockState<Integer, Integer>)stateMachine.
-				getState(1)).enterStateCalled);
-		Assert.assertSame(null, ((MockState<Integer, Integer>)stateMachine.
-				getState(1)).enterStateEvent);
-		Assert.assertEquals(0, ((MockState<Integer, Integer>)stateMachine.
-				getState(1)).processEventCalled);
-		Assert.assertFalse(action.called);
+		IState<Integer, Integer> state = stateMachine.getState(1);
+		InOrder inOrder = inOrder(state, action);
 
-		guard.setValue(true);
+		inOrder.verify(state, times(1)).enterState(null);
+		verifyNoMoreInteractions(state);
+		verifyNoMoreInteractions(action);
+
+		when(guard.checkTransition(
+				any(IState.class), any(IState.class), any(Integer.class))).
+				thenReturn(true);
 		stateMachine.processEvent(10);
 
-		Assert.assertEquals(0, ((MockState<Integer, Integer>)stateMachine.
-				getState(1)).exitStateCalled);
-		Assert.assertEquals(1, ((MockState<Integer, Integer>)stateMachine.
-				getState(1)).processEventCalled);
-		Assert.assertSame(stateMachine.getState(1), action.fromState);
-		Assert.assertSame(null, action.toState);
-		Assert.assertEquals(new Integer(10), action.event);
+		inOrder.verify(action, times(1)).onTransition(state, null, 10);
+		inOrder.verify(state, times(1)).processEvent(10);
+		verifyNoMoreInteractions(state);
+		verifyNoMoreInteractions(action);
 	}
 
 	@Test
+	@SuppressWarnings("unchecked")
 	public void completionTransition() {
-		MockTransitionAction<Integer, Integer> action =
-				new MockTransitionAction<Integer, Integer>();
+		ITransitionAction<Integer, Integer> action =
+				mock(ITransitionAction.class);
 
 		System.out.println("completionTransition");
 		stateMachine.addState(1);
 		stateMachine.addState(2);
-		stateMachine.addTransition(1, null, action, 2);
+		stateMachine.addTransition(1, null, action, 2, null);
 		stateMachine.setInitialState(1);
 		stateMachine.enter();
 
 		Assert.assertSame(stateMachine.getState(2),
 				stateMachine.getcurrentState());
 
-		Assert.assertEquals(1, ((MockState<Integer, Integer>)stateMachine.
-				getState(1)).enterStateCalled);
-		Assert.assertSame(null, ((MockState<Integer, Integer>)stateMachine.
-				getState(1)).enterStateEvent);
-		Assert.assertEquals(1, ((MockState<Integer, Integer>)stateMachine.
-				getState(1)).exitStateCalled);
-		Assert.assertSame(null, ((MockState<Integer, Integer>)stateMachine.
-				getState(1)).exitStateEvent);
-		Assert.assertEquals(0, ((MockState<Integer, Integer>)stateMachine.
-				getState(1)).processEventCalled);
+		IState<Integer, Integer> state1 = stateMachine.getState(1);
+		IState<Integer, Integer> state2 = stateMachine.getState(2);
+		InOrder inOrder = inOrder(state1, state2, action);
 
-		Assert.assertEquals(1, ((MockState<Integer, Integer>)stateMachine.
-				getState(2)).enterStateCalled);
-		Assert.assertSame(null, ((MockState<Integer, Integer>)stateMachine.
-				getState(2)).enterStateEvent);
-		Assert.assertEquals(0, ((MockState<Integer, Integer>)stateMachine.
-				getState(2)).exitStateCalled);
-		Assert.assertEquals(0, ((MockState<Integer, Integer>)stateMachine.
-				getState(2)).processEventCalled);
-
-		Assert.assertTrue(action.called);
-		Assert.assertSame(stateMachine.getState(1), action.fromState);
-		Assert.assertSame(stateMachine.getState(2), action.toState);
-		Assert.assertSame(null, action.event);
+		inOrder.verify(state1, times(1)).enterState(null);
+		inOrder.verify(state1, times(1)).exitState(null);
+		inOrder.verify(action, times(1)).onTransition(state1, state2, null);
+		inOrder.verify(state2, times(1)).enterState(null);
+		verifyNoMoreInteractions(state1);
+		verifyNoMoreInteractions(state2);
+		verifyNoMoreInteractions(action);
 	}
 
 
@@ -404,42 +330,35 @@ public class StateMachineTest {
 		stateMachine.setInitialState(1);
 		Assert.assertFalse(stateMachine.isActive());
 
+		IState<Integer, Integer> state = stateMachine.getState(1);
+		InOrder inOrder = inOrder(state);
+
 		stateMachine.enter();
-		Assert.assertTrue(stateMachine.isActive());
-		Assert.assertEquals(1, ((MockState<Integer, Integer>)stateMachine.
-				getState(1)).enterStateCalled);
-		Assert.assertSame(null, ((MockState<Integer, Integer>)stateMachine.
-				getState(1)).enterStateEvent);
-		Assert.assertEquals(0, ((MockState<Integer, Integer>)stateMachine.
-				getState(1)).exitStateCalled);
+		inOrder.verify(state, times(1)).enterState(null);
+		verifyNoMoreInteractions(state);
 
 		stateMachine.leave();
-		Assert.assertFalse(stateMachine.isActive());
-		Assert.assertEquals(1, ((MockState<Integer, Integer>)stateMachine.
-				getState(1)).enterStateCalled);
-		Assert.assertSame(null, ((MockState<Integer, Integer>)stateMachine.
-				getState(1)).enterStateEvent);
-		Assert.assertEquals(1, ((MockState<Integer, Integer>)stateMachine.
-				getState(1)).exitStateCalled);
-		Assert.assertSame(null, ((MockState<Integer, Integer>)stateMachine.
-				getState(1)).exitStateEvent);
+		inOrder.verify(state, times(1)).exitState(null);
+		verifyNoMoreInteractions(state);
 	}
 
 	@Test
+	@SuppressWarnings("unchecked")
 	public void processEventFromCallback() {
 		System.out.println("processEventFromCallback");
 		ITransitionAction<Integer, Integer> action =
-				new ITransitionAction<Integer, Integer>() {
-
+				mock(ITransitionAction.class);
+		doAnswer(new Answer<Object>() {
 			@Override
-			public void onTransition(IState<Integer, Integer> fromState,
-					IState<Integer, Integer> toState, Integer event) {
+			public Object answer(InvocationOnMock invocation) {
 				stateMachine.processEvent(10);
-			}
-		};
+				return null;
+			}})
+			.when(action).
+			onTransition(any(IState.class), any(IState.class), anyInt());
 		stateMachine.addState(1);
 		stateMachine.addState(2);
-		stateMachine.addTransition(1, 10, action, 2);
+		stateMachine.addTransition(1, 10, action, 2, null);
 		stateMachine.setInitialState(1);
 		stateMachine.enter();
 
@@ -454,20 +373,16 @@ public class StateMachineTest {
 	}
 
 	@Test
+	@SuppressWarnings("unchecked")
 	public void exceptionFromAction() {
 		System.out.println("exceptionFromAction");
 		ITransitionAction<Integer, Integer> action =
-				new ITransitionAction<Integer, Integer>() {
-
-			@Override
-			public void onTransition(IState<Integer, Integer> fromState,
-					IState<Integer, Integer> toState, Integer event) {
-				throw new RuntimeException();
-			}
-		};
+				mock(ITransitionAction.class);
+		doThrow(new RuntimeException()).when(action).
+			onTransition(any(IState.class), any(IState.class), anyInt());
 		stateMachine.addState(1);
 		stateMachine.addState(2);
-		stateMachine.addTransition(1, 10, action, 2);
+		stateMachine.addTransition(1, 10, action, 2, null);
 		stateMachine.setInitialState(1);
 		stateMachine.enter();
 
@@ -481,30 +396,16 @@ public class StateMachineTest {
 		Assert.assertTrue(exceptionThrown);
 		Assert.assertSame(stateMachine.getState(1), stateMachine.getcurrentState());
 
-		Assert.assertEquals(2, ((MockState<Integer, Integer>)stateMachine.
-				getState(1)).enterStateCalled);
-		Assert.assertSame(null, ((MockState<Integer, Integer>)stateMachine.
-				getState(1)).enterStateEvent);
-		Assert.assertEquals(1, ((MockState<Integer, Integer>)stateMachine.
-				getState(1)).exitStateCalled);
-		Assert.assertEquals(new Integer(10),
-				((MockState<Integer, Integer>)stateMachine.getState(1)).
-				exitStateEvent);
+		IState<Integer, Integer> state1 = stateMachine.getState(1);
+		IState<Integer, Integer> state2 = stateMachine.getState(2);
+		InOrder inOrder = inOrder(state1, state2, action);
 
-		Assert.assertEquals(0, ((MockState<Integer, Integer>)stateMachine.
-				getState(2)).enterStateCalled);
-		Assert.assertEquals(0, ((MockState<Integer, Integer>)stateMachine.
-				getState(2)).exitStateCalled);
+		inOrder.verify(state1, times(1)).enterState(null);
+		inOrder.verify(state1, times(1)).exitState(10);
+		inOrder.verify(action, times(1)).onTransition(state1, state2, 10);
+		inOrder.verify(state1, times(1)).enterState(null);
+		verifyNoMoreInteractions(state1);
+		verifyNoMoreInteractions(state2);
+		verifyNoMoreInteractions(action);
 	}
-
-	@Test
-	public void compositeState() {
-		stateMachine.addCompositeState(1);
-		MockCompositeState<Integer, Integer> state =
-				stateFactory.lastCreatedCompositeState;
-		Assert.assertSame(state, stateMachine.getState(1));
-		Assert.assertSame(stateFactory.lastCreatedStateMachine,
-				stateFactory.lastCreatedCompositeState.getStateMachine());
-	}
-
 }

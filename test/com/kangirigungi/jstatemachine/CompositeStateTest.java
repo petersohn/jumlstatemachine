@@ -55,6 +55,7 @@ public class CompositeStateTest {
 
 		Assert.assertNotNull(mockStateFactory.lastCreatedState);
 		Assert.assertEquals(new Integer(1), state.getId());
+		verify(state, times(1)).getId();
 		Assert.assertSame(stateMachineEngine, compositeState.getStateMachine());
 		verifyNoMoreInteractions(state);
 		verifyNoMoreInteractions(stateMachineEngine);
@@ -88,6 +89,7 @@ public class CompositeStateTest {
 		Assert.assertSame(stateMachineEngine, compositeState.getStateMachine());
 		Assert.assertSame(mockStateMachine,
 				stateMachineEngine.getTopLevelStateMachine());
+		verify(stateMachineEngine, times(1)).getTopLevelStateMachine();
 
 		compositeState.processEvent(10);
 		verify(stateMachineEngine, times(1)).processEvent(10);

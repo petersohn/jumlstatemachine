@@ -15,6 +15,7 @@ public class StateMachineBuilder<StateId, Event> {
 	public IStateMachine<StateId, Event> create() {
 		IStateMachine<StateId, Event> result =
 				new StateMachine<StateId, Event>(stateMachineEngine);
+		stateMachineEngine.enter();
 		initialize();
 		return result;
 	}
