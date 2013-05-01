@@ -124,29 +124,29 @@ public class CdPlayer {
 		mainStateMachine.addState(States.Open).setEntryExitAction(entryExitHandler);
 		mainStateMachine.addState(States.Paused).setEntryExitAction(entryExitHandler);
 
-		mainStateMachine.setInitialState(States.Empty);
+		mainStateMachine.setInitialState(States.Empty)
 
-		mainStateMachine.addTransition(States.Empty,    Events.CdDetected,
-				new ActionHandler(Actions.StoreCdInfo),    States.Stopped);
-		mainStateMachine.addTransition(States.Empty,    Events.OpenClose,
-				new ActionHandler(Actions.OpenDrawer),     States.Open);
-		mainStateMachine.addTransition(States.Stopped,  Events.Play,
-				new ActionHandler(Actions.StartPlayback),  States.Playing);
-		mainStateMachine.addTransition(States.Stopped,  Events.OpenClose,
-				new ActionHandler(Actions.OpenDrawer),     States.Open);
-		mainStateMachine.addTransition(States.Playing,  Events.Pause,
-				new ActionHandler(Actions.PausePlayback),  States.Paused);
-		mainStateMachine.addTransition(States.Playing,  Events.Stop,
-				new ActionHandler(Actions.StopPlayback),   States.Stopped);
-		mainStateMachine.addTransition(States.Playing,  Events.OpenClose,
-				new ActionHandler(Actions.StopAndOpen),    States.Open);
-		mainStateMachine.addTransition(States.Paused,   Events.Pause,
-				new ActionHandler(Actions.ResumePlayback), States.Playing);
-		mainStateMachine.addTransition(States.Paused,   Events.Stop,
-				new ActionHandler(Actions.StopPlayback),   States.Stopped);
-		mainStateMachine.addTransition(States.Paused,   Events.OpenClose,
-				new ActionHandler(Actions.StopAndOpen),    States.Open);
-		mainStateMachine.addTransition(States.Open,     Events.OpenClose,
+			.addTransition(States.Empty,    Events.CdDetected,
+				new ActionHandler(Actions.StoreCdInfo),    States.Stopped)
+			.addTransition(States.Empty,    Events.OpenClose,
+				new ActionHandler(Actions.OpenDrawer),     States.Open)
+			.addTransition(States.Stopped,  Events.Play,
+				new ActionHandler(Actions.StartPlayback),  States.Playing)
+			.addTransition(States.Stopped,  Events.OpenClose,
+				new ActionHandler(Actions.OpenDrawer),     States.Open)
+			.addTransition(States.Playing,  Events.Pause,
+				new ActionHandler(Actions.PausePlayback),  States.Paused)
+			.addTransition(States.Playing,  Events.Stop,
+				new ActionHandler(Actions.StopPlayback),   States.Stopped)
+			.addTransition(States.Playing,  Events.OpenClose,
+				new ActionHandler(Actions.StopAndOpen),    States.Open)
+			.addTransition(States.Paused,   Events.Pause,
+				new ActionHandler(Actions.ResumePlayback), States.Playing)
+			.addTransition(States.Paused,   Events.Stop,
+				new ActionHandler(Actions.StopPlayback),   States.Stopped)
+			.addTransition(States.Paused,   Events.OpenClose,
+				new ActionHandler(Actions.StopAndOpen),    States.Open)
+			.addTransition(States.Open,     Events.OpenClose,
 				new ActionHandler(Actions.CloseDrawer),    States.Empty);
 
 		stateMachine = stateMachineBuilder.create();

@@ -8,8 +8,15 @@ public class SubStateMachineBuilder<StateId, Event> {
 		this.stateMachineEngine = stateMachineEngine;
 	}
 
-	public void setInitialState(StateId initialState) {
+	/**
+	 * Set the initial state of the state machine.
+	 *
+	 * @param initialState The initial state of the state machine.
+	 * @return this.
+	 */
+	public SubStateMachineBuilder<StateId, Event> setInitialState(StateId initialState) {
 		stateMachineEngine.setInitialState(initialState);
+		return this;
 	}
 
 	/**
@@ -62,24 +69,27 @@ public class SubStateMachineBuilder<StateId, Event> {
 	 * completion transition.
 	 * @param action The action to be executed.
 	 * @param toState The final state of the transition.
+	 * @return this.
 	 * @throws DuplicateTransitionException If there is an ambiguous transition.
 	 * @throws {@link NoStateException} If either fromState of
 	 * toState does not exist.
 	 */
-	public void addTransition(StateId fromState, Event event,
+	public SubStateMachineBuilder<StateId, Event> addTransition(StateId fromState, Event event,
 			ITransitionAction<StateId, Event> action, StateId toState,
 			IGuard<StateId, Event> guard) {
 		stateMachineEngine.addTransition(fromState, event, action, toState,
 				guard);
+		return this;
 	}
 
 	/**
 	 * Same as {@link #addTransition(Object, Object, ITransitionAction, Object, IGuard)
 	 * addTransition(fromState, event, action, toState, null)}.
 	 */
-	public void addTransition(StateId fromState, Event event,
+	public SubStateMachineBuilder<StateId, Event> addTransition(StateId fromState, Event event,
 			ITransitionAction<StateId, Event> action, StateId toState) {
 		stateMachineEngine.addTransition(fromState, event, action, toState, null);
+		return this;
 	}
 
 
@@ -93,24 +103,27 @@ public class SubStateMachineBuilder<StateId, Event> {
 	 * @param state The initial state of the transition.
 	 * @param event The event that triggers the transition.
 	 * @param action The action to be executed.
+	 * @return this.
 	 * @throws DuplicateTransitionException If there is already a transition
 	 * from the same state with the same event.
 	 * @throws {@link NoStateException} If either fromState of
 	 * toState does not exist.
 	 */
-	public void addInternalTransition(StateId state, Event event,
+	public SubStateMachineBuilder<StateId, Event> addInternalTransition(StateId state, Event event,
 			ITransitionAction<StateId, Event> action,
 			IGuard<StateId, Event> guard) {
 		stateMachineEngine.addInternalTransition(state, event, action, guard);
+		return this;
 	}
 
 	/**
 	 * Same as {@link #addInternalTransition(Object, Object, ITransitionAction, IGuard)
 	 * addInternalTransition(state, event, action, null)}.
 	 */
-	public void addInternalTransition(StateId state, Event event,
+	public SubStateMachineBuilder<StateId, Event> addInternalTransition(StateId state, Event event,
 			ITransitionAction<StateId, Event> action) {
 		stateMachineEngine.addInternalTransition(state, event, action, null);
+		return this;
 	}
 
 }
