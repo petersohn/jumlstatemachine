@@ -39,15 +39,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Basic implementation of {@link IStateMachineEngine}. It can be instantiated
- * directly for top level state machines.
- *
- * @author Peter Szabados
- *
- * @param <StateId> The type used for referencing states.
- * @param <Event> The type used for referencing events.
- */
 class StateMachineEngine<StateId, Event> implements
 		IStateMachineEngine<StateId, Event> {
 
@@ -95,25 +86,16 @@ class StateMachineEngine<StateId, Event> implements
 		this.topLevelStateMachine = topLevelStateMachine;
 	}
 
-	/* (non-Javadoc)
-	 * @see com.kangirigungi.jstatemachine.IStateMachine#getInitialState()
-	 */
 	@Override
 	public IState<StateId, Event> getInitialState() {
 		return initialState.state;
 	}
 
-	/* (non-Javadoc)
-	 * @see com.kangirigungi.jstatemachine.IStateMachine#getcurrentState()
-	 */
 	@Override
 	public IState<StateId, Event> getcurrentState() {
 		return currentState.state;
 	}
 
-	/* (non-Javadoc)
-	 * @see com.kangirigungi.jstatemachine.IStateMachine#getcurrentState()
-	 */
 	@Override
 	public IState<StateId, Event> getcurrentDeepState() {
 		IState<StateId, Event> state = currentState.state;
@@ -126,26 +108,16 @@ class StateMachineEngine<StateId, Event> implements
 
 	}
 
-
-	/* (non-Javadoc)
-	 * @see com.kangirigungi.jstatemachine.IStateMachine#getState(StateId)
-	 */
 	@Override
 	public IState<StateId, Event> getState(StateId id) {
 		return getStateDescription(id).state;
 	}
 
-	/* (non-Javadoc)
-	 * @see com.kangirigungi.jstatemachine.IStateMachine#setInitialState(StateId)
-	 */
 	@Override
 	public void setInitialState(StateId initialState) {
 		this.initialState = getStateDescription(initialState);
 	}
 
-	/* (non-Javadoc)
-	 * @see com.kangirigungi.jstatemachine.IStateMachine#start()
-	 */
 	@Override
 	public void enter() {
 		initialState.state.enterState(null);
@@ -154,26 +126,17 @@ class StateMachineEngine<StateId, Event> implements
 		checkedProcessEvent(null);
 	}
 
-	/* (non-Javadoc)
-	 * @see com.kangirigungi.jstatemachine.IStateMachine#stop()
-	 */
 	@Override
 	public void leave() {
 		currentState.state.exitState(null);
 		currentState = null;
 	}
 
-	/* (non-Javadoc)
-	 * @see com.kangirigungi.jstatemachine.IStateMachine#isRunning()
-	 */
 	@Override
 	public boolean isActive() {
 		return currentState != null;
 	}
 
-	/* (non-Javadoc)
-	 * @see com.kangirigungi.jstatemachine.IStateMachine#addState(StateId)
-	 */
 	@Override
 	public IState<StateId, Event> addState(StateId id) {
 		if (getTopLevelStateMachine().hasState(id)) {
@@ -204,9 +167,6 @@ class StateMachineEngine<StateId, Event> implements
 		return state;
 	}
 
-	/* (non-Javadoc)
-	 * @see com.kangirigungi.jstatemachine.IStateMachine#addTransition(StateId, Event, com.kangirigungi.jstatemachine.ITransitionAction, StateId, com.kangirigungi.jstatemachine.IGuard)
-	 */
 	@Override
 	public void addTransition(StateId fromState, Event event,
 			ITransitionAction<StateId, Event> action,
@@ -220,9 +180,6 @@ class StateMachineEngine<StateId, Event> implements
 				toDescription, guard);
 	}
 
-	/* (non-Javadoc)
-	 * @see com.kangirigungi.jstatemachine.IStateMachine#addInternalTransition(StateId, Event, com.kangirigungi.jstatemachine.ITransitionAction, com.kangirigungi.jstatemachine.IGuard)
-	 */
 	@Override
 	public void addInternalTransition(StateId state, Event event,
 			ITransitionAction<StateId, Event> action,
@@ -269,9 +226,6 @@ class StateMachineEngine<StateId, Event> implements
 
 	}
 
-	/* (non-Javadoc)
-	 * @see com.kangirigungi.jstatemachine.IStateMachine#processEvent(Event)
-	 */
 	@Override
 	public void processEvent(Event event) {
 		if (inTransition) {

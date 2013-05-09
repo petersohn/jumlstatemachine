@@ -1,5 +1,32 @@
 package com.kangirigungi.jstatemachine;
 
+/**
+ * A builder used to create a certain level of a state machine. Instances
+ * of this class are acquired via {@link StateMachineBuilder#get()} (for top
+ * level state machines) or {@link CompositeStateBuilder#getStateMachineBuilder()}
+ * (for composite states).
+ * <p>
+ * The following kind of transitions are supported:
+ * <ul>
+ * <li><b>Normal transition:</b> Added with
+ * {@link #addTransition(Object, Object, ITransitionAction, Object, IGuard) addTransition}
+ * with the event parameter not <code>null</code>. These transitions are explicitly
+ * triggered with {@link IStateMachine#processEvent(Object) processEvent} and change the
+ * state (or exit then enter the same state if the source and target state
+ * are the same).
+ * <li><b>Internal transition:</b> Added with
+ * {@link #addInternalTransition(Object, Object, ITransitionAction, IGuard) addInternalTransition}.
+ * The event parameter cannot be <code>null</code>. These transitions trigger an action
+ * without exiting the current state.
+ * <li><b>Completion transition:</b> Added with
+ * {@link #addTransition(Object, Object, ITransitionAction, Object, IGuard) addTransition}
+ * with the event parameter <code>null</code>. These transitions are automatically
+ * triggered after each successful transition. If guarded and the guard value
+ * changes to true, it is cannot be checked automatically, only when the next
+ * (internal or external) transition happens. It can also be triggered
+ * explicitly with {@link IStateMachine#processEvent(Object) processEvent(null)}.
+ * </ul>
+ */
 public class SubStateMachineBuilder<StateId, Event> {
 	private IStateMachineEngine<StateId, Event> stateMachineEngine;
 
@@ -21,7 +48,7 @@ public class SubStateMachineBuilder<StateId, Event> {
 
 	/**
 	 * Add a new state.
-	 *
+	 * <p>
 	 * Only one state with one ID is allowed. If another
 	 * one with the same ID is attempted to be added, an exception is thrown.
 	 *
@@ -34,8 +61,8 @@ public class SubStateMachineBuilder<StateId, Event> {
 	}
 
 	/**
-	 * Add a new composits state.
-	 *
+	 * Add a new composite state.
+	 * <p>
 	 * Only one state with one id is allowed.
 	 * If another one with the same ID is attempted to be added, an
 	 * exception is thrown.

@@ -1,5 +1,51 @@
 package com.kangirigungi.jstatemachine;
 
+/**
+ * Builder to create state machines. Use this to create instances of
+ * {@link IStateMachine}. To create a state machine, follow these steps:
+ * <nl>
+ * <li>Create an instance of {@link StateMachineBuilder}.
+ * <li>Use the {@link #get()} method to obtain an instance of
+ * {@link SubStateMachineBuilder}.
+ * <li>Use this instance to add states and transitions to the state machine.
+ * <li>Each state has an instance of {@link StateBuilder} which can be
+ * acquired by the {@link SubStateMachineBuilder#addState(Object)} method.
+ * <li>Each composite state has an instance of {@link CompositeStateBuilder}
+ * which can be acquired by the {@link SubStateMachineBuilder#addCompositeState(Object)}
+ * method. Use {@link CompositeStateBuilder#getStateMachineBuilder()} to
+ * acquire a {@link SubStateMachineBuilder} instance for the sub state machine.
+ * <li>When all states and transitions of the state machine and all sub statates
+ * are created, call {@link #create()} to create an instance of {@link IStateMachine}.
+ * </nl>
+ * <p>
+ * When a transition takes place in a state machine created by this class
+ * (by calling the {@link IStateMachine#processEvent(Object)}
+ * method), the actions are taken place in the following order:
+ * <nl>
+ * <li>The exit action of the old state is called.
+ * <li>The transition action is called.
+ * <li>The entry action of the new state is called.
+ * <li>If the new state is a composite state, the entry action of the initial
+ * state of the substate is called (possibly recursively for any subsequent
+ * initial states).
+ * is called.
+ * <li>The current state is changed.
+ * </nl>
+ * For internal transition no exit or entry actions are called.
+ * If an exception is thrown from within a callback, the state is changed.
+ * If the exception is thrown after the exit action of the old state is
+ * finished, the entry action of that state is called again.
+ * <p>
+ * <b>Note:</b> The created class (and the entire library) is not thread-safe.
+ * This means that in order to use it from within multiple threads, calls to any
+ * methods (typically {@link #processEvent(Object) processEvent})
+ * must be synchronized.
+ *
+ * @author Peter Szabados
+ *
+ * @param <StateId> The type used for referencing states.
+ * @param <Event> The type used for referencing events.
+ */
 public class StateMachineBuilder<StateId, Event> {
 	private IStateMachineEngine<StateId, Event> stateMachineEngine;
 	private SubStateMachineBuilder<StateId, Event> topLevelStateMachineBuilder;
@@ -8,10 +54,20 @@ public class StateMachineBuilder<StateId, Event> {
 		initialize();
 	}
 
+	/**
+	 * Return the builder for the top level state machine.
+	 */
 	public SubStateMachineBuilder<StateId, Event> get() {
 		return topLevelStateMachineBuilder;
 	}
 
+	/**
+	 * Create the state machine. After calling this method, the created
+	 * state machine is detached from this method. Calling {@link #get()}
+	 * after this results in a builder for a completely new state machine.
+	 *
+	 * @return The created state machine.
+	 */
 	public IStateMachine<StateId, Event> create() {
 		IStateMachine<StateId, Event> result =
 				new StateMachine<StateId, Event>(stateMachineEngine);

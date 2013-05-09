@@ -39,6 +39,9 @@ public class CompositeStateBuilder<StateId, Event> {
 		return this;
 	}
 
+	/**
+	 * Get the state machine builder for this composite state.
+	 */
 	public SubStateMachineBuilder<StateId, Event> getStateMachineBuilder() {
 		return stateMachineBuilder;
 	}

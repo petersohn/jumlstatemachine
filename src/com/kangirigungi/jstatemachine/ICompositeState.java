@@ -33,31 +33,9 @@
 
 package com.kangirigungi.jstatemachine;
 
-/**
- * Represents a composite state. A composite state has a state machine of
- * its own that can react to events coming from the parent state machine
- * if the state is active. It uses the same set of states as the parent
- * state machine, but still each state needs to be unique among all levels
- * of a state hierarchy (i.e. a state present in a state machine cannot
- * be present in any of its composite states).
- *
- * The inner state machine of a composite state is running if and only if
- * the parent state machine is running and its active state is this composite
- * state. This means that calling the {@link IStateMachineEngine#enter() start()},
- * {@link IStateMachineEngine#leave() stop()} or
- * {@link IStateMachineEngine#processEvent(Object) processEvent()} methods of an
- * inner state machine results in undefined behavior.
- *
- * @author Peter Szabados
- *
- * @param <StateId> The type used for referencing states.
- * @param <Event> The type used for referencing events.
- */
-public interface ICompositeState<StateId, Event>
+interface ICompositeState<StateId, Event>
 		extends IState<StateId, Event> {
-	/**
-	 * Return the inner state machine associated with this composite state.
-	 */
+
 	public IStateMachineEngine<StateId, Event> getStateMachine();
 
 	@Override

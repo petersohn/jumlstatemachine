@@ -33,16 +33,7 @@
 
 package com.kangirigungi.jstatemachine;
 
-/**
- * Implementation of {@link ICompositeState}. It instantiates its own
- * inner state machine, which is returned by {@link #getStateMachine()}.
- *
- * @author Peter Szabados
- *
- * @param <StateId> The type used for referencing states.
- * @param <Event> The type used for referencing events.
- */
-public class CompositeState<StateId, Event>
+class CompositeState<StateId, Event>
 		implements ICompositeState<StateId, Event> {
 
 	IState<StateId, Event> state;
