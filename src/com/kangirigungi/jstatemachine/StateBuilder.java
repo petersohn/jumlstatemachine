@@ -1,5 +1,10 @@
 package com.kangirigungi.jstatemachine;
 
+/**
+ * Builder for simple states. It can be acquired by calling
+ * {@link SubStateMachineBuilder#addState(Object)}. It can be used to add
+ * entry and exit actions to the created state.
+ */
 public class StateBuilder<StateId, Event> {
 	private IState<StateId, Event> state;
 
@@ -7,6 +12,9 @@ public class StateBuilder<StateId, Event> {
 		this.state = state;
 	}
 
+	/**
+	 * Get the id of the state.
+	 */
 	public StateId getId() {
 		return state.getId();
 	}

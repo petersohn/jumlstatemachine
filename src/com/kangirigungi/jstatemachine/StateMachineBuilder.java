@@ -1,9 +1,11 @@
 package com.kangirigungi.jstatemachine;
 
+import java.util.HashMap;
+
 /**
  * Builder to create state machines. Use this to create instances of
  * {@link IStateMachine}. To create a state machine, follow these steps:
- * <nl>
+ * <ol>
  * <li>Create an instance of {@link StateMachineBuilder}.
  * <li>Use the {@link #get()} method to obtain an instance of
  * {@link SubStateMachineBuilder}.
@@ -16,12 +18,16 @@ package com.kangirigungi.jstatemachine;
  * acquire a {@link SubStateMachineBuilder} instance for the sub state machine.
  * <li>When all states and transitions of the state machine and all sub statates
  * are created, call {@link #create()} to create an instance of {@link IStateMachine}.
- * </nl>
+ * </ol>
+ * <p>
+ * Each state and event has a unique identifier represented by a respective Id types
+ * (which are typically <code>enum</code> types, but they can be any type that can be
+ * used as a key in a {@link HashMap}).
  * <p>
  * When a transition takes place in a state machine created by this class
  * (by calling the {@link IStateMachine#processEvent(Object)}
  * method), the actions are taken place in the following order:
- * <nl>
+ * <ol>
  * <li>The exit action of the old state is called.
  * <li>The transition action is called.
  * <li>The entry action of the new state is called.
@@ -30,7 +36,7 @@ package com.kangirigungi.jstatemachine;
  * initial states).
  * is called.
  * <li>The current state is changed.
- * </nl>
+ * </ol>
  * For internal transition no exit or entry actions are called.
  * If an exception is thrown from within a callback, the state is changed.
  * If the exception is thrown after the exit action of the old state is
@@ -38,7 +44,7 @@ package com.kangirigungi.jstatemachine;
  * <p>
  * <b>Note:</b> The created class (and the entire library) is not thread-safe.
  * This means that in order to use it from within multiple threads, calls to any
- * methods (typically {@link #processEvent(Object) processEvent})
+ * methods (typically {@link IStateMachine#processEvent(Object) processEvent})
  * must be synchronized.
  *
  * @author Peter Szabados

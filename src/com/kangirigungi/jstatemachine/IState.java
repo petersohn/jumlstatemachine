@@ -33,64 +33,14 @@
 
 package com.kangirigungi.jstatemachine;
 
-/**
- * Interface representation of a state. Each state has a unique identifier
- * represented by an Id type (which is typically an <code>enum</code>). When referring
- * to states, this identifier is used in the state machine.
- * <p>
- * The actual implementation of the state is in the {@link State} class.
- *
- * @author Peter Szabados
- *
- * @param <StateId> The type used for referencing states.
- * @param <Event> The type used for referencing events.
- * @see State
- */
+import java.util.HashMap;
+
 public interface IState<StateId, Event> {
-	/**
-	 * This method is called internally when the state is entered.
-	 * Do not call this method from outside.
-	 *
-	 * @param event The event that triggers entering the state.
-	 */
 	public void enterState(Event event);
-
-	/**
-	 * This method is called internally when the state is exited.
-	 * Do not call this method from outside.
-	 *
-	 * @param event The event that triggers exiting the state.
-	 */
 	public void exitState(Event event);
-
-	/**
-	 * This method is called internally when an event occurs but no
-	 * state change is done. Do not call this method from outside.
-	 *
-	 * @param event The event that occurs.
-	 */
 	public void processEvent(Event event);
-
-	/**
-	 * @return the unique identifier of the state.
-	 */
 	public StateId getId();
-
-	/**
-	 * Get the callbacks that are called when the state is entered or exited.
-	 * {@link #setEntryExitAction(IEntryExitAction) setEntryExitAction}
-	 * method.
-	 *
-	 * @return The entry/exit action handler defined for this state.
-	 */
 	public IEntryExitAction<StateId, Event> getEntryExitAction();
-
-	/**
-	 * Set the callbacks that are called when the state is entered or exited.
-	 *
-	 * @param action The entry/exit action handler defined for this state.
-	 * @return this.
-	 */
 	public void setEntryExitAction(IEntryExitAction<StateId, Event> action);
 }
 

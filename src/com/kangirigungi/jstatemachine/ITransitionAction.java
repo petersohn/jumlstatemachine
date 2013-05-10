@@ -34,7 +34,8 @@
 package com.kangirigungi.jstatemachine;
 
 /**
- * Callback interface for transition actions.
+ * Callback interface for transition actions. Derive from this to create
+ * transition action callbacks.
  *
  * @author Peter Szabados
  *

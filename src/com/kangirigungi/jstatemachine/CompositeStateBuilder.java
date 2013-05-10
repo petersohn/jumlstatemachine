@@ -1,5 +1,11 @@
 package com.kangirigungi.jstatemachine;
 
+/**
+ * Builder for composite states. It can be acquired by calling
+ * {@link SubStateMachineBuilder#addCompositeState(Object)}. It differs from
+ * {@link StateBuilder} in that it contains an own {@link SubStateMachineBuilder}
+ * that can be used to build the sub state machine.
+ */
 public class CompositeStateBuilder<StateId, Event> {
 	StateBuilder<StateId, Event> stateBuilder;
 	SubStateMachineBuilder<StateId, Event> stateMachineBuilder;
@@ -12,6 +18,9 @@ public class CompositeStateBuilder<StateId, Event> {
 		compositeState = state;
 	}
 
+	/**
+	 * Get the id of the state.
+	 */
 	public StateId getId() {
 		return stateBuilder.getId();
 	}
