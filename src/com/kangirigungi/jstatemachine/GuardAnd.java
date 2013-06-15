@@ -54,8 +54,8 @@ public class GuardAnd<StateId, Event> implements IGuard<StateId, Event> {
 	}
 
 	@Override
-	public boolean checkTransition(IState<StateId, Event> fromState,
-			IState<StateId, Event> toState, Event event) {
+	public boolean checkTransition(StateId fromState, StateId toState,
+			Event event) {
 		return left.checkTransition(fromState, toState, event) &&
 				right.checkTransition(fromState, toState, event);
 	}

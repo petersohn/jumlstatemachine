@@ -33,9 +33,11 @@
 
 package com.kangirigungi.jstatemachine;
 
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+
+import java.util.Arrays;
+
 import junit.framework.Assert;
 
 import org.junit.Before;
@@ -46,15 +48,10 @@ public class GuardTest {
 	private IGuard<Object, Object> falseGuard;
 
 	@Before
-	@SuppressWarnings("unchecked")
 	public void preconditions() {
-		trueGuard = mock(IGuard.class);
-		when(trueGuard.checkTransition(
-				any(IState.class), any(IState.class), any())).thenReturn(true);
+		trueGuard = new FakeGuard<Object, Object>(true);
 
-		falseGuard = mock(IGuard.class);
-		when(falseGuard.checkTransition(
-				any(IState.class), any(IState.class), any())).thenReturn(false);
+		falseGuard = new FakeGuard<Object, Object>(false);
 	}
 
 	@Test
@@ -107,14 +104,8 @@ public class GuardTest {
 	@Test
 	@SuppressWarnings("unchecked")
 	public void guardState() {
-		IStateMachineEngine<Integer, Integer> stateMachine =
-				mock(IStateMachineEngine.class);
-		IState<Integer, Integer> state1 = mock(IState.class);
-		when(state1.getId()).thenReturn(1);
-		IState<Integer, Integer> state2 = mock(IState.class);
-		when(state2.getId()).thenReturn(2);
-		IState<Integer, Integer> state3 = mock(IState.class);
-		when(state3.getId()).thenReturn(3);
+		IStateMachine<Integer, Integer> stateMachine =
+				mock(IStateMachine.class);
 
 		GuardState<Integer, Integer> guard =
 				new GuardState<Integer, Integer>(stateMachine,
@@ -122,27 +113,27 @@ public class GuardTest {
 
 		Assert.assertFalse(guard.checkTransition(null, null, null));
 
-		when(stateMachine.isActive()).thenReturn(true);
-
-		when(stateMachine.getcurrentState()).thenReturn(state1);
+		when(stateMachine.getCurrentStates()).thenReturn(Arrays.asList(1));
 		Assert.assertTrue(guard.checkTransition(null, null, null));
-		when(stateMachine.getcurrentState()).thenReturn(state2);
+		when(stateMachine.getCurrentStates()).thenReturn(Arrays.asList(2));
 		Assert.assertTrue(guard.checkTransition(null, null, null));
-		when(stateMachine.getcurrentState()).thenReturn(state3);
+		when(stateMachine.getCurrentStates()).thenReturn(Arrays.asList(3));
+		Assert.assertFalse(guard.checkTransition(null, null, null));
+		when(stateMachine.getCurrentStates()).thenReturn(Arrays.asList(1, 5));
+		Assert.assertTrue(guard.checkTransition(null, null, null));
+		when(stateMachine.getCurrentStates()).thenReturn(Arrays.asList(2, 6));
+		Assert.assertTrue(guard.checkTransition(null, null, null));
+		when(stateMachine.getCurrentStates()).thenReturn(Arrays.asList(3, 1));
+		Assert.assertFalse(guard.checkTransition(null, null, null));
+		when(stateMachine.getCurrentStates()).thenReturn(Arrays.asList(4, 2));
 		Assert.assertFalse(guard.checkTransition(null, null, null));
 	}
 
 	@Test
 	@SuppressWarnings("unchecked")
 	public void guardStateDeep() {
-		IStateMachineEngine<Integer, Integer> stateMachine =
-				mock(IStateMachineEngine.class);
-		IState<Integer, Integer> state1 = mock(IState.class);
-		when(state1.getId()).thenReturn(1);
-		IState<Integer, Integer> state2 = mock(IState.class);
-		when(state2.getId()).thenReturn(2);
-		IState<Integer, Integer> state3 = mock(IState.class);
-		when(state3.getId()).thenReturn(3);
+		IStateMachine<Integer, Integer> stateMachine =
+				mock(IStateMachine.class);
 
 		GuardState<Integer, Integer> guard =
 				new GuardState<Integer, Integer>(stateMachine,
@@ -150,13 +141,19 @@ public class GuardTest {
 
 		Assert.assertFalse(guard.checkTransition(null, null, null));
 
-		when(stateMachine.isActive()).thenReturn(true);
-
-		when(stateMachine.getcurrentDeepState()).thenReturn(state1);
+		when(stateMachine.getCurrentStates()).thenReturn(Arrays.asList(1));
 		Assert.assertTrue(guard.checkTransition(null, null, null));
-		when(stateMachine.getcurrentDeepState()).thenReturn(state2);
+		when(stateMachine.getCurrentStates()).thenReturn(Arrays.asList(2));
 		Assert.assertTrue(guard.checkTransition(null, null, null));
-		when(stateMachine.getcurrentDeepState()).thenReturn(state3);
+		when(stateMachine.getCurrentStates()).thenReturn(Arrays.asList(3));
 		Assert.assertFalse(guard.checkTransition(null, null, null));
+		when(stateMachine.getCurrentStates()).thenReturn(Arrays.asList(1, 5));
+		Assert.assertFalse(guard.checkTransition(null, null, null));
+		when(stateMachine.getCurrentStates()).thenReturn(Arrays.asList(2, 6));
+		Assert.assertFalse(guard.checkTransition(null, null, null));
+		when(stateMachine.getCurrentStates()).thenReturn(Arrays.asList(3, 1));
+		Assert.assertTrue(guard.checkTransition(null, null, null));
+		when(stateMachine.getCurrentStates()).thenReturn(Arrays.asList(4, 2));
+		Assert.assertTrue(guard.checkTransition(null, null, null));
 	}
 }

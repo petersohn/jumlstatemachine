@@ -57,7 +57,7 @@ public interface IEntryExitAction<StateId, Event> {
 	 * @param state The state being entered.
 	 * @param event The event triggering the transition into the state.
 	 */
-	public void onEnter(IState<StateId, Event> state, Event event);
+	public void onEnter(StateId state, Event event);
 
 	/**
 	 * Called when the state is exited. The <code>event</code> parameter
@@ -71,5 +71,5 @@ public interface IEntryExitAction<StateId, Event> {
 	 * @param state The state being exited.
 	 * @param event The event triggering the transition from the state.
 	 */
-	public void onExit(IState<StateId, Event> state, Event event);
+	public void onExit(StateId state, Event event);
 }

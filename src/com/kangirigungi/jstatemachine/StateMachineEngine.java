@@ -79,6 +79,10 @@ class StateMachineEngine<StateId, Event> implements
 	private boolean inTransition = false;
 	private IStateMachineEngine<StateId, Event> topLevelStateMachine = null;
 
+	private static <StateId, Event> StateId getId(IState<StateId, Event> state) {
+		return state == null ? null : state.getId();
+	}
+
 	public StateMachineEngine() {
 	}
 
@@ -120,10 +124,28 @@ class StateMachineEngine<StateId, Event> implements
 
 	@Override
 	public void enter() {
-		initialState.state.enterState(null);
-		currentState = initialState;
+		doEnter(initialState);
+	}
+
+	@Override
+	public void enter(StateId state) {
+		doEnter(getStateDescription(state));
+	}
+
+	private void doEnter(StateDescription<StateId, Event> state) {
+		checkActive(false);
+		state.state.enterState(null);
+		currentState = state;
 
 		checkedProcessEvent(null);
+	}
+
+	private void checkActive(boolean running) {
+		if (isActive() != running) {
+			String not = running ? "" : "not ";
+			throw new StateMachineException("State nachine must " + not +
+					"be active");
+		}
 	}
 
 	@Override
@@ -270,8 +292,8 @@ class StateMachineEngine<StateId, Event> implements
 				null : target.targetState.state;
 		// check guard condition
 		if (target.guard != null &&
-				!target.guard.checkTransition(currentState.state,
-						targetState, event)) {
+				!target.guard.checkTransition(getId(currentState.state),
+						getId(targetState), event)) {
 			return false;
 		}
 
@@ -279,7 +301,7 @@ class StateMachineEngine<StateId, Event> implements
 		if (target.targetState == null) {
 			// internal transition
 			if (target.action != null) {
-				target.action.onTransition(currentState.state,
+				target.action.onTransition(getId(currentState.state),
 						null, event);
 			}
 			currentState.state.processEvent(event);
@@ -288,8 +310,8 @@ class StateMachineEngine<StateId, Event> implements
 			currentState.state.exitState(event);
 			try {
 				if (target.action != null) {
-					target.action.onTransition(currentState.state,
-							targetState, event);
+					target.action.onTransition(getId(currentState.state),
+							getId(targetState), event);
 				}
 				target.targetState.state.enterState(event);
 			} catch (RuntimeException e) {

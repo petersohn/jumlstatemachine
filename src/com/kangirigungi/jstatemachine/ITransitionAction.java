@@ -51,6 +51,5 @@ public interface ITransitionAction<StateId, Event> {
 	 * transitions, it is <code>null</code>.
 	 * @param event The event triggering the transition.
 	 */
-	public void onTransition(IState<StateId, Event> fromState,
-			IState<StateId, Event> toState, Event event);
+	public void onTransition(StateId fromState, StateId toState, Event event);
 }

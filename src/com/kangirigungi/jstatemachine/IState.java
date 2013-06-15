@@ -33,7 +33,6 @@
 
 package com.kangirigungi.jstatemachine;
 
-import java.util.HashMap;
 
 public interface IState<StateId, Event> {
 	public void enterState(Event event);

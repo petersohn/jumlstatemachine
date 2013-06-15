@@ -33,27 +33,30 @@
 
 package com.kangirigungi.jstatemachine;
 
-interface IStateMachineEngine<StateId, Event> {
+public class FakeGuard<StateId, Event> implements IGuard<StateId, Event> {
 
-	public IState<StateId, Event> getInitialState();
-	public IState<StateId, Event> getcurrentState();
-	public IState<StateId, Event> getcurrentDeepState();
-	public IState<StateId, Event> getState(StateId id);
-	public boolean hasState(StateId id);
-	public IStateMachineEngine<StateId, Event> getTopLevelStateMachine();
-	public void setInitialState(StateId initialState);
-	public void enter();
-	public void enter(StateId state);
-	public void leave();
-	public boolean isActive();
-	public IState<StateId, Event> addState(StateId id);
-	public ICompositeState<StateId, Event> addCompositeState(StateId id);
-	public void addTransition(StateId fromState, Event event,
-			ITransitionAction<StateId, Event> action, StateId toState,
-			IGuard<StateId, Event> guard);
-	public void addInternalTransition(StateId state, Event event,
-			ITransitionAction<StateId, Event> action,
-			IGuard<StateId, Event> guard);
-	public void processEvent(Event event);
+	private boolean value;
+
+	public FakeGuard() {
+		value = false;
+	}
+
+	public FakeGuard(boolean value) {
+		this.value = value;
+	}
+
+	@Override
+	public boolean checkTransition(StateId fromState, StateId toState,
+			Event event) {
+		return value;
+	}
+
+	public boolean isValue() {
+		return value;
+	}
+
+	public void setValue(boolean value) {
+		this.value = value;
+	}
 
 }

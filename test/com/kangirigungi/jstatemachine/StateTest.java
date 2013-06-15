@@ -89,11 +89,11 @@ public class StateTest {
 		verifyNoMoreInteractions(action);
 
 		state.enterState(20);
-		verify(action, times(1)).onEnter(state, 20);
+		verify(action, times(1)).onEnter(1, 20);
 		verifyNoMoreInteractions(action);
 
 		state.exitState(30);
-		verify(action, times(1)).onExit(state, 30);
+		verify(action, times(1)).onExit(1, 30);
 		verifyNoMoreInteractions(action);
 	}
 

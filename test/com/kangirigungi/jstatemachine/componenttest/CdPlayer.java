@@ -40,7 +40,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.kangirigungi.jstatemachine.IEntryExitAction;
-import com.kangirigungi.jstatemachine.IState;
 import com.kangirigungi.jstatemachine.IStateMachine;
 import com.kangirigungi.jstatemachine.ITransitionAction;
 import com.kangirigungi.jstatemachine.StateMachineBuilder;
@@ -76,10 +75,9 @@ public class CdPlayer {
 		}
 
 		@Override
-		public void onTransition(IState<States, Events> fromState,
-				IState<States, Events> toState, Events event) {
-			System.out.println(fromState.getId()+": "+
-				event+"/"+action+" -> "+toState.getId());
+		public void onTransition(States fromState, States toState, Events event) {
+			System.out.println(fromState+": "+
+				event+"/"+action+" -> "+toState);
 			lastAction = action;
 		}
 
@@ -88,17 +86,17 @@ public class CdPlayer {
 	private class EntryExitHandler implements IEntryExitAction<States, Events> {
 
 		@Override
-		public void onEnter(IState<States, Events> state, Events event) {
-			System.out.println("Entering "+state.getId()+
+		public void onEnter(States state, Events event) {
+			System.out.println("Entering "+state+
 					" ("+event+")");
-			lastStateEntered = state.getId();
+			lastStateEntered = state;
 		}
 
 		@Override
-		public void onExit(IState<States, Events> state, Events event) {
-			System.out.println("Exiting "+state.getId()+
+		public void onExit(States state, Events event) {
+			System.out.println("Exiting "+state+
 					" ("+event+")");
-			lastStateExited = state.getId();
+			lastStateExited = state;
 		}
 
 	}

@@ -33,19 +33,15 @@
 
 package com.kangirigungi.jstatemachine.componenttest;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.when;
 import junit.framework.Assert;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
 
+import com.kangirigungi.jstatemachine.FakeGuard;
 import com.kangirigungi.jstatemachine.GuardNot;
 import com.kangirigungi.jstatemachine.IEntryExitAction;
-import com.kangirigungi.jstatemachine.IGuard;
-import com.kangirigungi.jstatemachine.IState;
 import com.kangirigungi.jstatemachine.IStateMachine;
 import com.kangirigungi.jstatemachine.ITransitionAction;
 import com.kangirigungi.jstatemachine.StateMachineBuilder;
@@ -72,8 +68,8 @@ public class CdPlayer2 {
 	private States lastStateEntered;
 	private States lastStateExited;
 
-	private IGuard<States, Events> isCdDetected;
-	private IGuard<States, Events> isLastTrack;
+	private FakeGuard<States, Events> isCdDetected;
+	private FakeGuard<States, Events> isLastTrack;
 
 	private class ActionHandler implements
 			ITransitionAction<States, Events> {
@@ -85,14 +81,13 @@ public class CdPlayer2 {
 		}
 
 		@Override
-		public void onTransition(IState<States, Events> fromState,
-				IState<States, Events> toState, Events event) {
+		public void onTransition(States fromState, States toState, Events event) {
 			if (toState == null) {
-				System.out.println(fromState.getId()+": "+
+				System.out.println(fromState+": "+
 						event+"/"+action+" (internal)");
 			} else {
-				System.out.println(fromState.getId()+": "+
-					event+"/"+action+" -> "+toState.getId());
+				System.out.println(fromState+": "+
+					event+"/"+action+" -> "+toState);
 			}
 			lastAction = action;
 		}
@@ -102,17 +97,15 @@ public class CdPlayer2 {
 	private class EntryExitHandler implements IEntryExitAction<States, Events> {
 
 		@Override
-		public void onEnter(IState<States, Events> state, Events event) {
-			System.out.println("Entering "+state.getId()+
-					" ("+event+")");
-			lastStateEntered = state.getId();
+		public void onEnter(States state, Events event) {
+			System.out.println("Entering "+state+" ("+event+")");
+			lastStateEntered = state;
 		}
 
 		@Override
-		public void onExit(IState<States, Events> state, Events event) {
-			System.out.println("Exiting "+state.getId()+
-					" ("+event+")");
-			lastStateExited = state.getId();
+		public void onExit(States state, Events event) {
+			System.out.println("Exiting "+state+" ("+event+")");
+			lastStateExited = state;
 		}
 	}
 
@@ -124,21 +117,14 @@ public class CdPlayer2 {
 	}
 
 	@Before
-	@SuppressWarnings("unchecked")
 	public void initialize() {
 		lastStateEntered = null;
 		lastStateExited = null;
 		lastAction = null;
 
 		EntryExitHandler entryExitHandler = new EntryExitHandler();
-		isCdDetected = Mockito.mock(IGuard.class);
-		when(isCdDetected.checkTransition(
-				any(IState.class), any(IState.class), any(Events.class))).
-				thenReturn(false);
-		isLastTrack = Mockito.mock(IGuard.class);
-		when(isLastTrack.checkTransition(
-				any(IState.class), any(IState.class), any(Events.class))).
-				thenReturn(false);
+		isCdDetected = new FakeGuard<States, Events>(false);
+		isLastTrack = new FakeGuard<States, Events>(false);
 
 		StateMachineBuilder<States, Events> stateMachineBuilder =
 				new StateMachineBuilder<States, Events>();
@@ -192,12 +178,9 @@ public class CdPlayer2 {
 	}
 
 	@Test
-	@SuppressWarnings("unchecked")
 	public void playFastForwardStopOpenClose() {
 		System.out.println("playFastForwardStopOpenClose");
-		when(isCdDetected.checkTransition(
-				any(IState.class), any(IState.class), any(Events.class))).
-				thenReturn(true);
+		isCdDetected.setValue(true);
 		stateMachine.processEvent(null);
 		checkState(States.Empty, States.Stopped, Actions.StoreCdInfo);
 
@@ -209,29 +192,22 @@ public class CdPlayer2 {
 		checkState(States.Playing, States.Stopped, Actions.StopPlayback);
 		stateMachine.processEvent(Events.OpenClose);
 		checkState(States.Stopped, States.Open, Actions.OpenDrawer);
-		when(isCdDetected.checkTransition(
-				any(IState.class), any(IState.class), any(Events.class))).
-				thenReturn(false);
+		isCdDetected.setValue(false);
 		stateMachine.processEvent(Events.OpenClose);
 		checkState(States.Open, States.Empty, Actions.CloseDrawer);
 	}
 
 	@Test
-	@SuppressWarnings("unchecked")
 	public void playOpenClosePlayPause2FastForward3() {
 		System.out.println("playOpenClosePlayPause2FastForward3");
-		when(isCdDetected.checkTransition(
-				any(IState.class), any(IState.class), any(Events.class))).
-				thenReturn(false);
+		isCdDetected.setValue(false);
 		checkState(null, States.Empty, null);
 
 		stateMachine.processEvent(Events.Play);
 		checkState(null, States.Empty, null);
 		stateMachine.processEvent(Events.OpenClose);
 		checkState(States.Empty, States.Open, Actions.OpenDrawer);
-		when(isCdDetected.checkTransition(
-				any(IState.class), any(IState.class), any(Events.class))).
-				thenReturn(true);
+		isCdDetected.setValue(true);
 		stateMachine.processEvent(Events.OpenClose);
 		checkState(States.Empty, States.Stopped, Actions.StoreCdInfo);
 		stateMachine.processEvent(Events.Play);
@@ -244,9 +220,7 @@ public class CdPlayer2 {
 		checkState(States.Paused, States.Playing, Actions.ForwardTrack);
 		stateMachine.processEvent(Events.FastForward);
 		checkState(States.Paused, States.Playing, Actions.ForwardTrack);
-		when(isLastTrack.checkTransition(
-				any(IState.class), any(IState.class), any(Events.class))).
-				thenReturn(true);
+		isLastTrack.setValue(true);
 		stateMachine.processEvent(Events.FastForward);
 		checkState(States.Playing, States.Stopped, Actions.StopPlayback);
 	}

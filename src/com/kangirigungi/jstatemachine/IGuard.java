@@ -59,6 +59,6 @@ public interface IGuard<StateId, Event> {
 	 * @return The result of the transition.
 	 */
 	public boolean checkTransition(
-			IState<StateId, Event> fromState,
-			IState<StateId, Event> toState, Event event);
+			StateId fromState,
+			StateId toState, Event event);
 }

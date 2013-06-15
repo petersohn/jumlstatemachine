@@ -51,8 +51,8 @@ public class GuardNot<StateId, Event> implements IGuard<StateId, Event> {
 	}
 
 	@Override
-	public boolean checkTransition(IState<StateId, Event> fromState,
-			IState<StateId, Event> toState, Event event) {
+	public boolean checkTransition(StateId fromState, StateId toState,
+			Event event) {
 		return !other.checkTransition(fromState, toState, event);
 	}
 

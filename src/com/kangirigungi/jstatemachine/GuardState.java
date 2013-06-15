@@ -1,12 +1,14 @@
 package com.kangirigungi.jstatemachine;
 
+import java.util.List;
+
 public class GuardState<StateId, Event> implements IGuard<StateId, Event> {
 
-	private IStateMachineEngine<StateId, Event> stateMachine;
+	private IStateMachine<StateId, Event> stateMachine;
 	private StateId[] states;
 	private boolean deep;
 
-	public GuardState(IStateMachineEngine<StateId, Event> stateMachine,
+	public GuardState(IStateMachine<StateId, Event> stateMachine,
 			StateId[] states, boolean deep) {
 		this.stateMachine = stateMachine;
 		this.states = states.clone();
@@ -14,21 +16,24 @@ public class GuardState<StateId, Event> implements IGuard<StateId, Event> {
 	}
 
 	@Override
-	public boolean checkTransition(IState<StateId, Event> fromState,
-			IState<StateId, Event> toState, Event event) {
-		if (!stateMachine.isActive()) {
+	public boolean checkTransition(StateId fromState,
+			StateId toState, Event event) {
+
+		List<StateId> currentStates = stateMachine.getCurrentStates();
+
+		if (currentStates.size() == 0) {
 			return false;
 		}
 
-		IState<StateId, Event> state = deep ?
-				stateMachine.getcurrentDeepState() :
-				stateMachine.getcurrentState();
+		StateId currentState = currentStates.get(deep ?
+				currentStates.size() - 1 : 0);
 
 		for (StateId stateId: states) {
-			if (state.getId().equals(stateId)) {
+			if (currentState.equals(stateId)) {
 				return true;
 			}
 		}
+
 		return false;
 	}
 

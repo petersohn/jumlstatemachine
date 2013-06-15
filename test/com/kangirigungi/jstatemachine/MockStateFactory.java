@@ -56,6 +56,7 @@ public class MockStateFactory<StateId, Event>
 	public ICompositeState<StateId, Event> createCompositeState(
 			StateId id, IStateMachineEngine<StateId, Event> topLevelStateMachine) {
 		lastCreatedCompositeState = mock(ICompositeState.class);
+		when(lastCreatedCompositeState.getId()).thenReturn(id);
 		when(lastCreatedCompositeState.getStateMachine()).
 				thenReturn(topLevelStateMachine);
 		return lastCreatedCompositeState;

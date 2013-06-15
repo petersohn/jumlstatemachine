@@ -33,16 +33,15 @@
 
 package com.kangirigungi.jstatemachine;
 
-import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.ignoreStubs;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
 import junit.framework.Assert;
 
 import org.junit.Before;
@@ -89,8 +88,8 @@ public class StateMachineTest {
 		Assert.assertFalse(stateMachine.hasState(4));
 
 		verify(stateMachine.getState(1), times(1)).enterState(null);
-		verifyNoMoreInteractions(stateMachine.getState(1));
-		verifyNoMoreInteractions(stateMachine.getState(2));
+		verifyNoMoreInteractions(ignoreStubs(stateMachine.getState(1)));
+		verifyNoMoreInteractions(ignoreStubs(stateMachine.getState(2)));
 	}
 
 	@Test
@@ -116,10 +115,10 @@ public class StateMachineTest {
 
 		inOrder.verify(state1, times(1)).enterState(null);
 		inOrder.verify(state1, times(1)).exitState(10);
-		inOrder.verify(action, times(1)).onTransition(state1, state2, 10);
+		inOrder.verify(action, times(1)).onTransition(1, 2, 10);
 		inOrder.verify(state2, times(1)).enterState(10);
-		verifyNoMoreInteractions(state1);
-		verifyNoMoreInteractions(state2);
+		verifyNoMoreInteractions(ignoreStubs(state1));
+		verifyNoMoreInteractions(ignoreStubs(state2));
 		verifyNoMoreInteractions(action);
 	}
 
@@ -148,13 +147,13 @@ public class StateMachineTest {
 
 		inOrder.verify(state1, times(1)).enterState(null);
 		inOrder.verify(state1, times(1)).exitState(10);
-		inOrder.verify(action, times(1)).onTransition(state1, state2, 10);
+		inOrder.verify(action, times(1)).onTransition(1, 2, 10);
 		inOrder.verify(state2, times(1)).enterState(10);
 		inOrder.verify(state2, times(1)).exitState(10);
-		inOrder.verify(action, times(1)).onTransition(state2, state1, 10);
+		inOrder.verify(action, times(1)).onTransition(2, 1, 10);
 		inOrder.verify(state1, times(1)).enterState(10);
-		verifyNoMoreInteractions(state1);
-		verifyNoMoreInteractions(state2);
+		verifyNoMoreInteractions(ignoreStubs(state1));
+		verifyNoMoreInteractions(ignoreStubs(state2));
 		verifyNoMoreInteractions(action);
 	}
 
@@ -181,8 +180,8 @@ public class StateMachineTest {
 
 		inOrder.verify(state1, times(1)).enterState(null);
 		inOrder.verify(state1, times(1)).processEvent(20);
-		verifyNoMoreInteractions(state1);
-		verifyNoMoreInteractions(state2);
+		verifyNoMoreInteractions(ignoreStubs(state1));
+		verifyNoMoreInteractions(ignoreStubs(state2));
 		verifyNoMoreInteractions(action);
 	}
 
@@ -209,20 +208,18 @@ public class StateMachineTest {
 		InOrder inOrder = inOrder(state1, state2, action);
 
 		inOrder.verify(state1, times(1)).enterState(null);
-		inOrder.verify(action, times(1)).onTransition(state1, null, 20);
+		inOrder.verify(action, times(1)).onTransition(1, null, 20);
 		inOrder.verify(state1, times(1)).processEvent(20);
-		verifyNoMoreInteractions(state1);
-		verifyNoMoreInteractions(state2);
+		verifyNoMoreInteractions(ignoreStubs(state1));
+		verifyNoMoreInteractions(ignoreStubs(state2));
 		verifyNoMoreInteractions(action);
 	}
 
 	@Test
 	@SuppressWarnings("unchecked")
 	public void guardTransition() {
-		IGuard<Integer, Integer> guard = mock(IGuard.class);
-		when(guard.checkTransition(
-				any(IState.class), any(IState.class), any(Integer.class))).
-				thenReturn(false);
+		FakeGuard<Integer, Integer> guard =
+				new FakeGuard<Integer, Integer>(false);
 		ITransitionAction<Integer, Integer> action =
 				mock(ITransitionAction.class);
 
@@ -242,26 +239,22 @@ public class StateMachineTest {
 		InOrder inOrder = inOrder(state1, state2, action);
 
 		inOrder.verify(state1, times(1)).enterState(null);
-		verifyNoMoreInteractions(state1);
-		verifyNoMoreInteractions(state2);
+		verifyNoMoreInteractions(ignoreStubs(state1));
+		verifyNoMoreInteractions(ignoreStubs(state2));
 		verifyNoMoreInteractions(action);
 
-		when(guard.checkTransition(
-				any(IState.class), any(IState.class), any(Integer.class))).
-				thenReturn(true);
+		guard.setValue(true);
 		stateMachine.processEvent(10);
 
-		inOrder.verify(action, times(1)).onTransition(state1, state2, 10);
+		inOrder.verify(action, times(1)).onTransition(1, 2, 10);
 		inOrder.verify(state2, times(1)).enterState(10);
 	}
 
 	@Test
 	@SuppressWarnings("unchecked")
 	public void guardInternalTransition() {
-		IGuard<Integer, Integer> guard = mock(IGuard.class);
-		when(guard.checkTransition(
-				any(IState.class), any(IState.class), any(Integer.class))).
-				thenReturn(false);
+		FakeGuard<Integer, Integer> guard =
+				new FakeGuard<Integer, Integer>(false);
 		ITransitionAction<Integer, Integer> action =
 				mock(ITransitionAction.class);
 
@@ -279,17 +272,15 @@ public class StateMachineTest {
 		InOrder inOrder = inOrder(state, action);
 
 		inOrder.verify(state, times(1)).enterState(null);
-		verifyNoMoreInteractions(state);
+		verifyNoMoreInteractions(ignoreStubs(state));
 		verifyNoMoreInteractions(action);
 
-		when(guard.checkTransition(
-				any(IState.class), any(IState.class), any(Integer.class))).
-				thenReturn(true);
+		guard.setValue(true);
 		stateMachine.processEvent(10);
 
-		inOrder.verify(action, times(1)).onTransition(state, null, 10);
+		inOrder.verify(action, times(1)).onTransition(1, null, 10);
 		inOrder.verify(state, times(1)).processEvent(10);
-		verifyNoMoreInteractions(state);
+		verifyNoMoreInteractions(ignoreStubs(state));
 		verifyNoMoreInteractions(action);
 	}
 
@@ -315,10 +306,10 @@ public class StateMachineTest {
 
 		inOrder.verify(state1, times(1)).enterState(null);
 		inOrder.verify(state1, times(1)).exitState(null);
-		inOrder.verify(action, times(1)).onTransition(state1, state2, null);
+		inOrder.verify(action, times(1)).onTransition(1, 2, null);
 		inOrder.verify(state2, times(1)).enterState(null);
-		verifyNoMoreInteractions(state1);
-		verifyNoMoreInteractions(state2);
+		verifyNoMoreInteractions(ignoreStubs(state1));
+		verifyNoMoreInteractions(ignoreStubs(state2));
 		verifyNoMoreInteractions(action);
 	}
 
@@ -335,11 +326,11 @@ public class StateMachineTest {
 
 		stateMachine.enter();
 		inOrder.verify(state, times(1)).enterState(null);
-		verifyNoMoreInteractions(state);
+		verifyNoMoreInteractions(ignoreStubs(state));
 
 		stateMachine.leave();
 		inOrder.verify(state, times(1)).exitState(null);
-		verifyNoMoreInteractions(state);
+		verifyNoMoreInteractions(ignoreStubs(state));
 	}
 
 	@Test
@@ -355,7 +346,7 @@ public class StateMachineTest {
 				return null;
 			}})
 			.when(action).
-			onTransition(any(IState.class), any(IState.class), anyInt());
+			onTransition(anyInt(), anyInt(), anyInt());
 		stateMachine.addState(1);
 		stateMachine.addState(2);
 		stateMachine.addTransition(1, 10, action, 2, null);
@@ -379,7 +370,7 @@ public class StateMachineTest {
 		ITransitionAction<Integer, Integer> action =
 				mock(ITransitionAction.class);
 		doThrow(new RuntimeException()).when(action).
-			onTransition(any(IState.class), any(IState.class), anyInt());
+			onTransition(anyInt(), anyInt(), anyInt());
 		stateMachine.addState(1);
 		stateMachine.addState(2);
 		stateMachine.addTransition(1, 10, action, 2, null);
@@ -402,10 +393,10 @@ public class StateMachineTest {
 
 		inOrder.verify(state1, times(1)).enterState(null);
 		inOrder.verify(state1, times(1)).exitState(10);
-		inOrder.verify(action, times(1)).onTransition(state1, state2, 10);
+		inOrder.verify(action, times(1)).onTransition(1, 2, 10);
 		inOrder.verify(state1, times(1)).enterState(null);
-		verifyNoMoreInteractions(state1);
-		verifyNoMoreInteractions(state2);
+		verifyNoMoreInteractions(ignoreStubs(state1));
+		verifyNoMoreInteractions(ignoreStubs(state2));
 		verifyNoMoreInteractions(action);
 	}
 }

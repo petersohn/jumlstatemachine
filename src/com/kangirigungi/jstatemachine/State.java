@@ -45,14 +45,14 @@ class State<Id, Event> implements IState<Id, Event> {
 	@Override
 	public void enterState(Event event) {
 		if (entryExitAction != null) {
-			entryExitAction.onEnter(this, event);
+			entryExitAction.onEnter(id, event);
 		}
 	}
 
 	@Override
 	public void exitState(Event event) {
 		if (entryExitAction != null) {
-			entryExitAction.onExit(this, event);
+			entryExitAction.onExit(id, event);
 		}
 	}
 
