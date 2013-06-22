@@ -1,0 +1,19 @@
+#!/bin/bash
+
+version="$1"
+
+if [ -z "$version" ]; then
+    echo "No version given." >&2
+    exit 1
+fi
+
+pushd .
+cd bin
+jar cf "jumlstatemachine-$version-bin.jar" .
+
+popd
+cd doc
+
+jar cf "jumlstatemachine-$version-doc.jar" .
+
+
